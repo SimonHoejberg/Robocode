@@ -1,0 +1,24 @@
+roboname := "hey"
+
+robot behavior() {
+	if(getOthers()!=1){
+		ahead(100)
+		turnRight(90)
+		ahead(100)
+		turnRight(90)
+	}
+	else{
+		ahead(100)
+		turnGunLeft(360)
+		turnRight(90)
+		back(100)
+		turnGunLeft(360)
+		turnRight(90)
+		ahead(50)
+	}
+}
+
+event onScannedRobot(ScannedRobotEvent e){
+   	fire(1)
+	Dogde(e)
+} 
