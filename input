@@ -18,7 +18,7 @@ robot behavior() {
 	}
 }
 
-event onScannedRobot(ScannedRobotEvent e){
+event onScannedRobot(ScannedRobotEvent eA){
    	fire(1)
 	Dogde(e)
 } 
