@@ -99,11 +99,15 @@ eventType : 'BulletHitEvent' | 'BulletHitBulletEvent' | 'BulletMissedEvent' | 'D
 
 Ident : [a-zA-Z]+ ([a-zA-Z0-9])*;
 
-TextLit : '"'[a-z]+'"';   
+TextLit : '"'.*?'"';   //Needs work
 
-NumLit : ( '0' | [1-9] [0-9]*) '.' (( [0-9]* [1-9]) | '0')
+/*
+NumLit : ( [0-9]*) '.' (( [0-9]* [1-9]) | '0')
                 | ( '0' | [1-9] [0-9]*);     
-                   
+*/
+
+NumLit : [0-9]+ ('.' [0-9]+)?;
+                 
 BoolLit : 'true' | 'false';
 
 WS : [ \t\r\n]->skip;

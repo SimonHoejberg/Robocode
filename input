@@ -1,8 +1,11 @@
 roboname := "hey"
 
 robot behavior() {
-	if(getOthers()!=1){
+	if(Others !=1){
 		ahead(100)
+		num a := 001.100
+		text t := "heheh
+		hehe"
 		turnRight(90)
 		ahead(100)
 		turnRight(90)
@@ -18,7 +21,50 @@ robot behavior() {
 	}
 }
 
-event onScannedRobot(ScannedRobotEvent eA){
+event onScannedRobot(ScannedRobotEvent e){
    	fire(1)
-	Dogde(e)
 } 
+
+event Dogde(ScannedRobotEvent e){
+	if(energy < e.Energy){
+	   energy := e.Energy
+	}
+	double drop = energy-e.Energy
+	if(drop >= 0.1 & drop <= 0.3){
+		num i := rand.nextInt(2)
+		num j := rand.nextInt(2)
+		num distance := 100
+		if(j=1){
+			distance := 50
+		}
+		if(i=1){
+			ahead(distance)
+		}
+		else{
+			back(distance)
+		}
+	}
+	energy := e.Energy
+}
+
+event onHitByBullet(HitByBulletEvent e) {
+	num rand := NewRandom(1,2)
+	if(i=1){
+		turnLeft(NewRandom(1,180))
+	}
+	else{
+		turnRight(NewRandom(1,180))
+	}
+	ahead(100)
+}
+
+event onHitWall(HitWallEvent e) {
+	num rand := NewRandom(1,2)
+	if(i=1){
+		turnLeft(NewRandom(1,180))
+	}
+	else{
+		turnRight(NewRandom(1,180))
+	}
+	ahead(100)
+}
