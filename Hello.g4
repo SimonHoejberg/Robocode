@@ -9,9 +9,9 @@ dcls : (robonameAssign | initBlock | behaviorBlock | eventDcl | funcDcl | varDcl
 
 robonameAssign : 'roboname' ':=' '"'TextLit'"';
 
-initBlock : 'robot' 'initialization()' block;
+initBlock : 'robot' 'initialization''()' block;
 
-behaviorBlock : 'robot' 'behavior()' block;
+behaviorBlock : 'robot' 'behavior''()' block;
 
 block : '{' stmts '}' ;
 
@@ -32,7 +32,8 @@ param :  type Ident ;
 
 eventParam : eventType Ident;
 
-argList : (expr (',' expr)*)?;
+argList : (expr (',' expr)*)
+|;
 
 varDcl : type basicAssignment;
 
@@ -83,6 +84,7 @@ primaryExpr : Ident ( '.' Ident )*
 | NumLit
 | BoolLit
 | Ident '(' argList ')'
+| Ident '()'  //This should be fixed 
 | '(' expr ')'
 | Ident '[' expr ']';
 
@@ -107,6 +109,6 @@ BoolLit : 'true' | 'false';
 
 WS : [ \t\r\n]->skip;
 
-COMMENT : '//' -> skip;
+COMMENT : '//' ~('\r'|'\n')* -> skip;
 
 
