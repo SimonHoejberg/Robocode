@@ -9,9 +9,9 @@ dcls : (robonameAssign | initBlock | behaviorBlock | eventDcl | funcDcl | varDcl
 
 robonameAssign : 'roboname' ':=' '"'TextLit'"';
 
-initBlock : 'robot' 'initialization''()' block;
+initBlock : 'robot' 'initialization()' block;
 
-behaviorBlock : 'robot' 'behavior''()' block;
+behaviorBlock : 'robot' 'behavior()' block;
 
 block : '{' stmts '}' ;
 
@@ -107,5 +107,6 @@ BoolLit : 'true' | 'false';
 
 WS : [ \t\r\n]->skip;
 
+COMMENT : '//' -> skip;
 
 
