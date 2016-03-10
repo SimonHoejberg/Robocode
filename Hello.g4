@@ -7,20 +7,20 @@ prog : dcls;         // match keyword hello followed by an identifier
 
 dcls : (robonameAssign | initBlock | behaviorBlock | eventDcl | funcDcl | varDcl | dataStructDef | dataStructDcl |  arrayDcl)+;
 
-robonameAssign : 'roboname' ':=' '"'TextLit'"' /*EOL*/;
+robonameAssign : 'roboname' ':=' '"'TextLit'"';
 
-initBlock : 'robot' 'initialization()' block;
+initBlock : 'robot' 'initialization''()' block;
 
-behaviorBlock : 'robot' 'behavior()' block;
+behaviorBlock : 'robot' 'behavior''()' block;
 
 block : '{' stmts '}' ;
 
 dataStructDef : 'container' Ident '{' (varDcl | dataStructDcl | arrayDcl )+ '}' ;
 
-dataStructDcl : Ident Ident /*EOL*/ ;
+dataStructDcl : Ident Ident ;
 
-arrayDcl : type Ident '[' expr']' /*EOL*/ 
-   | dataStructDcl '[' expr ']' /*EOL*/;
+arrayDcl : type Ident '[' expr']'  
+   | dataStructDcl '[' expr ']' ;
 
 eventDcl : 'event' Ident '(' eventParam ')' block ;
 
@@ -43,7 +43,7 @@ complexAssignment : Ident ('[' expr ']')? assignmentOp expr
 
 assignmentOp : ':=' | '+:=' | '-:=' | '*:=' | '/:=' | '%:=';
 
-expr : logicalORExpr /*(EOL)?*/;
+expr : logicalORExpr ;
 
 stmts  : (varDcl | complexAssignment | expr | ifStmt | iterStmt | returnStmt)*;
 
@@ -96,7 +96,6 @@ eventType : 'BulletHitEvent' | 'BulletHitBulletEvent' | 'BulletMissedEvent' | 'D
                         | 'ScannedRobotEvent' | 'StatusEvent' | 'WinEvent' | 'BattleEndedEvent'
 		| 'RoundEndedEvent' ;
 
-
 TextLit : [a-z]+;   
 
 NumLit : ( '0' | [1-9] [0-9]*) '.' (( [0-9]* [1-9]) | '0')
@@ -105,8 +104,6 @@ NumLit : ( '0' | [1-9] [0-9]*) '.' (( [0-9]* [1-9]) | '0')
 Ident :[a-zA-Z]+ /*([a-zA-Z0-9])**/;
                    
 BoolLit : 'true' | 'false';
-
-//EOL : ' ';
 
 WS : [ \t\r\n]->skip;
 
