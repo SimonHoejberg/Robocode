@@ -7,11 +7,11 @@ prog : dcls;         // match keyword hello followed by an identifier
 
 dcls : (robonameAssign | initBlock | behaviorBlock | eventDcl | funcDcl | varDcl | dataStructDef | dataStructDcl |  arrayDcl)+;
 
-robonameAssign : 'roboname' ':=' '"'TextLit'"';
+robonameAssign : 'roboname' ':=' TextLit;
 
-initBlock : 'robot' 'initialization''()' block;
+initBlock : 'robot' 'initialization' '(' ')' block;
 
-behaviorBlock : 'robot' 'behavior''()' block;
+behaviorBlock : 'robot' 'behavior' '(' ')' block;
 
 block : '{' stmts '}' ;
 
@@ -84,7 +84,6 @@ primaryExpr : Ident ( '.' Ident )*
 | NumLit
 | BoolLit
 | Ident '(' argList ')'
-| Ident '()'  //This should be fixed 
 | '(' expr ')'
 | Ident '[' expr ']';
 
@@ -98,17 +97,19 @@ eventType : 'BulletHitEvent' | 'BulletHitBulletEvent' | 'BulletMissedEvent' | 'D
                         | 'ScannedRobotEvent' | 'StatusEvent' | 'WinEvent' | 'BattleEndedEvent'
 		| 'RoundEndedEvent' ;
 
-TextLit : [a-z]+;   
+Ident : [a-zA-Z]+ ([a-zA-Z0-9])*;
+
+TextLit : '"'[a-z]+'"';   
 
 NumLit : ( '0' | [1-9] [0-9]*) '.' (( [0-9]* [1-9]) | '0')
                 | ( '0' | [1-9] [0-9]*);     
-
-Ident :[a-zA-Z]+ /*([a-zA-Z0-9])**/;
                    
 BoolLit : 'true' | 'false';
 
 WS : [ \t\r\n]->skip;
 
 COMMENT : '//' ~('\r'|'\n')* -> skip;
+
+BLOCKCOMMENT : '/*' .*? '*/'->skip;
 
 
