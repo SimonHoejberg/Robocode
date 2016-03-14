@@ -32,21 +32,26 @@ param :  type Ident ;
 
 eventParam : eventType Ident;
 
-argList : (expr (',' expr)*)
-|;
+funcCall :Ident '(' argList ')';
+
+
+argList : (expr (',' expr)*)?;
 
 varDcl : type basicAssignment;
 
-basicAssignment : Ident ('.' Ident)* ':=' expr;
+baseIdent : (Ident | funcCall) ('[' expr ']')?;
 
-complexAssignment : Ident ('[' expr ']')? assignmentOp expr
-			 | Ident ('.' Ident)* assignmentOp expr;
+generalIdent : baseIdent ('.' baseIdent)*;
+
+assign : generalIdent assignmentOp expr;
+
+basicAssignment : Ident ':=' expr;
 
 assignmentOp : ':=' | '+:=' | '-:=' | '*:=' | '/:=' | '%:=';
 
 expr : logicalORExpr ;
 
-stmts  : (varDcl | complexAssignment | expr | ifStmt | iterStmt | returnStmt)*;
+stmts  : (varDcl | assign | expr | ifStmt | iterStmt | returnStmt)*;
 
 ifStmt : 'if' '(' expr ')' block
 		|    'if' '(' expr ')' block 'else' block;
@@ -79,13 +84,11 @@ multExpr : unaryExpr
 unaryExpr : primaryExpr
         | '-' unaryExpr	;
 
-primaryExpr : Ident ( '.' Ident )*		
+primaryExpr : generalIdent	
 | TextLit
 | NumLit
 | BoolLit
-| Ident '(' argList ')'
-| '(' expr ')'
-| Ident '[' expr ']';
+| '(' expr ')';
 
 typeList : 'void'
 	      | type (',' type)* ;
