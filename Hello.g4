@@ -103,7 +103,7 @@ eventType : 'BulletHitEvent' | 'BulletHitBulletEvent' | 'BulletMissedEvent' | 'D
 
 Ident : [a-zA-Z]+ ([a-zA-Z0-9])*;
 
-TextLit : '"'.*?'"';   //Needs work
+TextLit : '"'.*?'"';   //Needs work 
 
 /*
 NumLit : ( [0-9]*) '.' (( [0-9]* [1-9]) | '0')
