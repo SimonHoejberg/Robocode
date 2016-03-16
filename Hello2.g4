@@ -1,13 +1,14 @@
 /**
  * Define a grammar called Hello
  */
-grammar Hello;
+grammar Hello2;
 
 prog : dcls;         // match keyword hello followed by an identifier
 
 dcls : (robonameAssign | initBlock | behaviorBlock | eventDcl | funcDcl | varDcl | dataStructDef | dataStructDcl |  arrayDcl)+;
 
-robonameAssign : 'roboname' ':=' TextLit;
+robonameAssign : 'roboname' ':=' TextLit { System.out.println("roboname := " + $TextLit.text);}
+;
 
 initBlock : 'robot' 'initialization' '(' ')' block;
 
