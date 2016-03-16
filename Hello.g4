@@ -32,8 +32,7 @@ param :  type Ident ;
 
 eventParam : eventType Ident;
 
-funcCall :Ident '(' argList ')' 
-; 
+funcCall :Ident '(' argList ')' ; 
 
 argList : (expr (',' expr)*)?;
 
