@@ -34,7 +34,6 @@ eventParam : eventType Ident;
 
 funcCall :Ident '(' argList ')';
 
-
 argList : (expr (',' expr)*)?;
 
 varDcl : type basicAssignment;
