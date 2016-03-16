@@ -4,8 +4,6 @@ robot behavior() {
 	if(Others !=1){
 		ahead(100)
 		num a := 001.100
-		text t := "heheh
-		hehe"
 		turnRight(90)
 		ahead(100)
 		turnRight(90)

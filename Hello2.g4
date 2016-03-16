@@ -3,18 +3,21 @@
  */
 grammar Hello2;
 
+options{
+	output=AST;
+}
+
 prog : dcls;         // match keyword hello followed by an identifier
 
 dcls : (robonameAssign | initBlock | behaviorBlock | eventDcl | funcDcl | varDcl | dataStructDef | dataStructDcl |  arrayDcl)+;
 
-robonameAssign : 'roboname' ':=' TextLit { System.out.println("roboname := " + $TextLit.text);}
-;
+robonameAssign : 'roboname' ':=' TextLit { System.out.println("roboname := " + $TextLit.text);};
 
-initBlock : 'robot' 'initialization' '(' ')' block;
+initBlock : 'robot' 'initialization' '(' ')' block { System.out.print("robot initialization () ");};
 
-behaviorBlock : 'robot' 'behavior' '(' ')' block;
+behaviorBlock : 'robot' 'behavior' '(' ')' block  { System.out.print("robot behavior () ");};
 
-block : '{' stmts '}' ;
+block : '{' stmts '}' { System.out.print("{" + $stmts.text + "}");};
 
 dataStructDef : 'container' Ident '{' (varDcl | dataStructDcl | arrayDcl )+ '}' ;
 
@@ -33,14 +36,19 @@ param :  type Ident ;
 
 eventParam : eventType Ident;
 
-funcCall :Ident '(' argList ')' 
-; 
+funcCall :Ident '(' argList ')' { System.out.println($Ident.text + "("+ $argList.text +")");}; 
 
 argList : (expr (',' expr)*)?;
 
 varDcl : type basicAssignment;
 
-baseIdent : (Ident | funcCall) ('[' expr ']')?;
+baseIdent : (Ident         {System.out.println($Ident.text); }
+	        | funcCall     //{System.out.println($funcCall.text); }
+            ) 
+            ('[' expr ']' {System.out.println("[" + $expr.text + "]"); }
+            
+            )?
+            ; 
 
 generalIdent : baseIdent ('.' baseIdent)*;
 
@@ -54,8 +62,8 @@ expr : logicalORExpr ;
 
 stmts  : (varDcl | assign | expr | ifStmt | iterStmt | returnStmt)*;
 
-ifStmt : 'if' '(' expr ')' block
-		|'if' '(' expr ')' block 'else' block
+ifStmt : 'if' '(' expr ')' block {System.out.println("if (" + $expr.text + ")" + $block.text);}
+		|'if' '(' expr ')' block 'else' block {System.out.println("if (" + $expr.text + ")" + $block.text +"else"+ $block.text);}
 		|'if' '(' expr ')' block 'else' ifStmt;
 		
 
