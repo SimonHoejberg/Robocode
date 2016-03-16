@@ -53,7 +53,9 @@ expr : logicalORExpr ;
 stmts  : (varDcl | assign | expr | ifStmt | iterStmt | returnStmt)*;
 
 ifStmt : 'if' '(' expr ')' block
-		|    'if' '(' expr ')' block 'else' block;
+		|'if' '(' expr ')' block 'else' block
+		|'if' '(' expr ')' block 'else' ifStmt;
+		
 
 iterStmt : 'while' '(' expr ')' block
 		| 'for' '(' ( basicAssignment | varDcl ) ',' expr ',' expr ')' block
