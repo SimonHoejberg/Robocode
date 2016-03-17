@@ -32,7 +32,7 @@ param :  type Ident ;
 
 eventParam : eventType Ident;
 
-funcCall :Ident '(' argList ')' ; 
+funcCall : Ident '(' argList ')' ; 
 
 argList : (expr (',' expr)*)?;
 
@@ -42,6 +42,8 @@ baseIdent : (Ident | funcCall) ('[' expr ']')?;
 
 generalIdent : baseIdent ('.' baseIdent)*;
 
+callStmt : (generalIdent)? funcCall;
+
 assign : generalIdent assignmentOp expr;
 
 basicAssignment : Ident ':=' expr;
@@ -50,7 +52,7 @@ assignmentOp : ':=' | '+:=' | '-:=' | '*:=' | '/:=' | '%:=';
 
 expr : logicalORExpr ;
 
-stmts  : (varDcl | assign | expr | ifStmt | iterStmt | returnStmt)*;
+stmts  : (varDcl | assign | callStmt | ifStmt | iterStmt | returnStmt)*;
 
 ifStmt : 'if' '(' expr ')' block
 		|'if' '(' expr ')' block 'else' block
