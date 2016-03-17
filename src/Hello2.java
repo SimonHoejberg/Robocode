@@ -14,7 +14,7 @@ public class Hello2
         CommonTokenStream tokens = new CommonTokenStream(lexer);
 
         Hello2Parser parser = new Hello2Parser(tokens);
-        ParseTree tree = parser.prog(); // begin parsing at rule 'r'
+        ParseTree tree = parser.prog(); // begin parsing   at rule 'r'
         System.out.println(tree.toStringTree(parser)); // print LISP-style tree
     }
 }
