@@ -38,7 +38,7 @@ argList : (expr (',' expr)*)?;
 
 varDcl : type basicAssignment;
 
-baseIdent : (Ident | funcCall) ('[' expr ']')?;
+baseIdent : (funcCall | Ident ) ('[' expr ']')?;
 
 generalIdent : baseIdent ('.' baseIdent)*;
 
@@ -50,7 +50,7 @@ assignmentOp : ':=' | '+:=' | '-:=' | '*:=' | '/:=' | '%:=';
 
 expr : logicalORExpr ;
 
-stmts  : (varDcl | assign | expr | ifStmt | iterStmt | returnStmt)*;
+stmts  : (varDcl | assign | generalIdent | ifStmt | iterStmt | returnStmt)*;
 
 ifStmt : 'if' '(' expr ')' block
 		|'if' '(' expr ')' block 'else' block
