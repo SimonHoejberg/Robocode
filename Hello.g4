@@ -38,7 +38,7 @@ argList : (expr (',' expr)*)?;
 
 varDcl : type basicAssignment;
 
-baseIdent : (Ident | funcCall) ('[' expr ']')?;
+baseIdent : (funcCall |Ident) ('[' expr ']')?;
 
 generalIdent : baseIdent ('.' baseIdent)*;
 
