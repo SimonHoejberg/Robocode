@@ -1,7 +1,7 @@
 import java.util.*;
 
 public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
-	public AbstractNode visitCompileUnit(HelloParser.ProgContext context) {
+	public AbstractNode visitProg(HelloParser.ProgContext context) {
 		return visit(context.dcls());
 	}
 	
@@ -100,16 +100,17 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		return new DataStructDeclarationNode(context.Ident(0).getText(), context.Ident(1).getText());
 	}
 	
-	public AbstractNode visitArrayDcl(HelloParser.ArrayDclContext context) {
-		if (context.getRuleIndex() == 0)
-			return new ArrayDeclarationNode(context.type().getText(), context.Ident().getText(), (ExpressionNode) visit(context.expr()));
-		else 
-			return new ArrayDeclarationNode(context.dataStructDcl().Ident(0).getText(), context.dataStructDcl().Ident(1).getText(), (ExpressionNode) visit(context.expr()));
+	public AbstractNode visitBasicArrayDcl(HelloParser.BasicArrayDclContext context) {
+		return new ArrayDeclarationNode(context.type().getText(), context.Ident().getText(), (ExpressionNode) visit(context.expr()));
+	}
+	
+	public AbstractNode visitStructArrayDcl(HelloParser.StructArrayDclContext context) {
+		return new ArrayDeclarationNode(context.dataStructDcl().Ident(0).getText(), context.dataStructDcl().Ident(1).getText(), (ExpressionNode) visit(context.expr()));
 	}
 	
 	public AbstractNode visitAssign(HelloParser.AssignContext context) {
 		return new AssignmentNode(	(GeneralIdentNode) visit(context.generalIdent()),
-									AssignmentNode.AssignmentType.values()[context.assignmentOp().getRuleIndex()],
+									AssignmentNode.AssignmentType.values()[context.assignmentOp().op.getType()],
 									(ExpressionNode) visit(context.expr()));
 	}
 	
@@ -119,57 +120,67 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		return new CallStatementNode(generalIdent);
 	}
 	
-	public AbstractNode visitIfStmt(HelloParser.IfStmtContext context) {
-		
-		IfNode.IfType type = IfNode.IfType.values()[context.getRuleIndex()];
-		
+	public AbstractNode visitIfThenStmt(HelloParser.IfThenStmtContext context) {
 		ExpressionNode expr = (ExpressionNode) visit(context.expr());
 		
 		// Statements in "if" block
 		List<StatementNode> ifBlockStatements = new ArrayList<StatementNode>();
-		for (int i = 0; i < context.block(0).stmts().getChildCount(); ++i) {
-			StatementNode stmt = (StatementNode) visit(context.block(0).stmts().getChild(i));
+		for (int i = 0; i < context.block().stmts().getChildCount(); ++i) {
+			StatementNode stmt = (StatementNode) visit(context.block().stmts().getChild(i));
 			ifBlockStatements.add(stmt);
-		}
-		
-		if (type == IfNode.IfType.IfElse) {
-			// Statements in "else" block
-			List<StatementNode> elseBlockStatements = new ArrayList<StatementNode>();
-			for (int i = 0; i < context.block(1).stmts().getChildCount(); ++i) {
-				StatementNode stmt = (StatementNode) visit(context.block(1).stmts().getChild(i));
-				elseBlockStatements.add(stmt);
-			}
-			
-			return new IfNode(expr, ifBlockStatements, elseBlockStatements);
-		}
-		else if (type == IfNode.IfType.ElseIf) {
-			IfNode next = (IfNode) visit(context.ifStmt());
-			return new IfNode(expr, ifBlockStatements, next);
 		}
 		
 		return new IfNode(expr, ifBlockStatements);
 	}
 	
-	public AbstractNode visitIterStmt(HelloParser.IterStmtContext context) {
+	public AbstractNode visitIfElseStmt(HelloParser.IfElseStmtContext context) {
+		ExpressionNode expr = (ExpressionNode) visit(context.expr());
 		
-		IterationNode.IterationType type = IterationNode.IterationType.For;
-		switch (context.getRuleIndex()) {
-			case 0:
-				type = IterationNode.IterationType.While;
-				break;
-			case 1:
-				if (!context.basicAssignment().isEmpty())			// For testing, change later
-					type = IterationNode.IterationType.ForWithAssignment;
-				else if (!context.varDcl().isEmpty())
-					type = IterationNode.IterationType.ForWithDcl;
-				break;
-			case 2:
-				type = IterationNode.IterationType.For;
-				break;
-			default:
-				break;
-		}		
+		// Statements in "if" block
+		List<StatementNode> ifBlockStatements = new ArrayList<StatementNode>();
+		for (int i = 0; i < context.ifblock.stmts().getChildCount(); ++i) {
+			StatementNode stmt = (StatementNode) visit(context.ifblock.stmts().getChild(i));
+			ifBlockStatements.add(stmt);
+		}
 		
+		// Statements in "else" block
+		List<StatementNode> elseBlockStatements = new ArrayList<StatementNode>();
+		for (int i = 0; i < context.elseblock.stmts().getChildCount(); ++i) {
+			StatementNode stmt = (StatementNode) visit(context.elseblock.stmts().getChild(i));
+			elseBlockStatements.add(stmt);
+		}
+			
+		return new IfNode(expr, ifBlockStatements, elseBlockStatements);
+	}
+
+	public AbstractNode visitElseIfStmt(HelloParser.ElseIfStmtContext context) {
+		ExpressionNode expr = (ExpressionNode) visit(context.expr());
+		
+		// Statements in "if" block
+		List<StatementNode> ifBlockStatements = new ArrayList<StatementNode>();
+		for (int i = 0; i < context.block().stmts().getChildCount(); ++i) {
+			StatementNode stmt = (StatementNode) visit(context.block().stmts().getChild(i));
+			ifBlockStatements.add(stmt);
+		}
+		
+		IfNode next = (IfNode) visit(context.ifStmt());
+		return new IfNode(expr, ifBlockStatements, next);
+	}
+	
+	public AbstractNode visitWhileStmt(HelloParser.WhileStmtContext context) {	
+		// Statements in block
+		List<StatementNode> blockStatements = new ArrayList<StatementNode>();
+		for (int i = 0; i < context.block().stmts().getChildCount(); ++i) {
+			StatementNode stmt = (StatementNode) visit(context.block().stmts().getChild(i));
+			blockStatements.add(stmt);
+		}
+		
+		List<ExpressionNode> expressions = new ArrayList<ExpressionNode>();	
+		expressions.add((ExpressionNode) visit(context.expr()));
+		return new IterationNode(IterationNode.IterationType.While, expressions, blockStatements);		
+	}
+	
+	public AbstractNode visitForAssignStmt(HelloParser.ForAssignStmtContext context) {
 		// Statements in block
 		List<StatementNode> blockStatements = new ArrayList<StatementNode>();
 		for (int i = 0; i < context.block().stmts().getChildCount(); ++i) {
@@ -178,123 +189,195 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		}
 		
 		List<ExpressionNode> expressions = new ArrayList<ExpressionNode>();
-		switch (type) {
-			case While:	
-				expressions.add((ExpressionNode) visit(context.expr(0)));
-				return new IterationNode(type, expressions, blockStatements);
-			case ForWithAssignment:
-				AssignmentNode assignment = new AssignmentNode(	(GeneralIdentNode) visit(context.basicAssignment().Ident()),
-																AssignmentNode.AssignmentType.basic,
-																(ExpressionNode) visit(context.basicAssignment().expr()));
-				expressions.add((ExpressionNode) visit(context.expr(0)));
-				expressions.add((ExpressionNode) visit(context.expr(1)));
-				return new IterationNode(expressions, blockStatements, assignment);
-			case ForWithDcl:
-				VarDeclarationNode varDcl = (VarDeclarationNode) visit(context.varDcl());
-				expressions.add((ExpressionNode) visit(context.expr(0)));
-				expressions.add((ExpressionNode) visit(context.expr(1)));
-				return new IterationNode(expressions, blockStatements, varDcl);
-			default:
-				expressions.add((ExpressionNode) visit(context.expr(0)));
-				expressions.add((ExpressionNode) visit(context.expr(1)));
-				expressions.add((ExpressionNode) visit(context.expr(2)));
-				return new IterationNode(type, expressions, blockStatements);
-		}
-		
+		AssignmentNode assignment = new AssignmentNode(	(GeneralIdentNode) visit(context.basicAssignment().Ident()),
+														AssignmentNode.AssignmentType.basic,
+														(ExpressionNode) visit(context.basicAssignment().expr()));
+		expressions.add((ExpressionNode) visit(context.second));
+		expressions.add((ExpressionNode) visit(context.third));
+		return new IterationNode(expressions, blockStatements, assignment);
 	}
 	
-	public AbstractNode visitReturnStmt(HelloParser.ReturnStmtContext context) {
-		if(context.getRuleIndex() == 0)
-			return new ReturnNode((ExpressionNode) visit(context.expr()));
-		else
-			return new ReturnNode();
+	public AbstractNode visitForDclStmt(HelloParser.ForDclStmtContext context) {
+		// Statements in block
+		List<StatementNode> blockStatements = new ArrayList<StatementNode>();
+		for (int i = 0; i < context.block().stmts().getChildCount(); ++i) {
+			StatementNode stmt = (StatementNode) visit(context.block().stmts().getChild(i));
+			blockStatements.add(stmt);
+		}
+		
+		List<ExpressionNode> expressions = new ArrayList<ExpressionNode>();
+		VarDeclarationNode varDcl = (VarDeclarationNode) visit(context.varDcl());
+		expressions.add((ExpressionNode) visit(context.second));
+		expressions.add((ExpressionNode) visit(context.third));
+		return new IterationNode(expressions, blockStatements, varDcl);
+	}
+
+	public AbstractNode visitForStmt(HelloParser.ForStmtContext context) {
+		// Statements in block
+		List<StatementNode> blockStatements = new ArrayList<StatementNode>();
+		for (int i = 0; i < context.block().stmts().getChildCount(); ++i) {
+			StatementNode stmt = (StatementNode) visit(context.block().stmts().getChild(i));
+			blockStatements.add(stmt);
+		}
+		
+		List<ExpressionNode> expressions = new ArrayList<ExpressionNode>();
+		expressions.add((ExpressionNode) visit(context.first));
+		expressions.add((ExpressionNode) visit(context.second));
+		expressions.add((ExpressionNode) visit(context.third));
+		return new IterationNode(IterationNode.IterationType.For, expressions, blockStatements);
+	}
+	
+	public AbstractNode visitRetValStmt(HelloParser.RetValStmtContext context) {
+		return new ReturnNode((ExpressionNode) visit(context.expr()));			
+	}
+	
+	public AbstractNode visitRetVoidStmt(HelloParser.RetVoidStmtContext context) {
+		return new ReturnNode();
 	}
 	
 	public AbstractNode visitExpr(HelloParser.ExprContext context) {
 		return visit(context.logicalORExpr());
 	}
 	
-	public AbstractNode visitLogicalORExpr(HelloParser.LogicalORExprContext context) {
-		if (context.getRuleIndex() == 0) 
-			return visit(context.logicalANDExpr());
-		else
-			return new LogicalORExprNode(	(ExpressionNode) visit(context.logicalANDExpr()),
-											(ExpressionNode) visit(context.logicalORExpr()));
+	public AbstractNode visitEmptyLogORExpr(HelloParser.EmptyLogORExprContext context) {
+		return visit(context.logicalANDExpr());
 	}
 	
-	public AbstractNode visitLogicalANDExpr(HelloParser.LogicalANDExprContext context) {
-		if (context.getRuleIndex() == 0) 
-			return visit(context.equalityExpr());
-		else
-			return new LogicalANDExprNode(	(ExpressionNode) visit(context.equalityExpr()),
-											(ExpressionNode) visit(context.logicalANDExpr()));
+	public AbstractNode visitLogORExpr(HelloParser.LogORExprContext context) {
+		return new LogicalORExprNode(	(ExpressionNode) visit(context.logicalANDExpr()),
+										(ExpressionNode) visit(context.logicalORExpr()));
+
 	}
 	
-	public AbstractNode visitEqualityExpr(HelloParser.EqualityExprContext context) {
-		if (context.getRuleIndex() == 0) 
-			return visit(context.relationalExpr());
-		else {
-			return new EqualityExprNode(	// Insert equality type
-											(ExpressionNode) visit(context.relationalExpr()),
-											(ExpressionNode) visit(context.equalityExpr()));
+	public AbstractNode visitEmptyLogANDExpr(HelloParser.EmptyLogANDExprContext context) {
+		return visit(context.equalityExpr());
+	}
+	
+	public AbstractNode visitLogANDExpr(HelloParser.LogANDExprContext context) {
+		return new LogicalANDExprNode(	(ExpressionNode) visit(context.equalityExpr()),
+										(ExpressionNode) visit(context.logicalANDExpr()));
+	}
+		
+	public AbstractNode visitEmptyEqualExpr(HelloParser.EmptyEqualExprContext context) {
+		return visit(context.relationalExpr());
+	}
+	
+	public AbstractNode visitEqualExpr(HelloParser.EqualExprContext context) {
+		EqualityExprNode.EqualityType type;
+		switch (context.op.getType()) {
+			case HelloLexer.OP_EQ:
+				type = EqualityExprNode.EqualityType.equal;
+				break;
+			case HelloLexer.OP_NEQ:
+				type = EqualityExprNode.EqualityType.notEqual;
+				break;
+			default:
+				// throw new NotImplementedException();
 		}
+		return new EqualityExprNode(	type,
+										(ExpressionNode) visit(context.relationalExpr()),
+										(ExpressionNode) visit(context.equalityExpr()));
 	}
 	
-	public AbstractNode visitRelationalExpr(HelloParser.RelationalExprContext context) {
-		if (context.getRuleIndex() == 0) 
-			return visit(context.additiveExpr());
-		else {
-			return new RelationExprNode(	// Insert relation type
-											(ExpressionNode) visit(context.additiveExpr()),
-											(ExpressionNode) visit(context.relationalExpr()));
-		}
+	public AbstractNode visitEmptyRelExpr(HelloParser.EmptyRelExprContext context) {
+		return visit(context.additiveExpr());
 	}
 	
-	public AbstractNode visitAdditiveExpr(HelloParser.AdditiveExprContext context) {
-		if (context.getRuleIndex() == 0) 
-			return visit(context.multExpr());
-		else {
-			return new AdditiveExprNode(	// Insert addition type
-											(ExpressionNode) visit(context.multExpr()),
-											(ExpressionNode) visit(context.additiveExpr()));
+	public AbstractNode visitRelExpr(HelloParser.RelExprContext context) {
+		RelationExprNode.RelationType type;
+		switch (context.op.getType()) {
+			case HelloLexer.OP_LT:
+				type = RelationExprNode.RelationType.lessThan;
+				break;
+			case HelloLexer.OP_GT:
+				type = RelationExprNode.RelationType.greaterThan;
+				break;
+			case HelloLexer.OP_LTE:
+				type = RelationExprNode.RelationType.lessThanOrEqual;
+				break;
+			case HelloLexer.OP_GTE:
+				type = RelationExprNode.RelationType.greaterThanOrEqual;
+				break;
+			default:
+				// throw new NotImplementedException();
 		}
+		return new RelationExprNode(	type,
+										(ExpressionNode) visit(context.additiveExpr()),
+										(ExpressionNode) visit(context.relationalExpr()));
+	}
+	
+	public AbstractNode visitEmptyAddExpr(HelloParser.EmptyAddExprContext context) {
+		return visit(context.multiplicationExpr());
+	}
+	
+	public AbstractNode visitAddExpr(HelloParser.AddExprContext context) {
+		AdditiveExprNode.AdditionType type;
+		switch (context.op.getType()) {
+			case HelloLexer.OP_ADD:
+				type = AdditiveExprNode.AdditionType.add;
+				break;
+			case HelloLexer.OP_SUB:
+				type = AdditiveExprNode.AdditionType.sub;
+				break;
+			default:
+				// throw new NotImplementedException();
+		}
+		return new AdditiveExprNode(	type,
+										(ExpressionNode) visit(context.multiplicationExpr()),
+										(ExpressionNode) visit(context.additiveExpr()));
+
+	}
+	
+	public AbstractNode visitEmptyMultExpr(HelloParser.EmptyMultExprContext context) {
+		return visit(context.unaryExpr());
 	}
 	
 	public AbstractNode visitMultExpr(HelloParser.MultExprContext context) {
-		if (context.getRuleIndex() == 0) 
-			return visit(context.unaryExpr());
-		else {
-			return new MultExprNode(	// Insert multiplication type
-										(ExpressionNode) visit(context.unaryExpr()),
-										(ExpressionNode) visit(context.multExpr()));
-		}
-	}
-	
-	public AbstractNode visitUnaryExpr(HelloParser.UnaryExprContext context) {
-		if (context.getRuleIndex() == 0) 
-			return visit(context.primaryExpr());
-		else {
-			return new UnaryExprNode((ExpressionNode) visit(context.unaryExpr()));
-		}
-	}
-	
-	public AbstractNode visitPrimaryExpr(HelloParser.PrimaryExprContext context) {
-		switch (context.getRuleIndex()) {
-			case 0:
-				return visit(context.generalIdent());
-			case 1:
-				return new TextLiteralNode(context.TextLit().getText());
-			case 2:
-				return new NumLiteralNode(Double.parseDouble(context.NumLit().getText()));
-			case 3:
-				return new BoolLiteralNode(Boolean.parseBoolean(context.BoolLit().getText()));
-			case 4:
-				return new ParenthesesNode((ExpressionNode) visit(context.expr()));
+		MultExprNode.MultiplicationType type;
+		switch (context.op.getType()) {
+			case HelloLexer.OP_MUL:
+				type = MultExprNode.MultiplicationType.mult;
+				break;
+			case HelloLexer.OP_DIV:
+				type = MultExprNode.MultiplicationType.div;
+				break;
+			case HelloLexer.OP_MOD:
+				type = MultExprNode.MultiplicationType.mod;
+				break;
 			default:
-				return new TextLiteralNode(context.TextLit().getText()); // ERROR
-				// ERROR
-				// ERROR - should be exception
+				// throw new NotImplementedException();
 		}
+		return new MultExprNode(	type,
+									(ExpressionNode) visit(context.unaryExpr()),
+									(ExpressionNode) visit(context.multiplicationExpr()));
+	}
+	
+	public AbstractNode visitEmptyUnExpr(HelloParser.EmptyUnExprContext context) {
+		return visit(context.primaryExpr());
+	}
+	
+	public AbstractNode visitUnExpr(HelloParser.UnExprContext context) {
+		return new UnaryExprNode((ExpressionNode) visit(context.unaryExpr()));
+	}
+	
+	public AbstractNode visitGeneralPrimary(HelloParser.GeneralPrimaryContext context) {
+		return visit(context.generalIdent());
+	}
+	
+	public AbstractNode visitTextLitPrimary(HelloParser.TextLitPrimaryContext context) {
+		return new TextLiteralNode(context.TextLit().getText());
+	}
+	
+	public AbstractNode visitNumLitPrimary(HelloParser.NumLitPrimaryContext context) {
+		return new NumLiteralNode(Double.parseDouble(context.NumLit().getText()));
+	}
+	
+	public AbstractNode visitBoolLitPrimary(HelloParser.BoolLitPrimaryContext context) {
+		return new BoolLiteralNode(Boolean.parseBoolean(context.BoolLit().getText()));
+	}
+	
+	public AbstractNode visitParenPrimary(HelloParser.ParenPrimaryContext context) {
+		return new ParenthesesNode((ExpressionNode) visit(context.expr()));
 	}
 	
 	public AbstractNode visitGeneralIdent(HelloParser.GeneralIdentContext context) {
@@ -306,14 +389,7 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		return new GeneralIdentNode(idents);
 	}
 	
-	public AbstractNode visitBaseIdent(HelloParser.BaseIdentContext context) {
-		if (context.funcCall().isEmpty()) {
-			if (context.expr().isEmpty())
-				return new BaseIdentNode(context.Ident().getText());
-			return new BaseIdentNode(	context.Ident().getText(),
-										(ExpressionNode) visit(context.expr()));
-		}
-		
+	public AbstractNode visitFuncBaseIdent(HelloParser.FuncBaseIdentContext context) {
 		List<VarNode> arguments = new ArrayList<VarNode>();
 		for (int i = 0; i < context.funcCall().argList().expr().size(); ++i) {
 			VarNode arg = (VarNode) visit(context.funcCall().argList().expr(i));
@@ -326,6 +402,13 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		return new FuncCallNode(	context.funcCall().Ident().getText(),
 									arguments,
 									(ExpressionNode) visit(context.expr()));				
+	}
+	
+	public AbstractNode visitIdentBaseIdent(HelloParser.IdentBaseIdentContext context) {
+			if (context.expr().isEmpty())
+				return new BaseIdentNode(context.Ident().getText());
+			return new BaseIdentNode(	context.Ident().getText(),
+										(ExpressionNode) visit(context.expr()));
 	}
 	
 	public AbstractNode visitFuncCall(HelloParser.FuncCallContext context) {

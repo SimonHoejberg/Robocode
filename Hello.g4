@@ -60,9 +60,9 @@ ifStmt : 'if' '(' expr ')' block									# ifThenStmt
 		;
 
 iterStmt : 'while' '(' expr ')' block												# whileStmt
-		| 'for' '(' basicAssignment ',' second=expr ',' third=expr ')' block						# forAssignStmt
-		| 'for' '(' varDcl ',' second=expr ',' third=expr ')' block								# forDclStmt
-		| 'for' '(' first=expr ',' second=expr ',' third=expr ')' block								# forStmt
+		| 'for' '(' basicAssignment ',' second=expr ',' third=expr ')' block		# forAssignStmt
+		| 'for' '(' varDcl ',' second=expr ',' third=expr ')' block					# forDclStmt
+		| 'for' '(' first=expr ',' second=expr ',' third=expr ')' block				# forStmt
 		;
 
 returnStmt 	: 'return' expr			# retValStmt
@@ -90,7 +90,7 @@ additiveExpr : multiplicationExpr										# emptyAddExpr
 		     ;
 
 multiplicationExpr 	: unaryExpr												# emptyMultExpr
-		 			| unaryExpr op=( '*' | '/' | '%' ) multiplicationExpr	# mulExpr
+		 			| unaryExpr op=( '*' | '/' | '%' ) multiplicationExpr	# multExpr
 					;
 
 unaryExpr 	: primaryExpr			# emptyUnExpr
@@ -129,7 +129,7 @@ eventType 	: 'BulletHitEvent' | 'BulletHitBulletEvent' | 'BulletMissedEvent' | '
 			| 'RoundEndedEvent' ;
 
 OP_ADD : '+';
-OP_NEG : '-';
+OP_SUB : '-';
 OP_MUL : '*';
 OP_DIV : '/';
 OP_MOD : '%';
