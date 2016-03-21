@@ -1,4 +1,3 @@
-
 public class AssignmentNode extends StatementNode {
 
     public enum AssignmentType {
@@ -8,10 +7,14 @@ public class AssignmentNode extends StatementNode {
     }
 
 
-    String generalIdent;
-
+    GeneralIdentNode generalIdent;
     AssignmentType type;
-
     ExpressionNode expr;
+    
+    public AssignmentNode(GeneralIdentNode generalIdent, AssignmentType type, ExpressionNode expr) {
+    	this.generalIdent = generalIdent;
+    	this.type = type;
+    	this.expr = expr;
+    }
 
 }

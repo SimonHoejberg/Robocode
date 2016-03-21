@@ -1,4 +1,3 @@
-
-public class StatementNode extends AbstractNode {
+public abstract class StatementNode extends AbstractNode {
 
 }

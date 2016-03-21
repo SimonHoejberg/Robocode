@@ -1,13 +1,12 @@
 import java.util.List;
 
-
 public class RobotDeclarationNode extends DeclarationNode {
 
-    public enum RobotDeclarationType { 
+	 public enum RobotDeclarationType { 
 
-        name, initialization, behavior
+	        name, initialization, behavior
 
-    }
+	 }
 
     RobotDeclarationType type;
 

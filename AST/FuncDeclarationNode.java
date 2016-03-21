@@ -1,15 +1,20 @@
 import java.util.List;
 
-
 public class FuncDeclarationNode extends DeclarationNode {
 
-    List<String> returnTypes;
+	List<TypeNode> returnTypes;
 
     String ident;
 
-    List<VarNode> params;
-  // Maybe use ParamNode instead?
+    List<VarNode> paramList;
 
     List<StatementNode> statements;
 
+    public FuncDeclarationNode(List<TypeNode> returnTypes, String ident, List<VarNode> paramList,
+			List<StatementNode> statements) {
+    	this.returnTypes = returnTypes;
+    	this.ident = ident;
+    	this.paramList = paramList;
+    	this.statements = statements;
+	}
 }
