@@ -97,7 +97,7 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	}
 	
 	public AbstractNode visitDataStructDcl(HelloParser.DataStructDclContext context) {
-		return new DataStructDeclarationNode(context.Ident(0).getText(), context.Ident(0).getText());
+		return new DataStructDeclarationNode(context.Ident(0).getText(), context.Ident(1).getText());
 	}
 	
 	public AbstractNode visitArrayDcl(HelloParser.ArrayDclContext context) {
