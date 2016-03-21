@@ -94,9 +94,13 @@ primaryExpr : generalIdent
 | '(' expr ')';
 
 typeList : 'void'
-	      | type (',' type)* ;
+	      | somerule (',' somerule)* ;
+
+somerule : type | complexType;
 
 type : 'num' | 'number' |'text' | 'bool' | 'boolean' ;
+
+complexType : Ident | type '[' ']' | Ident '[' ']';
 
 eventType : 'BulletHitEvent' | 'BulletHitBulletEvent' | 'BulletMissedEvent' | 'DeathEvent'
 		| 'HitByBulletEvent' | 'HitRobotEvent' | 'HitWallEvent' | 'RobotDeathEvent'

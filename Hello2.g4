@@ -9,7 +9,6 @@ options{
 
 
 
-
 prog : dcls;         // match keyword hello followed by an identifier
 
 dcls : (robonameAssign | initBlock | behaviorBlock | eventDcl | funcDcl | varDcl | dataStructDef | dataStructDcl |  arrayDcl)+;
