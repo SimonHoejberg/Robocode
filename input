@@ -1,5 +1,13 @@
 roboname := "hey"
 
+num a := 5 + 2
+
+container Victor {
+	num height := 0
+	num width := 0
+	bool handsome := 0
+	text lastname := 0
+}
 
 robot initialization ( )  {
 	turnLeft(42).lg()

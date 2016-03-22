@@ -1,7 +1,11 @@
 class UnaryExprNode extends ExpressionNode {
-	ExpressionNode child;    // UnaryExpr
+	private ExpressionNode child;    // UnaryExpr
 	
 	public UnaryExprNode(ExpressionNode child) {
 		this.child = child;
+	}
+	
+	public ExpressionNode getChild() {
+		return child;
 	}
 }

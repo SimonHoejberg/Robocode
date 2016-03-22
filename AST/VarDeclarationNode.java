@@ -1,12 +1,18 @@
 public class VarDeclarationNode extends DeclarationNode {
 
-    String type;
-    String ident;
-    ExpressionNode expr;	// The expression that the variable is assigned
+    private VarNode variable;
+    private ExpressionNode expr;	// The expression that the variable is assigned
     
-    public VarDeclarationNode(String type, String ident, ExpressionNode expr) {
-    	this.type = type;
-    	this.ident = ident;
+    public VarDeclarationNode(VarNode variable, ExpressionNode expr) {
+    	this.variable = variable;
     	this.expr = expr;
+    }
+    
+    public VarNode getVariable() {
+    	return variable;
+    }
+    
+    public ExpressionNode getExpression() {
+    	return expr;
     }
 }

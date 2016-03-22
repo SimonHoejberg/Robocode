@@ -85,8 +85,9 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	}
 	
 	public AbstractNode visitVarDcl(HelloParser.VarDclContext context) {
-		return new VarDeclarationNode(	context.type().getText(),
-										context.basicAssignment().Ident().getText(),
+		VarNode variable = new VarNode(	context.type().getText(),
+										context.basicAssignment().Ident().getText());
+		return new VarDeclarationNode(	variable,
 										(ExpressionNode) visit(context.basicAssignment().expr()));
 	}
 	
@@ -282,10 +283,7 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 				type = EqualityExprNode.EqualityType.notEqual;
 				break;
 			default:
-				// throw new NotImplementedException();
-				type = EqualityExprNode.EqualityType.equal;
-				break;
-				
+				throw new NotImplementedException();			
 		}
 		return new EqualityExprNode(	type,
 										(ExpressionNode) visit(context.relationalExpr()),
@@ -312,8 +310,7 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 				type = RelationExprNode.RelationType.greaterThanOrEqual;
 				break;
 			default:
-				type = RelationExprNode.RelationType.lessThan;
-				break;
+				throw new NotImplementedException();
 		}
 		return new RelationExprNode(	type,
 										(ExpressionNode) visit(context.additiveExpr()),
@@ -334,8 +331,7 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 				type = AdditiveExprNode.AdditionType.sub;
 				break;
 			default:
-				type = AdditiveExprNode.AdditionType.add;
-				break;
+				throw new NotImplementedException();
 		}
 		return new AdditiveExprNode(	type,
 										(ExpressionNode) visit(context.multiplicationExpr()),
@@ -360,8 +356,7 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 				type = MultExprNode.MultiplicationType.mod;
 				break;
 			default:
-				type = MultExprNode.MultiplicationType.mult;
-				break;
+				throw new NotImplementedException();
 		}
 		return new MultExprNode(	type,
 									(ExpressionNode) visit(context.unaryExpr()),
