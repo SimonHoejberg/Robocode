@@ -2,11 +2,11 @@ import java.util.List;
 
 public class EventDeclarationNode extends DeclarationNode {
 	
-    String ident;
+    private String ident;
 
-    VarNode param; // Maybe use ParamNode instead?
+    private VarNode param; // Maybe use ParamNode instead?
 
-    List<StatementNode> statements;
+    private List<StatementNode> statements;
     
     public EventDeclarationNode(String ident, VarNode param, List<StatementNode> statements) {
     	this.ident = ident;
@@ -14,4 +14,15 @@ public class EventDeclarationNode extends DeclarationNode {
     	this.statements = statements;
     }
 
+    public String getIdent() {
+    	return ident;
+    }
+    
+    public VarNode getParam() {
+    	return param;
+    }
+    
+    public List<StatementNode> getStatements() {
+    	return statements;
+    }
 }

@@ -14,6 +14,6 @@ robot behavior() {
 	}
 }
 
-func num,text works(num i,text k){
+func num,text, boolean[] works(num i,text k){
 
 }

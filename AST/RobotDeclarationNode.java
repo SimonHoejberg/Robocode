@@ -8,11 +8,11 @@ public class RobotDeclarationNode extends DeclarationNode {
 
 	 }
 
-    RobotDeclarationType type;
+    private RobotDeclarationType type;
 
-    String name;
+    private String name;
 
-    List<StatementNode> statements;
+    private List<StatementNode> statements;
 
     public RobotDeclarationNode(RobotDeclarationType type, String name) {
     	this.type = type;
@@ -22,5 +22,17 @@ public class RobotDeclarationNode extends DeclarationNode {
     public RobotDeclarationNode(RobotDeclarationType type, List<StatementNode> statements) {
     	this.type = type;
     	this.statements = statements;
+    }
+    
+    public RobotDeclarationType getType() {
+    	return type;
+    }
+    
+    public String getName() {
+    	return name;
+    }
+    
+    public List<StatementNode> getStatements() {
+    	return statements;
     }
 }

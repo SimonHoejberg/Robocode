@@ -1,10 +1,18 @@
 public class VarNode extends AbstractNode {
-	String type;
+	private String type;
 
-    String ident;
+    private String ident;
 
     public VarNode(String type, String ident) {
 		this.type = type;
 		this.ident = ident;
 	}
+    
+    public String getType() {
+    	return type;
+    }
+    
+    public String getIdent() {
+    	return ident;
+    }
 }

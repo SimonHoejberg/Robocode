@@ -1,14 +1,14 @@
 import java.util.List;
 
 public class FuncCallNode extends BaseIdentNode  {
-	List<VarNode> arguments;
+	List<ExpressionNode> arguments;
 	
-	public FuncCallNode(String ident, List<VarNode> arguments) {
+	public FuncCallNode(String ident, List<ExpressionNode> arguments) {
 		this.ident = ident;
 		this.arguments = arguments;
 	}
 	
-	public FuncCallNode(String ident, List<VarNode> arguments, ExpressionNode index) {
+	public FuncCallNode(String ident, List<ExpressionNode> arguments, ExpressionNode index) {
 		this.ident = ident;
 		this.arguments = arguments;
 		this.index = index;

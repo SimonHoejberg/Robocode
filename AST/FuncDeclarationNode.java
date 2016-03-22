@@ -2,13 +2,13 @@ import java.util.List;
 
 public class FuncDeclarationNode extends DeclarationNode {
 
-	List<TypeNode> returnTypes;
+	private List<TypeNode> returnTypes;
 
-    String ident;
+    private String ident;
 
-    List<VarNode> paramList;
+    private List<VarNode> paramList;
 
-    List<StatementNode> statements;
+    private List<StatementNode> statements;
 
     public FuncDeclarationNode(List<TypeNode> returnTypes, String ident, List<VarNode> paramList,
 			List<StatementNode> statements) {
@@ -17,4 +17,20 @@ public class FuncDeclarationNode extends DeclarationNode {
     	this.paramList = paramList;
     	this.statements = statements;
 	}
+    
+    public List<TypeNode> getReturnTypes() {
+    	return returnTypes;
+    }
+    
+    public String getIdent() {
+    	return ident;
+    }
+    
+    public List<VarNode> getParamList() {
+    	return paramList;
+    }
+    
+    public List<StatementNode> getStatements() {
+    	return statements;
+    }
 }

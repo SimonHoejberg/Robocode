@@ -1,3 +1,3 @@
-public class PrimaryExprNode extends ExpressionNode {
+public abstract class PrimaryExprNode extends ExpressionNode {
     
 }

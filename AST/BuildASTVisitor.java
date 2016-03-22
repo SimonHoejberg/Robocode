@@ -56,10 +56,16 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	public AbstractNode visitFuncDcl(HelloParser.FuncDclContext context) {
 		// List of return types
 		List<TypeNode> typeList = new ArrayList<TypeNode>();
-		for (int i = 0; i < context.typeList().getChildCount(); ++i) {
-			TypeNode type = new TypeNode(context.typeList().getChild(i).getText());
-			typeList.add(type);
-		}
+		if (context.typeList().getRuleContext() instanceof HelloParser.GeneralTypeListContext)
+			for (int i = 0; i < context.typeList().getChildCount(); ++i) {
+				if (context.typeList().getChild(i) instanceof HelloParser.GeneralTypeContext)
+				{
+					TypeNode type = new TypeNode(context.typeList().getChild(i).getText());
+					typeList.add(type);
+				}
+			}
+		else
+			typeList.add(new TypeNode("void"));
 		
 		String ident = context.Ident().getText();
 		
@@ -115,7 +121,11 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	}
 	
 	public AbstractNode visitCallStmt(HelloParser.CallStmtContext context) {
-		GeneralIdentNode generalIdent = (GeneralIdentNode) visit(context.generalIdent());
+		GeneralIdentNode generalIdent;
+		if (context.generalIdent() != null)
+			generalIdent = (GeneralIdentNode) visit(context.generalIdent());
+		else
+			generalIdent = new GeneralIdentNode(new ArrayList<BaseIdentNode>());
 		generalIdent.addIdent((BaseIdentNode) visit(context.funcCall()));
 		return new CallStatementNode(generalIdent);
 	}
@@ -273,6 +283,9 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 				break;
 			default:
 				// throw new NotImplementedException();
+				type = EqualityExprNode.EqualityType.equal;
+				break;
+				
 		}
 		return new EqualityExprNode(	type,
 										(ExpressionNode) visit(context.relationalExpr()),
@@ -299,7 +312,8 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 				type = RelationExprNode.RelationType.greaterThanOrEqual;
 				break;
 			default:
-				// throw new NotImplementedException();
+				type = RelationExprNode.RelationType.lessThan;
+				break;
 		}
 		return new RelationExprNode(	type,
 										(ExpressionNode) visit(context.additiveExpr()),
@@ -320,7 +334,8 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 				type = AdditiveExprNode.AdditionType.sub;
 				break;
 			default:
-				// throw new NotImplementedException();
+				type = AdditiveExprNode.AdditionType.add;
+				break;
 		}
 		return new AdditiveExprNode(	type,
 										(ExpressionNode) visit(context.multiplicationExpr()),
@@ -345,7 +360,8 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 				type = MultExprNode.MultiplicationType.mod;
 				break;
 			default:
-				// throw new NotImplementedException();
+				type = MultExprNode.MultiplicationType.mult;
+				break;
 		}
 		return new MultExprNode(	type,
 									(ExpressionNode) visit(context.unaryExpr()),
@@ -390,13 +406,13 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	}
 	
 	public AbstractNode visitFuncBaseIdent(HelloParser.FuncBaseIdentContext context) {
-		List<VarNode> arguments = new ArrayList<VarNode>();
+		List<ExpressionNode> arguments = new ArrayList<ExpressionNode>();
 		for (int i = 0; i < context.funcCall().argList().expr().size(); ++i) {
-			VarNode arg = (VarNode) visit(context.funcCall().argList().expr(i));
+			ExpressionNode arg = (ExpressionNode) visit(context.funcCall().argList().expr(i));
 			arguments.add(arg);
 		}
 		
-		if (context.expr().isEmpty())
+		if (context.expr() == null)
 			return new FuncCallNode(context.funcCall().Ident().getText(), arguments);
 					
 		return new FuncCallNode(	context.funcCall().Ident().getText(),
@@ -405,16 +421,16 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	}
 	
 	public AbstractNode visitIdentBaseIdent(HelloParser.IdentBaseIdentContext context) {
-			if (context.expr().isEmpty())
+			if (context.expr() == null)
 				return new BaseIdentNode(context.Ident().getText());
 			return new BaseIdentNode(	context.Ident().getText(),
 										(ExpressionNode) visit(context.expr()));
 	}
 	
 	public AbstractNode visitFuncCall(HelloParser.FuncCallContext context) {
-		List<VarNode> arguments = new ArrayList<VarNode>();
+		List<ExpressionNode> arguments = new ArrayList<ExpressionNode>();
 		for (int i = 0; i < context.argList().expr().size(); ++i) {
-			VarNode arg = (VarNode) visit(context.argList().expr(i));
+			ExpressionNode arg = (ExpressionNode) visit(context.argList().expr(i));
 			arguments.add(arg);
 		}
 		

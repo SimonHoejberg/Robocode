@@ -1,6 +1,6 @@
 class ReturnNode extends StatementNode {
 
-	ExpressionNode expr;
+	private ExpressionNode expr;
 	
 	public ReturnNode() {
 		
@@ -9,5 +9,9 @@ class ReturnNode extends StatementNode {
     public ReturnNode(ExpressionNode expr) {
 		this.expr = expr;
 	}
+    
+    public ExpressionNode getExpression() {
+    	return expr;
+    }
 
 }
