@@ -17,43 +17,64 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 		visit(node.getRightChild());
 		System.out.print(node.getType().toString());
 		visit(node.getLeftChild());
-		System.out.println();
+		
 		return null;
 	}
 
 	@Override
 	public Void visit(ArrayDeclarationNode node) {
-		// TODO Auto-generated method stub
+		System.out.print(node.getType() + " " + node.getIdent() + "[");
+		visit(node.getSize());
+		System.out.println("]");
+		
 		return null;
 	}
 
 	@Override
 	public Void visit(AssignmentNode node) {
-		// TODO Auto-generated method stub
+		visit(node.getGeneralIdent());
+		System.out.print(node.getType().toString());
+		visit(node.getExpression());
+		System.out.println();
+		
 		return null;
 	}
 
 	@Override
 	public Void visit(BaseIdentNode node) {
-		// TODO Auto-generated method stub
+		
+		if (node instanceof FuncCallNode)
+			visit((FuncCallNode) node);
+		else
+			System.out.print(node.getIdent());
+		
+		if(node.getIndex() != null) {
+			System.out.print("[");
+			visit(node.getIndex());
+			System.out.print("]");
+		}
+		
 		return null;
 	}
 
 	@Override
 	public Void visit(BoolLiteralNode node) {
-		// TODO Auto-generated method stub
+		System.out.print(node.getBool());
+		
 		return null;
 	}
 
 	@Override
 	public Void visit(CallStatementNode node) {
-		// TODO Auto-generated method stub
+		visit(node.getIdent());
+		System.out.println();
+		
 		return null;
 	}
 
 	@Override
 	public Void visit(DataStructDeclarationNode node) {
-		// TODO Auto-generated method stub
+		System.out.println(node.getType() + " " + node.getIdent());
 		return null;
 	}
 
@@ -96,7 +117,10 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 
 	@Override
 	public Void visit(EqualityExprNode node) {
-		// TODO Auto-generated method stub
+		visit(node.getLeftChild());
+		System.out.print(node.getType().toString());
+		visit(node.getRightChild());
+		
 		return null;
 	}
 
@@ -140,7 +164,16 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 
 	@Override
 	public Void visit(FuncCallNode node) {
-		// TODO Auto-generated method stub
+		System.out.print(node.getIdent() + "(");
+		
+		for (int i = 0; i < node.getArguments().size(); ++i) {
+			visit(node.getArguments().get(i));
+			if (i+1 < node.getArguments().size())
+				System.out.print(", ");
+		}
+		
+		System.out.print(")");
+		
 		return null;
 	}
 
@@ -173,49 +206,153 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 
 	@Override
 	public Void visit(GeneralIdentNode node) {
-		// TODO Auto-generated method stub
+		for (int i = 0; i < node.getIdents().size(); ++i) {
+			visit(node.getIdents().get(i));
+			if (i+1 < node.getIdents().size())
+				System.out.print('.');			
+		}
+		
 		return null;
 	}
 
 	@Override
 	public Void visit(IfNode node) {
-		// TODO Auto-generated method stub
+		System.out.print("if (");
+		visit(node.getExpression());
+		System.out.println(") {");
+		
+		indentationLevel++;
+		
+		for (int i = 0; i < node.getIfBlockStatements().size(); ++i)
+			visit(node.getIfBlockStatements().get(i));
+		
+		indentationLevel--;
+		
+		addIndentation();
+		System.out.println("}");
+		
+		switch (node.getType()) {
+			case If:				
+				break;
+			case IfElse:
+				addIndentation();
+				System.out.println("else {");
+				
+				indentationLevel++;
+				
+				for (int i = 0; i < node.getElseBlockStatements().size(); ++i)
+					visit(node.getElseBlockStatements().get(i));
+				
+				indentationLevel--;
+				
+				addIndentation();
+				System.out.println("}");
+				
+				break;
+			case ElseIf:
+				addIndentation();
+				System.out.print("else ");
+				visit(node.getNext());
+				break;
+			default:
+				throw new NotImplementedException();
+		}
+		
 		return null;
 	}
 
 	@Override
-	public Void visit(IterationNode node) {
-		// TODO Auto-generated method stub
+	public Void visit(IterationNode node) {		
+		switch (node.getType()) {
+			case While:	
+				System.out.print("while (");
+				visit(node.getExpressions().get(0));
+				System.out.println(") {");	
+				break;
+			case ForWithAssignment:
+				System.out.println("for (");
+				visit(node.getAssignment());
+				System.out.print("; ");
+				visit(node.getExpressions().get(0));
+				System.out.print("; ");
+				visit(node.getExpressions().get(1));
+				System.out.println(") {");		
+				break;
+			case ForWithDcl:
+				System.out.println("for (");
+				visit(node.getVarDeclaration());
+				System.out.print("; ");
+				visit(node.getExpressions().get(0));
+				System.out.print("; ");
+				visit(node.getExpressions().get(1));
+				System.out.println(") {");	
+				break;
+			case For:
+				System.out.println("for (");
+				visit(node.getExpressions().get(0));
+				System.out.print("; ");
+				visit(node.getExpressions().get(1));
+				System.out.print("; ");
+				visit(node.getExpressions().get(2));
+				System.out.println(") {");	
+				break;
+			default:
+				throw new NotImplementedException();
+		}
+			
+		indentationLevel++;
+		
+		for (int i = 0; i < node.getStatements().size(); ++i)
+			visit(node.getStatements().get(i));
+			
+		indentationLevel--;
+		
+		addIndentation();
+		System.out.println("}");
+		
 		return null;
 	}
 
 	@Override
 	public Void visit(LogicalANDExprNode node) {
-		// TODO Auto-generated method stub
+		visit(node.getLeftChild());
+		System.out.print(" & ");
+		visit(node.getRightChild());
+		
 		return null;
 	}
 
 	@Override
 	public Void visit(LogicalORExprNode node) {
-		// TODO Auto-generated method stub
+		visit(node.getLeftChild());
+		System.out.print(" | ");
+		visit(node.getRightChild());
+		
 		return null;
 	}
 
 	@Override
 	public Void visit(MultExprNode node) {
-		// TODO Auto-generated method stub
+		visit(node.getLeftChild());
+		System.out.print(node.getType().toString());
+		visit(node.getRightChild());
+		
 		return null;
 	}
 
 	@Override
 	public Void visit(NumLiteralNode node) {
 		System.out.print(node.getValue());
+		
 		return null;
 	}
 
 	@Override
 	public Void visit(ParenthesesNode node) {
-		// TODO Auto-generated method stub
+		System.out.print("(");
+		visit(node.getChild());
+		System.out.print(")");
+		
 		return null;
 	}
 
@@ -246,13 +383,22 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 
 	@Override
 	public Void visit(RelationExprNode node) {
-		// TODO Auto-generated method stub
+		visit(node.getLeftChild());
+		System.out.print(node.getType().toString());
+		visit(node.getRightChild());
+		
 		return null;
 	}
 
 	@Override
 	public Void visit(ReturnNode node) {
-		// TODO Auto-generated method stub
+		System.out.print("return");
+		if (node.getExpression() != null) {
+			System.out.print(" ");
+			visit(node.getExpression());
+		}
+		System.out.println();
+		
 		return null;
 	}
 
@@ -287,8 +433,7 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 				System.out.println("}\n");
 				break;
 			default:
-				System.out.print("PrettyPrinter error: feature not yet implemented!");
-				break;
+				throw new NotImplementedException();
 		}
 		
 		return null;
@@ -297,13 +442,25 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 	@Override
 	public Void visit(StatementNode node) {
 		addIndentation();
-		System.out.println("STATEMENT");
+		if (node instanceof VarDeclarationNode)
+			visit((VarDeclarationNode) node);
+		else if (node instanceof AssignmentNode)
+			visit((AssignmentNode) node);
+		else if (node instanceof CallStatementNode)
+			visit((CallStatementNode) node);
+		else if (node instanceof IfNode)
+			visit((IfNode) node);
+		else if (node instanceof IterationNode)
+			visit((IterationNode) node);
+		else if (node instanceof ReturnNode)
+			visit((ReturnNode) node);
 		return null;
 	}
 
 	@Override
 	public Void visit(TextLiteralNode node) {
-		// TODO Auto-generated method stub
+		System.out.print(node.getText());
+		
 		return null;
 	}
 
@@ -315,7 +472,9 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 
 	@Override
 	public Void visit(UnaryExprNode node) {
-		// TODO Auto-generated method stub
+		System.out.print("-");
+		visit(node.getChild());
+		
 		return null;
 	}
 

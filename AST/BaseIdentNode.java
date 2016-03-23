@@ -1,6 +1,6 @@
 public class BaseIdentNode extends AbstractNode {
-	String ident;
-    ExpressionNode index; // expression node for array index - if any
+	protected String ident;
+    protected ExpressionNode index; // expression node for array index - if any
     
     public BaseIdentNode() {
     	
@@ -14,4 +14,12 @@ public class BaseIdentNode extends AbstractNode {
 		this.ident = ident;
 		this.index = index;
 	}
+    
+    public String getIdent() {
+    	return ident;
+    }
+    
+    public ExpressionNode getIndex() {
+    	return index;
+    }
 }

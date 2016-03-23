@@ -9,15 +9,15 @@ public class IfNode extends StatementNode {
 
     }
     
-    IfType type;
+    private IfType type;
     
-    ExpressionNode expr;
+    private ExpressionNode expr;
     
-    List<StatementNode> ifBlockStatements;
+    private List<StatementNode> ifBlockStatements;
 
-    List<StatementNode> elseBlockStatements;
+    private List<StatementNode> elseBlockStatements;
 
-    IfNode next;
+    private IfNode next;
     
  // If Constructor
  	public IfNode(ExpressionNode expr, List<StatementNode> ifBlockStatements) {
@@ -40,6 +40,26 @@ public class IfNode extends StatementNode {
     	this.expr = expr;
     	this.ifBlockStatements = ifBlockStatements;
     	this.next = next;
+    }
+    
+    public IfType getType() {
+    	return type;
+    }
+    
+    public ExpressionNode getExpression() {
+    	return expr;
+    }
+    
+    public List<StatementNode> getIfBlockStatements() {
+    	return ifBlockStatements;
+    }
+    
+    public List<StatementNode> getElseBlockStatements() {
+    	return elseBlockStatements;
+    }
+    
+    public IfNode getNext() {
+    	return next;
     }
 
 }

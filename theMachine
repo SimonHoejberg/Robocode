@@ -34,7 +34,7 @@ event onScannedRobot(ScannedRobotEvent e){
 		if (e.getHeading() - getHeading() >=0){
 			turnDirection := 1
 		}else{
-			turnDirection = -1
+			turnDirection := -1
 		}
 
 		num difference := getGunHeading() - getHeading()

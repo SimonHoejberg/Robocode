@@ -2,19 +2,49 @@ public class AssignmentNode extends StatementNode {
 
     public enum AssignmentType {
 
-        basic, add, sub, mult, div, mod
+        basic, add, sub, mult, div, mod;
+    	
+    	public String toString() {
+    		switch (this) {
+    			case basic:
+    				return " := ";
+    			case add:
+    				return " +:= ";
+    			case sub:
+    				return " -:= ";
+    			case mult:
+    				return " *:= ";
+    			case div:
+    				return " /:= ";
+    			case mod:
+    				return " %:= ";
+    			default:
+    				throw new NotImplementedException();
+    		}
+    	}
 
     }
 
 
-    GeneralIdentNode generalIdent;
-    AssignmentType type;
-    ExpressionNode expr;
+    private GeneralIdentNode generalIdent;
+    private AssignmentType type;
+    private ExpressionNode expr;
     
     public AssignmentNode(GeneralIdentNode generalIdent, AssignmentType type, ExpressionNode expr) {
     	this.generalIdent = generalIdent;
     	this.type = type;
     	this.expr = expr;
     }
-
+    
+    public GeneralIdentNode getGeneralIdent() {
+    	return generalIdent;
+    }
+    
+    public AssignmentType getType() {
+    	return type;
+    }
+    
+    public ExpressionNode getExpression() {
+    	return expr;
+    }
 }

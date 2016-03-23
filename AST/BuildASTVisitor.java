@@ -94,8 +94,10 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	public AbstractNode visitDataStructDef(HelloParser.DataStructDefContext context) {
 		String typeName = context.Ident().getText();
 		
+		final int PRE_DCLS_TOKENS = 3;
+		final int POST_DCLS_TOKENS = 1;
 		List<DeclarationNode> declarations = new ArrayList<DeclarationNode>();
-		for (int i = 0; i < context.getChildCount(); ++i) {
+		for (int i = PRE_DCLS_TOKENS; i < context.getChildCount()-POST_DCLS_TOKENS; ++i) {
 			DeclarationNode declaration = (DeclarationNode) visit(context.getChild(i));
 			declarations.add(declaration);
 		}
@@ -116,8 +118,32 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	}
 	
 	public AbstractNode visitAssign(HelloParser.AssignContext context) {
+		AssignmentNode.AssignmentType type;
+		switch (context.assignmentOp().op.getType()) {
+			case HelloLexer.OP_ASSIGN:
+				type = AssignmentNode.AssignmentType.basic;
+				break;
+			case HelloLexer.OP_ADD_ASSIGN:
+				type = AssignmentNode.AssignmentType.add;
+				break;
+			case HelloLexer.OP_SUB_ASSIGN:
+				type = AssignmentNode.AssignmentType.sub;
+				break;
+			case HelloLexer.OP_MUL_ASSIGN:
+				type = AssignmentNode.AssignmentType.mult;
+				break;
+			case HelloLexer.OP_DIV_ASSIGN:
+				type = AssignmentNode.AssignmentType.div;
+				break;
+			case HelloLexer.OP_MOD_ASSIGN:
+				type = AssignmentNode.AssignmentType.mod;
+				break;
+			default:
+				throw new NotImplementedException();
+		}
+		
 		return new AssignmentNode(	(GeneralIdentNode) visit(context.generalIdent()),
-									AssignmentNode.AssignmentType.values()[context.assignmentOp().op.getType()],
+									type,
 									(ExpressionNode) visit(context.expr()));
 	}
 	

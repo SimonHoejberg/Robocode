@@ -1,6 +1,7 @@
 roboname := "hey"
 
 num a := 5 + 2
+Victor vicList[a-2]
 
 container Victor {
 	num height := 0

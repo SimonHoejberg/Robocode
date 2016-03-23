@@ -1,7 +1,7 @@
 import java.util.List;
 
 public class GeneralIdentNode extends PrimaryExprNode {
-    List<BaseIdentNode> idents;
+    private List<BaseIdentNode> idents;
     
     public GeneralIdentNode(List<BaseIdentNode> idents) {
     	this.idents = idents;
@@ -9,6 +9,10 @@ public class GeneralIdentNode extends PrimaryExprNode {
     
     public void addIdent(BaseIdentNode ident) {
     	idents.add(ident);
+    }
+    
+    public List<BaseIdentNode> getIdents() {
+    	return idents;
     }
     
 }

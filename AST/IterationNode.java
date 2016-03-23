@@ -8,15 +8,15 @@ class IterationNode extends StatementNode {
 
     }
 
-    IterationType type;
+    private IterationType type;
 
-    List<ExpressionNode> expressions;
+    private List<ExpressionNode> expressions;
 
-    AssignmentNode assignment;
+    private AssignmentNode assignment;
 
-    VarDeclarationNode varDcl;
+    private VarDeclarationNode varDcl;
 
-    List<StatementNode> statements; 	// Block
+    private List<StatementNode> statements; 	// Block
     
     public IterationNode(IterationType type, List<ExpressionNode> expressions, List<StatementNode> statements) {
 		this.type = type;
@@ -41,6 +41,24 @@ class IterationNode extends StatementNode {
 		this.varDcl = varDcl;
 	}
     
+	public IterationType getType() {
+		return type;
+	}
+	
+	public List<ExpressionNode> getExpressions() {
+		return expressions;
+	}
+	
+	public AssignmentNode getAssignment() {
+		return assignment;
+	}
+	
+	public VarDeclarationNode getVarDeclaration() {
+		return varDcl;
+	}
     
+	public List<StatementNode> getStatements() {
+		return statements;
+	}
 
 }
