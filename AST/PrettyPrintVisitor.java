@@ -231,17 +231,17 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 		addIndentation();
 		System.out.println("}");
 		
-		switch (node.getType()) {
-			case If:				
+		switch (node.getClass().getName()) {
+			case "IfNode":				
 				break;
-			case IfElse:
+			case "IfElseNode":
 				addIndentation();
 				System.out.println("else {");
 				
 				indentationLevel++;
 				
-				for (int i = 0; i < node.getElseBlockStatements().size(); ++i)
-					visit(node.getElseBlockStatements().get(i));
+				for (int i = 0; i < ((IfElseNode) node).getElseBlockStatements().size(); ++i)
+					visit(((IfElseNode) node).getElseBlockStatements().get(i));
 				
 				indentationLevel--;
 				
@@ -249,10 +249,10 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 				System.out.println("}");
 				
 				break;
-			case ElseIf:
+			case "ElseIfNode":
 				addIndentation();
 				System.out.print("else ");
-				visit(node.getNext());
+				visit(((ElseIfNode) node).getNext());
 				break;
 			default:
 				throw new NotImplementedException();
@@ -262,32 +262,33 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 	}
 
 	@Override
-	public Void visit(IterationNode node) {		
-		switch (node.getType()) {
-			case While:	
+	public Void visit(IterationNode node) {
+		
+		switch (node.getClass().getName()) {
+			case "WhileNode":	
 				System.out.print("while (");
 				visit(node.getExpressions().get(0));
 				System.out.println(") {");	
 				break;
-			case ForWithAssignment:
+			case "ForWithAssignmentNode":
 				System.out.println("for (");
-				visit(node.getAssignment());
+				visit(((ForWithAssignmentNode) node).getAssignment());
 				System.out.print("; ");
 				visit(node.getExpressions().get(0));
 				System.out.print("; ");
 				visit(node.getExpressions().get(1));
 				System.out.println(") {");		
 				break;
-			case ForWithDcl:
+			case "ForWithDclNode":
 				System.out.println("for (");
-				visit(node.getVarDeclaration());
+				visit(((ForWithDclNode) node).getVarDeclaration());
 				System.out.print("; ");
 				visit(node.getExpressions().get(0));
 				System.out.print("; ");
 				visit(node.getExpressions().get(1));
 				System.out.println(") {");	
 				break;
-			case For:
+			case "ForNode":
 				System.out.println("for (");
 				visit(node.getExpressions().get(0));
 				System.out.print("; ");

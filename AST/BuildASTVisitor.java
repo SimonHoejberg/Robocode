@@ -191,7 +191,7 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 			elseBlockStatements.add(stmt);
 		}
 			
-		return new IfNode(expr, ifBlockStatements, elseBlockStatements);
+		return new IfElseNode(expr, ifBlockStatements, elseBlockStatements);
 	}
 
 	public AbstractNode visitElseIfStmt(HelloParser.ElseIfStmtContext context) {
@@ -205,7 +205,7 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		}
 		
 		IfNode next = (IfNode) visit(context.ifStmt());
-		return new IfNode(expr, ifBlockStatements, next);
+		return new ElseIfNode(expr, ifBlockStatements, next);
 	}
 	
 	public AbstractNode visitWhileStmt(HelloParser.WhileStmtContext context) {	
@@ -218,7 +218,7 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		
 		List<ExpressionNode> expressions = new ArrayList<ExpressionNode>();	
 		expressions.add((ExpressionNode) visit(context.expr()));
-		return new IterationNode(IterationNode.IterationType.While, expressions, blockStatements);		
+		return new WhileNode(expressions, blockStatements);		
 	}
 	
 	public AbstractNode visitForAssignStmt(HelloParser.ForAssignStmtContext context) {
@@ -235,7 +235,7 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 														(ExpressionNode) visit(context.basicAssignment().expr()));
 		expressions.add((ExpressionNode) visit(context.second));
 		expressions.add((ExpressionNode) visit(context.third));
-		return new IterationNode(expressions, blockStatements, assignment);
+		return new ForWithAssignmentNode(expressions, blockStatements, assignment);
 	}
 	
 	public AbstractNode visitForDclStmt(HelloParser.ForDclStmtContext context) {
@@ -250,7 +250,7 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		VarDeclarationNode varDcl = (VarDeclarationNode) visit(context.varDcl());
 		expressions.add((ExpressionNode) visit(context.second));
 		expressions.add((ExpressionNode) visit(context.third));
-		return new IterationNode(expressions, blockStatements, varDcl);
+		return new ForWithDclNode(expressions, blockStatements, varDcl);
 	}
 
 	public AbstractNode visitForStmt(HelloParser.ForStmtContext context) {
@@ -265,7 +265,7 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		expressions.add((ExpressionNode) visit(context.first));
 		expressions.add((ExpressionNode) visit(context.second));
 		expressions.add((ExpressionNode) visit(context.third));
-		return new IterationNode(IterationNode.IterationType.For, expressions, blockStatements);
+		return new ForNode(expressions, blockStatements);
 	}
 	
 	public AbstractNode visitRetValStmt(HelloParser.RetValStmtContext context) {
