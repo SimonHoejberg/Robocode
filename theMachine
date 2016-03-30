@@ -11,6 +11,9 @@ robot initialization(){
 	setBulletColor(Color.black)
 }
 
+func num foo(){
+}
+
 robot behavior(){
 	if (moving){
 		if (remainingDistance > 0){
