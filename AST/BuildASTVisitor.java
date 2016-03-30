@@ -1,5 +1,7 @@
 import java.util.*;
 
+import org.antlr.v4.runtime.tree.ParseTree;
+
 public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	public AbstractNode visitProg(HelloParser.ProgContext context) {
 		return visit(context.dcls());
@@ -7,9 +9,9 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	
 	public AbstractNode visitDcls(HelloParser.DclsContext context) {
 		List<DeclarationNode> declarations = new ArrayList<DeclarationNode>();
-		for (int i = 0; i < context.getChildCount(); ++i) {
-			DeclarationNode dcl = (DeclarationNode) visit(context.getChild(i));
-			declarations.add(dcl);		
+		for (ParseTree child : context.children) {
+			DeclarationNode dcl = (DeclarationNode) visit(child);
+			declarations.add(dcl);
 		}
 		return new ProgramNode(declarations);
 	}

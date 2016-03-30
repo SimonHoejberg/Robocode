@@ -14,9 +14,9 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 	
 	@Override
 	public Void visit(AdditiveExprNode node) {
-		visit(node.getRightChild());
-		System.out.print(node.getType().toString());
 		visit(node.getLeftChild());
+		System.out.print(node.getType().toString());
+		visit(node.getRightChild());
 		
 		return null;
 	}
