@@ -14,7 +14,6 @@ public class Hello
         CommonTokenStream tokens = new CommonTokenStream(lexer);
 
         HelloParser parser = new HelloParser(tokens);
-        SymbolTable t = new SymbolTable();
         
         try {
         	HelloParser.ProgContext cst = parser.prog();

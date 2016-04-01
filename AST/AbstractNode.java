@@ -1,11 +1,11 @@
 public abstract class AbstractNode {
-	protected String nodeType;
+	protected Object nodeType;
 	
-	public String getNodeType(){
+	public Object getNodeType(){
 		return nodeType;
 	}
 	
-	public void setNodeType(String nodeType){
+	public void setNodeType(Object nodeType){
 		this.nodeType = nodeType;
 	}
 }

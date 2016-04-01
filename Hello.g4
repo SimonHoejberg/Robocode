@@ -113,7 +113,7 @@ generalType : type 				# typeGeneralType
 
 type 	: 'num' 		# numType	
 		| 'number' 		# numberType
-		|'text' 		# textType
+		| 'text' 		# textType
 		| 'bool' 		# boolType
 		| 'boolean' 	# booleanType
 		;

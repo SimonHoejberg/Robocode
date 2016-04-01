@@ -1,6 +1,13 @@
+import symbolTable.SymbolTable;
 
 public class TypeCheckVisitor extends ASTVisitor<String> {
 
+	SymbolTable symbolTable;
+	
+	public TypeCheckVisitor() {
+		symbolTable = new SymbolTable();
+	}
+	
 	@Override
 	public String visit(AdditiveExprNode node) {
 		// TODO Auto-generated method stub
