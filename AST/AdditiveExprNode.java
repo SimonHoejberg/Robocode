@@ -19,8 +19,9 @@ public class AdditiveExprNode extends ExpressionNode {
     private ExpressionNode leftChild;    // MultExpr
     private ExpressionNode rightChild;    // AdditiveExpr
     
-    public AdditiveExprNode(AdditionType type, ExpressionNode leftChild, ExpressionNode rightChild) {
-		this.type = type;
+    public AdditiveExprNode(AdditionType type, ExpressionNode leftChild, ExpressionNode rightChild, int lineNumber, int colNumber) {
+    	super(lineNumber, colNumber);
+    	this.type = type;
 		this.leftChild = leftChild;
 		this.rightChild = rightChild;
 	}
