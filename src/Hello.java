@@ -7,7 +7,7 @@ public class Hello
     public static void main( String[] args) throws Exception 
     {
 
-        ANTLRInputStream input = new ANTLRInputStream(new FileReader("theMachine"));
+        ANTLRInputStream input = new ANTLRInputStream(new FileReader("TypeCheckTest"));
 
         HelloLexer lexer = new HelloLexer(input);
 
@@ -15,14 +15,16 @@ public class Hello
 
         HelloParser parser = new HelloParser(tokens);
         
-        try {
+        //try {
         	HelloParser.ProgContext cst = parser.prog();
         	ProgramNode ast = (ProgramNode) new BuildASTVisitor().visitProg(cst);
-        	new PrettyPrintVisitor().visit(ast);
-        }
+        	//new PrettyPrintVisitor().visit(ast);
+        	new TypeCheckVisitor().visit(ast);
+        /*}
         catch (Exception ex) {
         	System.out.println(ex.getMessage());
-        }
+        }*/
+        
         
         //ParseTree tree = parser.prog(); // begin parsing at rule 'r'
         //System.out.println(tree.toStringTree(parser)); // print LISP-style tree

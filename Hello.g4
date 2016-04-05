@@ -98,9 +98,9 @@ unaryExpr 	: primaryExpr			# emptyUnExpr
 			;
 			
 primaryExpr	: generalIdent			# generalPrimary
-			| TextLit				# textLitPrimary
 			| NumLit				# numLitPrimary
 			| BoolLit				# boolLitPrimary
+			| TextLit				# textLitPrimary
 			| '(' expr ')'			# parenPrimary
 			;
 
@@ -146,6 +146,8 @@ OP_MUL_ASSIGN	: '*:=';
 OP_DIV_ASSIGN	: '/:=';
 OP_MOD_ASSIGN	: '%:=';
 
+BoolLit : 'true' | 'false';
+
 Ident : [a-zA-Z]+ ([a-zA-Z0-9])*;
 
 TextLit : '"'.*?'"';   //Needs work  
@@ -156,8 +158,6 @@ NumLit : ( [0-9]*) '.' (( [0-9]* [1-9]) | '0')
 */
 
 NumLit : [0-9]+ ('.' [0-9]+)?;
-                 
-BoolLit : 'true' | 'false';
 
 WS : [ \t\r\n]->skip;
 

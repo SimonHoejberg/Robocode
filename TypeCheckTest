@@ -1,0 +1,15 @@
+roboname := "hey"
+
+num a := 10
+bool b := false
+text test := "true"
+num a := 5
+
+
+robot initialization ( )  {
+	bool a := true / false
+}
+
+robot behavior() {
+	
+}

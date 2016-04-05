@@ -13,10 +13,12 @@ public class SymbolTable implements SymbolTableInterface {
 		currentScope = 0;
 		table = new Hashtable<String, Stack<SymbolTableEntry>>();
 		scopeEntries = new ArrayList<List<String>>();
+		scopeEntries.add(new ArrayList<String>());
 	}
 	
 	public void openScope() {
 		currentScope++;
+		scopeEntries.add(new ArrayList<String>());
 	}
 	
 	public void closeScope() {
@@ -25,8 +27,8 @@ public class SymbolTable implements SymbolTableInterface {
 			Stack<SymbolTableEntry> stack = table.get(ident);
 			stack.pop();
 			// If stack is empty, remove it from the table
-			if (stack.peek() == null)
-				table.remove(stack);
+			if (stack.isEmpty())
+				table.remove(ident);
 		}
 		
 		// Remove scope entries
@@ -37,24 +39,23 @@ public class SymbolTable implements SymbolTableInterface {
 	
 	public void enterSymbol(String ident, SymbolTableEntry entry) {
 		// Add entry to scopeEntries
-		// Add list if none exists
-		if (scopeEntries.get(currentScope) == null)
-			scopeEntries.add(new ArrayList<String>());
 		// Add ident to list
 		scopeEntries.get(currentScope).add(ident);
 		// Add entry to symbol table
 		// Add stack if none exists
-		if (!table.contains(ident))
+		if (!table.containsKey(ident))
 			table.put(ident, new Stack<SymbolTableEntry>());
-		// Create SymbolTableEntry, push to stack
+
+		// Add scope to SymbolTableEntry, push to stack
+		entry.setScope(currentScope);
 		table.get(ident).push(entry);
 	}
 	
 	public SymbolTableEntry retrieveSymbol(String ident) throws Exception {
 		// Retrieve the symbol
-		if (table.contains(ident)) {
+		if (table.containsKey(ident)) {
 			Stack<SymbolTableEntry> stack = table.get(ident);
-			if (stack.peek() != null)
+			if (!stack.isEmpty())
 				return table.get(ident).peek();
 		}
 		

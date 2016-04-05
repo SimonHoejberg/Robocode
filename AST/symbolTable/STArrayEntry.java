@@ -2,8 +2,8 @@ package symbolTable;
 
 public class STArrayEntry extends STTypeEntry {
 
-	public STArrayEntry(int scope, Object type) {
-		super(scope, type);
+	public STArrayEntry(Object type) {
+		super(type);
 	}
 	
 }

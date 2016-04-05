@@ -90,7 +90,9 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	public AbstractNode visitVarDcl(HelloParser.VarDclContext context) {
 		VarNode variable = new VarNode(	context.type().getText(),
 										context.basicAssignment().Ident().getText());
-		return new VarDeclarationNode(	variable,
+		return new VarDeclarationNode(	context.start.getLine(),
+										context.start.getCharPositionInLine(),
+										variable,
 										(ExpressionNode) visit(context.basicAssignment().expr()));
 	}
 	

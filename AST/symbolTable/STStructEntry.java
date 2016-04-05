@@ -4,8 +4,7 @@ public class STStructEntry extends SymbolTableEntry {
 
 	SymbolTable vars;
 	
-	public STStructEntry(int scope, SymbolTable vars) {
-		super(scope);
+	public STStructEntry(SymbolTable vars) {
 		this.vars = vars;
 	}
 	

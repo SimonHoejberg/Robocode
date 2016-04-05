@@ -11,8 +11,7 @@ public class STSubprogramEntry extends SymbolTableEntry {
 	List<Object> returnTypes;
 	SymbolTable params;
 	
-	public STSubprogramEntry(int scope, SubprogramType type, List<Object> returnTypes, SymbolTable params) {
-		super(scope);
+	public STSubprogramEntry(SubprogramType type, List<Object> returnTypes, SymbolTable params) {
 		this.type = type;
 		this.returnTypes = returnTypes;
 		this.params = params;

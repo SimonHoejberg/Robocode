@@ -3,7 +3,7 @@ package symbolTable;
 public abstract class SymbolTableEntry {
 	private int scope;
 	
-	public SymbolTableEntry(int scope) {
+	public void setScope(int scope) {
 		this.scope = scope;
 	}
 	

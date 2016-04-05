@@ -2,7 +2,9 @@ import java.util.List;
 
 public class ProgramNode extends AbstractNode {
 	private List<DeclarationNode> declarations;
-	public ProgramNode(List<DeclarationNode> declarations) {
+	
+	public ProgramNode(int lineNumber, int colNumber, List<DeclarationNode> declarations) {
+		super(lineNumber, colNumber);
 		this.declarations = declarations;
 	}
 	

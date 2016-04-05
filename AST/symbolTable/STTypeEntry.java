@@ -3,8 +3,7 @@ package symbolTable;
 public class STTypeEntry extends SymbolTableEntry {
 	private Object type;
 	
-	public STTypeEntry(int scope, Object type) {
-		super(scope);
+	public STTypeEntry(Object type) {
 		this.type = type;
 	}
 	
