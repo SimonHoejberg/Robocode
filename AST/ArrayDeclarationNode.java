@@ -5,7 +5,8 @@ public class ArrayDeclarationNode extends DeclarationNode {
     private String ident;
     private ExpressionNode size;
     
-    public ArrayDeclarationNode(String type, String ident, ExpressionNode size) {
+    public ArrayDeclarationNode(String type, String ident, ExpressionNode size, int lineNumber, int colNumber) {
+    	super(lineNumber, colNumber);
     	this.type = type;
     	this.ident = ident;
     	this.size = size;

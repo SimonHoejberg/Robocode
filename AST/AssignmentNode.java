@@ -30,7 +30,8 @@ public class AssignmentNode extends StatementNode {
     private AssignmentType type;
     private ExpressionNode expr;
     
-    public AssignmentNode(GeneralIdentNode generalIdent, AssignmentType type, ExpressionNode expr) {
+    public AssignmentNode(int lineNumber, int colNumber, GeneralIdentNode generalIdent, AssignmentType type, ExpressionNode expr) {
+    	super(lineNumber, colNumber);
     	this.generalIdent = generalIdent;
     	this.type = type;
     	this.expr = expr;
