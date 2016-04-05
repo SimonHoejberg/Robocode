@@ -6,12 +6,12 @@ public class BaseIdentNode extends AbstractNode {
     	super(lineNumber, colNumber);
     }
     
-    public BaseIdentNode(String ident, int lineNumber, int colNumber) {
+    public BaseIdentNode(int lineNumber, int colNumber, String ident) {
     	super(lineNumber, colNumber);
     	this.ident = ident;
 	}
     
-    public BaseIdentNode(String ident, ExpressionNode index, int lineNumber, int colNumber) {
+    public BaseIdentNode(int lineNumber, int colNumber, String ident, ExpressionNode index) {
     	super(lineNumber, colNumber);
     	this.ident = ident;
 		this.index = index;

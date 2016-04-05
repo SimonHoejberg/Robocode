@@ -14,11 +14,16 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 			DeclarationNode dcl = (DeclarationNode) visit(child);
 			declarations.add(dcl);
 		}
-		return new ProgramNode(declarations);
+		return new ProgramNode(	context.start.getLine(),
+								context.start.getCharPositionInLine(),
+								declarations);
 	}
 	
 	public AbstractNode visitRobonameAssign(HelloParser.RobonameAssignContext context) {
-		return new RobotDeclarationNode(RobotDeclarationNode.RobotDeclarationType.name, context.TextLit().getText());
+		return new RobotDeclarationNode(	context.start.getLine(),
+											context.start.getCharPositionInLine(),
+											RobotDeclarationNode.RobotDeclarationType.name,
+											context.TextLit().getText());
 	}
 	
 	public AbstractNode visitInitBlock(HelloParser.InitBlockContext context) {
@@ -29,7 +34,10 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 			statements.add(stmt);		
 		}
 		
-		return new RobotDeclarationNode(RobotDeclarationNode.RobotDeclarationType.initialization, statements);
+		return new RobotDeclarationNode(	context.start.getLine(),
+											context.start.getCharPositionInLine(),
+											RobotDeclarationNode.RobotDeclarationType.initialization, 
+											statements);
 	}
 	
 	public AbstractNode visitBehaviorBlock(HelloParser.BehaviorBlockContext context) {
@@ -40,12 +48,18 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 			statements.add(stmt);		
 		}
 		
-		return new RobotDeclarationNode(RobotDeclarationNode.RobotDeclarationType.behavior, statements);
+		return new RobotDeclarationNode(	context.start.getLine(),
+											context.start.getCharPositionInLine(),
+											RobotDeclarationNode.RobotDeclarationType.behavior,
+											statements);
 	}
 	
 	public AbstractNode visitEventDcl(HelloParser.EventDclContext context) {
 		String ident = context.Ident().getText();
-		VarNode param = new VarNode(context.eventParam().eventType().getText(), context.eventParam().Ident().getText());
+		VarNode param = new VarNode(	context.eventParam().start.getLine(),
+										context.eventParam().start.getCharPositionInLine(),
+										context.eventParam().eventType().getText(),
+										context.eventParam().Ident().getText());
 		
 		List<StatementNode> statements = new ArrayList<StatementNode>();
 		for (ParseTree child : nullSafe(context.block().stmts().children)) {
@@ -53,7 +67,11 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 			statements.add(stmt);		
 		}
 		
-		return new EventDeclarationNode(ident, param, statements);	
+		return new EventDeclarationNode(	context.start.getLine(),
+											context.start.getCharPositionInLine(),
+											ident,
+											param,
+											statements);	
 	}
 	
 	public AbstractNode visitFuncDcl(HelloParser.FuncDclContext context) {
@@ -63,18 +81,25 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 			for (ParseTree child : nullSafe(context.typeList().children)){
 				if (child instanceof HelloParser.GeneralTypeContext)
 				{
-					TypeNode type = new TypeNode(child.getText());
+					TypeNode type = new TypeNode(	((HelloParser.GeneralTypeContext) child).start.getLine(),
+													((HelloParser.GeneralTypeContext) child).start.getCharPositionInLine(),
+													child.getText());
 					typeList.add(type);
 				}
 			}
 		else
-			typeList.add(new TypeNode("void"));
+			typeList.add(new TypeNode(	context.typeList().start.getLine(),
+										context.typeList().start.getCharPositionInLine(),
+										"void"));
 		
 		String ident = context.Ident().getText();
 		
 		List<VarNode> paramList = new ArrayList<VarNode>();
 		for (HelloParser.ParamContext child : nullSafe(context.paramList().param())) {
-			VarNode param = new VarNode(child.type().getText(), child.Ident().getText());
+			VarNode param = new VarNode(	child.start.getLine(),
+											child.start.getCharPositionInLine(),
+											child.type().getText(),
+											child.Ident().getText());
 			paramList.add(param);
 		}
 
@@ -84,11 +109,18 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 			statements.add(stmt);
 		}
 		
-		return new FuncDeclarationNode(typeList, ident, paramList, statements);	
+		return new FuncDeclarationNode(	context.start.getLine(),
+										context.start.getCharPositionInLine(),
+										typeList,
+										ident,
+										paramList,
+										statements);	
 	}
 	
 	public AbstractNode visitVarDcl(HelloParser.VarDclContext context) {
-		VarNode variable = new VarNode(	context.type().getText(),
+		VarNode variable = new VarNode(	context.start.getLine(),
+										context.start.getCharPositionInLine(),
+										context.type().getText(),
 										context.basicAssignment().Ident().getText());
 		return new VarDeclarationNode(	context.start.getLine(),
 										context.start.getCharPositionInLine(),
@@ -107,19 +139,28 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 			declarations.add(declaration);
 		}
 		
-		return new DataStructDefinitionNode(typeName, declarations);
+		return new DataStructDefinitionNode(	context.start.getLine(),
+												context.start.getCharPositionInLine(),
+												typeName,
+												declarations);
 	}
 	
 	public AbstractNode visitDataStructDcl(HelloParser.DataStructDclContext context) {
-		return new DataStructDeclarationNode(context.Ident(0).getText(), context.Ident(1).getText());
+		return new DataStructDeclarationNode(	context.start.getLine(),
+												context.start.getCharPositionInLine(),
+												context.Ident(0).getText(), context.Ident(1).getText());
 	}
 	
 	public AbstractNode visitBasicArrayDcl(HelloParser.BasicArrayDclContext context) {
-		return new ArrayDeclarationNode(context.type().getText(), context.Ident().getText(), (ExpressionNode) visit(context.expr()));
+		return new ArrayDeclarationNode(	context.start.getLine(),
+											context.start.getCharPositionInLine(),
+											context.type().getText(), context.Ident().getText(), (ExpressionNode) visit(context.expr()));
 	}
 	
 	public AbstractNode visitStructArrayDcl(HelloParser.StructArrayDclContext context) {
-		return new ArrayDeclarationNode(context.dataStructDcl().Ident(0).getText(), context.dataStructDcl().Ident(1).getText(), (ExpressionNode) visit(context.expr()));
+		return new ArrayDeclarationNode(	context.start.getLine(),
+											context.start.getCharPositionInLine(),
+											context.dataStructDcl().Ident(0).getText(), context.dataStructDcl().Ident(1).getText(), (ExpressionNode) visit(context.expr()));
 	}
 	
 	public AbstractNode visitAssign(HelloParser.AssignContext context) {
@@ -147,7 +188,9 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 				throw new NotImplementedException();
 		}
 		
-		return new AssignmentNode(	(GeneralIdentNode) visit(context.generalIdent()),
+		return new AssignmentNode(	context.start.getLine(),
+									context.start.getCharPositionInLine(),
+									(GeneralIdentNode) visit(context.generalIdent()),
 									type,
 									(ExpressionNode) visit(context.expr()));
 	}
@@ -157,9 +200,13 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		if (context.generalIdent() != null)
 			generalIdent = (GeneralIdentNode) visit(context.generalIdent());
 		else
-			generalIdent = new GeneralIdentNode(new ArrayList<BaseIdentNode>());
+			generalIdent = new GeneralIdentNode(	context.start.getLine(),
+													context.start.getCharPositionInLine(),
+													new ArrayList<BaseIdentNode>());
 		generalIdent.addIdent((BaseIdentNode) visit(context.funcCall()));
-		return new CallStatementNode(generalIdent);
+		return new CallStatementNode(	context.start.getLine(),
+										context.start.getCharPositionInLine(),
+										generalIdent);
 	}
 	
 	public AbstractNode visitIfThenStmt(HelloParser.IfThenStmtContext context) {
@@ -172,7 +219,9 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 			ifBlockStatements.add(stmt);
 		}
 		
-		return new IfNode(expr, ifBlockStatements);
+		return new IfNode(	context.start.getLine(),
+							context.start.getCharPositionInLine(),
+							expr, ifBlockStatements);
 	}
 	
 	public AbstractNode visitIfElseStmt(HelloParser.IfElseStmtContext context) {
@@ -193,7 +242,9 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 			elseBlockStatements.add(stmt);
 		}
 			
-		return new IfElseNode(expr, ifBlockStatements, elseBlockStatements);
+		return new IfElseNode(	context.start.getLine(),
+								context.start.getCharPositionInLine(),
+								expr, ifBlockStatements, elseBlockStatements);
 	}
 
 	public AbstractNode visitElseIfStmt(HelloParser.ElseIfStmtContext context) {
@@ -207,7 +258,9 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		}
 		
 		IfNode next = (IfNode) visit(context.ifStmt());
-		return new ElseIfNode(expr, ifBlockStatements, next);
+		return new ElseIfNode(	context.start.getLine(),
+								context.start.getCharPositionInLine(),
+								expr, ifBlockStatements, next);
 	}
 	
 	public AbstractNode visitWhileStmt(HelloParser.WhileStmtContext context) {	
@@ -220,7 +273,9 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		
 		List<ExpressionNode> expressions = new ArrayList<ExpressionNode>();	
 		expressions.add((ExpressionNode) visit(context.expr()));
-		return new WhileNode(expressions, blockStatements);		
+		return new WhileNode(	context.start.getLine(),
+								context.start.getCharPositionInLine(),
+								expressions, blockStatements);		
 	}
 	
 	public AbstractNode visitForAssignStmt(HelloParser.ForAssignStmtContext context) {
@@ -232,12 +287,16 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		}
 		
 		List<ExpressionNode> expressions = new ArrayList<ExpressionNode>();
-		AssignmentNode assignment = new AssignmentNode(	(GeneralIdentNode) visit(context.basicAssignment().Ident()),
+		AssignmentNode assignment = new AssignmentNode(	context.basicAssignment().start.getLine(),
+														context.basicAssignment().start.getCharPositionInLine(),
+														(GeneralIdentNode) visit(context.basicAssignment().Ident()),
 														AssignmentNode.AssignmentType.basic,
 														(ExpressionNode) visit(context.basicAssignment().expr()));
 		expressions.add((ExpressionNode) visit(context.second));
 		expressions.add((ExpressionNode) visit(context.third));
-		return new ForWithAssignmentNode(expressions, blockStatements, assignment);
+		return new ForWithAssignmentNode(	context.start.getLine(),
+											context.start.getCharPositionInLine(),
+											expressions, blockStatements, assignment);
 	}
 	
 	public AbstractNode visitForDclStmt(HelloParser.ForDclStmtContext context) {
@@ -252,7 +311,9 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		VarDeclarationNode varDcl = (VarDeclarationNode) visit(context.varDcl());
 		expressions.add((ExpressionNode) visit(context.second));
 		expressions.add((ExpressionNode) visit(context.third));
-		return new ForWithDclNode(expressions, blockStatements, varDcl);
+		return new ForWithDclNode(	context.start.getLine(),
+									context.start.getCharPositionInLine(),
+									expressions, blockStatements, varDcl);
 	}
 
 	public AbstractNode visitForStmt(HelloParser.ForStmtContext context) {
@@ -267,15 +328,20 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		expressions.add((ExpressionNode) visit(context.first));
 		expressions.add((ExpressionNode) visit(context.second));
 		expressions.add((ExpressionNode) visit(context.third));
-		return new ForNode(expressions, blockStatements);
+		return new ForNode(	context.start.getLine(),
+							context.start.getCharPositionInLine(),
+							expressions, blockStatements);
 	}
 	
 	public AbstractNode visitRetValStmt(HelloParser.RetValStmtContext context) {
-		return new ReturnNode((ExpressionNode) visit(context.expr()));			
+		return new ReturnNode(	context.start.getLine(),
+								context.start.getCharPositionInLine(),
+								(ExpressionNode) visit(context.expr()));			
 	}
 	
 	public AbstractNode visitRetVoidStmt(HelloParser.RetVoidStmtContext context) {
-		return new ReturnNode();
+		return new ReturnNode(	context.start.getLine(),
+								context.start.getCharPositionInLine());
 	}
 	
 	public AbstractNode visitExpr(HelloParser.ExprContext context) {
@@ -287,7 +353,9 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	}
 	
 	public AbstractNode visitLogORExpr(HelloParser.LogORExprContext context) {
-		return new LogicalORExprNode(	(ExpressionNode) visit(context.logicalANDExpr()),
+		return new LogicalORExprNode(	context.start.getLine(),
+										context.start.getCharPositionInLine(),
+										(ExpressionNode) visit(context.logicalANDExpr()),
 										(ExpressionNode) visit(context.logicalORExpr()));
 
 	}
@@ -297,7 +365,9 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	}
 	
 	public AbstractNode visitLogANDExpr(HelloParser.LogANDExprContext context) {
-		return new LogicalANDExprNode(	(ExpressionNode) visit(context.equalityExpr()),
+		return new LogicalANDExprNode(	context.start.getLine(),
+										context.start.getCharPositionInLine(),
+										(ExpressionNode) visit(context.equalityExpr()),
 										(ExpressionNode) visit(context.logicalANDExpr()));
 	}
 		
@@ -317,7 +387,9 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 			default:
 				throw new NotImplementedException();			
 		}
-		return new EqualityExprNode(	type,
+		return new EqualityExprNode(	context.start.getLine(),
+										context.start.getCharPositionInLine(),
+										type,
 										(ExpressionNode) visit(context.relationalExpr()),
 										(ExpressionNode) visit(context.equalityExpr()));
 	}
@@ -344,7 +416,9 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 			default:
 				throw new NotImplementedException();
 		}
-		return new RelationExprNode(	type,
+		return new RelationExprNode(	context.start.getLine(),
+										context.start.getCharPositionInLine(),
+										type,
 										(ExpressionNode) visit(context.additiveExpr()),
 										(ExpressionNode) visit(context.relationalExpr()));
 	}
@@ -365,7 +439,9 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 			default:
 				throw new NotImplementedException();
 		}
-		return new AdditiveExprNode(	type,
+		return new AdditiveExprNode(	context.start.getLine(),
+										context.start.getCharPositionInLine(),
+										type,
 										(ExpressionNode) visit(context.multiplicationExpr()),
 										(ExpressionNode) visit(context.additiveExpr()));
 
@@ -390,7 +466,9 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 			default:
 				throw new NotImplementedException();
 		}
-		return new MultExprNode(	type,
+		return new MultExprNode(	context.start.getLine(),
+									context.start.getCharPositionInLine(),
+									type,
 									(ExpressionNode) visit(context.unaryExpr()),
 									(ExpressionNode) visit(context.multiplicationExpr()));
 	}
@@ -400,7 +478,9 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	}
 	
 	public AbstractNode visitUnExpr(HelloParser.UnExprContext context) {
-		return new UnaryExprNode((ExpressionNode) visit(context.unaryExpr()));
+		return new UnaryExprNode(	context.start.getLine(),
+									context.start.getCharPositionInLine(),
+									(ExpressionNode) visit(context.unaryExpr()));
 	}
 	
 	public AbstractNode visitGeneralPrimary(HelloParser.GeneralPrimaryContext context) {
@@ -408,19 +488,27 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	}
 	
 	public AbstractNode visitTextLitPrimary(HelloParser.TextLitPrimaryContext context) {
-		return new TextLiteralNode(context.TextLit().getText());
+		return new TextLiteralNode(	context.start.getLine(),
+									context.start.getCharPositionInLine(),
+									context.TextLit().getText());
 	}
 	
 	public AbstractNode visitNumLitPrimary(HelloParser.NumLitPrimaryContext context) {
-		return new NumLiteralNode(Double.parseDouble(context.NumLit().getText()));
+		return new NumLiteralNode(	context.start.getLine(),
+									context.start.getCharPositionInLine(),
+									Double.parseDouble(context.NumLit().getText()));
 	}
 	
 	public AbstractNode visitBoolLitPrimary(HelloParser.BoolLitPrimaryContext context) {
-		return new BoolLiteralNode(Boolean.parseBoolean(context.BoolLit().getText()));
+		return new BoolLiteralNode(	context.start.getLine(),
+									context.start.getCharPositionInLine(),
+									Boolean.parseBoolean(context.BoolLit().getText()));
 	}
 	
 	public AbstractNode visitParenPrimary(HelloParser.ParenPrimaryContext context) {
-		return new ParenthesesNode((ExpressionNode) visit(context.expr()));
+		return new ParenthesesNode(	context.start.getLine(),
+									context.start.getCharPositionInLine(),
+									(ExpressionNode) visit(context.expr()));
 	}
 	
 	public AbstractNode visitGeneralIdent(HelloParser.GeneralIdentContext context) {
@@ -429,7 +517,9 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 			BaseIdentNode ident = (BaseIdentNode) visit(child);
 			idents.add(ident);
 		}
-		return new GeneralIdentNode(idents);
+		return new GeneralIdentNode(	context.start.getLine(),
+										context.start.getCharPositionInLine(),
+										idents);
 	}
 	
 	public AbstractNode visitFuncBaseIdent(HelloParser.FuncBaseIdentContext context) {
@@ -440,17 +530,25 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		}
 		
 		if (context.expr() == null)
-			return new FuncCallNode(context.funcCall().Ident().getText(), arguments);
+			return new FuncCallNode(	context.start.getLine(),
+										context.start.getCharPositionInLine(),
+										context.funcCall().Ident().getText(), arguments);
 					
-		return new FuncCallNode(	context.funcCall().Ident().getText(),
+		return new FuncCallNode(	context.start.getLine(),
+									context.start.getCharPositionInLine(),
+									context.funcCall().Ident().getText(),
 									arguments,
 									(ExpressionNode) visit(context.expr()));				
 	}
 	
 	public AbstractNode visitIdentBaseIdent(HelloParser.IdentBaseIdentContext context) {
 			if (context.expr() == null)
-				return new BaseIdentNode(context.Ident().getText());
-			return new BaseIdentNode(	context.Ident().getText(),
+				return new BaseIdentNode(	context.start.getLine(),
+											context.start.getCharPositionInLine(),
+											context.Ident().getText());
+			return new BaseIdentNode(	context.start.getLine(),
+										context.start.getCharPositionInLine(),
+										context.Ident().getText(),
 										(ExpressionNode) visit(context.expr()));
 	}
 	
@@ -461,7 +559,9 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 			arguments.add(arg);
 		}
 		
-		return new FuncCallNode(context.Ident().getText(), arguments);
+		return new FuncCallNode(context.start.getLine(),
+								context.start.getCharPositionInLine(),
+								context.Ident().getText(), arguments);
 	}
 	
     private static <T> Collection<T> nullSafe(Collection<T> c) {
