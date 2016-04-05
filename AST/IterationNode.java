@@ -6,6 +6,10 @@ public abstract class IterationNode extends StatementNode {
 
     protected List<StatementNode> statements; 	// Block
 	
+    public IterationNode(int lineNumber, int colNumber) {
+    	super(lineNumber, colNumber);
+    }
+    
 	public List<ExpressionNode> getExpressions() {
 		return expressions;
 	}

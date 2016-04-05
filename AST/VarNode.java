@@ -3,8 +3,9 @@ public class VarNode extends AbstractNode {
 
     private String ident;
 
-    public VarNode(String type, String ident) {
-		this.type = type;
+    public VarNode(int lineNumber, int colNumber, String type, String ident) {
+    	super(lineNumber, colNumber);
+    	this.type = type;
 		this.ident = ident;
 	}
     

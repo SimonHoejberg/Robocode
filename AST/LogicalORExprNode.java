@@ -2,7 +2,8 @@ public class LogicalORExprNode extends ExpressionNode {
    private ExpressionNode leftChild;    // LogicalANDExpr
    private ExpressionNode rightChild;    // LogicalORExpr
    
-   public LogicalORExprNode(ExpressionNode leftChild, ExpressionNode rightChild) {
+   public LogicalORExprNode(int lineNumber, int colNumber, ExpressionNode leftChild, ExpressionNode rightChild) {
+	   super(lineNumber, colNumber);
 	   this.leftChild = leftChild;
 	   this.rightChild = rightChild;
    }

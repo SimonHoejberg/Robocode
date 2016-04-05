@@ -1,7 +1,8 @@
 public class ParenthesesNode extends PrimaryExprNode {
 	private ExpressionNode child;
 
-	public ParenthesesNode(ExpressionNode child) {
+	public ParenthesesNode(int lineNumber, int colNumber, ExpressionNode child) {
+		super(lineNumber, colNumber);
 		this.child = child;
 	}
 	

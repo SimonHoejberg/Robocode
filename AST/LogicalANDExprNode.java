@@ -2,7 +2,8 @@ public class LogicalANDExprNode extends ExpressionNode {
 	private ExpressionNode leftChild;    // EqualityExpr
 	private ExpressionNode rightChild;    // LogicalANDExpr
 	
-	public LogicalANDExprNode(ExpressionNode leftChild, ExpressionNode rightChild) {
+	public LogicalANDExprNode(int lineNumber, int colNumber, ExpressionNode leftChild, ExpressionNode rightChild) {
+		super(lineNumber, colNumber);
 		this.leftChild = leftChild;
 		this.rightChild = rightChild;
 	}

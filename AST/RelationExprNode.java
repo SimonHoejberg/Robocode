@@ -22,8 +22,9 @@ public class RelationExprNode extends ExpressionNode {
     private ExpressionNode leftChild;    // RelationExpr
     private ExpressionNode rightChild;    // AdditiveExpr
     
-    public RelationExprNode(RelationType type, ExpressionNode leftChild, ExpressionNode rightChild) {
-		this.type = type;
+    public RelationExprNode(int lineNumber, int colNumber, RelationType type, ExpressionNode leftChild, ExpressionNode rightChild) {
+    	super(lineNumber, colNumber);
+    	this.type = type;
 		this.leftChild = leftChild;
 		this.rightChild = rightChild;
 	}

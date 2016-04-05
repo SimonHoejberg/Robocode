@@ -20,8 +20,9 @@ public class MultExprNode extends ExpressionNode {
     private ExpressionNode leftChild;    // UnaryExpr
     private ExpressionNode rightChild;    // MultExpr
     
-    public MultExprNode(MultiplicationType type, ExpressionNode leftChild, ExpressionNode rightChild) {
-		this.type = type;
+    public MultExprNode(int lineNumber, int colNumber, MultiplicationType type, ExpressionNode leftChild, ExpressionNode rightChild) {
+    	super(lineNumber, colNumber);
+    	this.type = type;
 		this.leftChild = leftChild;
 		this.rightChild = rightChild;
 	}

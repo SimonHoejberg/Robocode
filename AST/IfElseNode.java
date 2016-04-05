@@ -5,8 +5,9 @@ public class IfElseNode extends IfNode {
 	
     private List<StatementNode> elseBlockStatements;
 	
-	public IfElseNode(ExpressionNode expr, List<StatementNode> ifBlockStatements, List<StatementNode> elseBlockStatements) {
-    	this.expr = expr;
+	public IfElseNode(int lineNumber, int colNumber, ExpressionNode expr, List<StatementNode> ifBlockStatements, List<StatementNode> elseBlockStatements) {
+		super(lineNumber, colNumber);
+		this.expr = expr;
     	this.ifBlockStatements = ifBlockStatements;
     	this.elseBlockStatements = elseBlockStatements;
     }

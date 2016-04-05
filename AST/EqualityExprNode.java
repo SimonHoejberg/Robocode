@@ -18,11 +18,12 @@ public class EqualityExprNode extends ExpressionNode {
    private ExpressionNode leftChild;    // RelationExpr
    private ExpressionNode rightChild;    // EqualityExpr
    
-   public EqualityExprNode(EqualityType type, ExpressionNode leftChild, ExpressionNode rightChild) {
-		this.type = type;
-		this.leftChild = leftChild;
-		this.rightChild = rightChild;
-	}
+   public EqualityExprNode(int lineNumber, int colNumber, EqualityType type, ExpressionNode leftChild, ExpressionNode rightChild) {
+	   super(lineNumber, colNumber);
+	   this.type = type;
+	   this.leftChild = leftChild;
+	   this.rightChild = rightChild;
+   }
    
    public EqualityType getType() {
 	   return type;

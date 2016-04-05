@@ -7,11 +7,13 @@ public class IfNode extends StatementNode {
     
     protected List<StatementNode> ifBlockStatements;
     
-    public IfNode() {   	
+    public IfNode(int lineNumber, int colNumber) {
+    	super(lineNumber, colNumber);
     }
     
-    public IfNode(ExpressionNode expr, List<StatementNode> ifBlockStatements) {
- 		this.expr = expr;
+    public IfNode(int lineNumber, int colNumber, ExpressionNode expr, List<StatementNode> ifBlockStatements) {
+    	super(lineNumber, colNumber);
+    	this.expr = expr;
  		this.ifBlockStatements = ifBlockStatements;
  	}
     
