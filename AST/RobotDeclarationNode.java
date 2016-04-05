@@ -14,12 +14,14 @@ public class RobotDeclarationNode extends DeclarationNode {
 
     private List<StatementNode> statements;
 
-    public RobotDeclarationNode(RobotDeclarationType type, String name) {
+    public RobotDeclarationNode(int lineNumber, int colNumber, RobotDeclarationType type, String name) {
+    	super(lineNumber, colNumber);
     	this.type = type;
     	this.name = name;
     }
     
-    public RobotDeclarationNode(RobotDeclarationType type, List<StatementNode> statements) {
+    public RobotDeclarationNode(int lineNumber, int colNumber, RobotDeclarationType type, List<StatementNode> statements) {
+    	super(lineNumber, colNumber);
     	this.type = type;
     	this.statements = statements;
     }

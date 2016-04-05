@@ -10,8 +10,9 @@ public class FuncDeclarationNode extends DeclarationNode {
 
     private List<StatementNode> statements;
 
-    public FuncDeclarationNode(List<TypeNode> returnTypes, String ident, List<VarNode> paramList,
+    public FuncDeclarationNode(int lineNumber, int colNumber, List<TypeNode> returnTypes, String ident, List<VarNode> paramList,
 			List<StatementNode> statements) {
+    	super(lineNumber, colNumber);
     	this.returnTypes = returnTypes;
     	this.ident = ident;
     	this.paramList = paramList;
