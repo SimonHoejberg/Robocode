@@ -4,7 +4,7 @@ public class DataStructDeclarationNode extends DeclarationNode {
     
     private String ident;
     
-    public DataStructDeclarationNode(String type, String ident, int lineNumber, int colNumber) {
+    public DataStructDeclarationNode(int lineNumber, int colNumber, String type, String ident) {
     	super(lineNumber, colNumber);
     	this.type = type;
     	this.ident = ident;

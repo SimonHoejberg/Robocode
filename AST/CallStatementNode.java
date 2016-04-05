@@ -1,7 +1,7 @@
 public class CallStatementNode extends StatementNode {
     private GeneralIdentNode ident;
     
-    public CallStatementNode(GeneralIdentNode ident, int lineNumber, int colNumber) {
+    public CallStatementNode(int lineNumber, int colNumber, GeneralIdentNode ident) {
     	super(lineNumber, colNumber);
     	this.ident = ident;
     }

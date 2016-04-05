@@ -1,7 +1,7 @@
 public class BoolLiteralNode extends PrimaryExprNode {
 	private Boolean bool;
 	
-	public BoolLiteralNode(boolean bool, int lineNumber, int colNumber) {
+	public BoolLiteralNode(int lineNumber, int colNumber, boolean bool) {
 		super(lineNumber, colNumber);
 		this.bool = bool;
 	}

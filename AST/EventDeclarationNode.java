@@ -8,7 +8,7 @@ public class EventDeclarationNode extends DeclarationNode {
 
     private List<StatementNode> statements;
     
-    public EventDeclarationNode(String ident, VarNode param, List<StatementNode> statements, int lineNumber, int colNumber) {
+    public EventDeclarationNode(int lineNumber, int colNumber, String ident, VarNode param, List<StatementNode> statements) {
     	super(lineNumber, colNumber);
     	this.ident = ident;
     	this.param = param;
