@@ -26,7 +26,7 @@ funcDcl : 'func' typeList Ident '(' paramList ')' block ;
 
 paramList : ( param (',' param)*)? ;
 
-param :  type Ident ;
+param :  generalType Ident ;
 
 eventParam : eventType Ident;
 
@@ -95,6 +95,7 @@ multiplicationExpr 	: unaryExpr												# emptyMultExpr
 
 unaryExpr 	: primaryExpr			# emptyUnExpr
           	| '-' unaryExpr			# unExpr
+          	| '!' unaryExpr			# negUnExpr
 			;
 			
 primaryExpr	: generalIdent			# generalPrimary
