@@ -394,9 +394,13 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 	@Override
 	public Void visit(ReturnNode node) {
 		System.out.print("return");
-		if (node.getExpression() != null) {
+		if (node.getExpressions() != null) {
 			System.out.print(" ");
-			visit(node.getExpression());
+			for (int i = 0; i < node.getExpressions().size(); ++i) {
+				visit(node.getExpressions().get(i));
+				if (i+1 < node.getExpressions().size())
+					System.out.print(", ");
+			}
 		}
 		System.out.println();
 		

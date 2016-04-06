@@ -1,0 +1,16 @@
+roboname := "hey"
+
+
+
+robot initialization ( )  {
+	bool a := true / false
+}
+
+robot behavior() {
+	
+}
+
+func tank[], boolean[], num ePiCFunCTIon(num height, text[] names, radar[] radars) {
+	
+	return tanks, truthTable, amount
+}

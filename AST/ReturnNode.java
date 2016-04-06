@@ -1,18 +1,20 @@
+import java.util.List;
+
 class ReturnNode extends StatementNode {
 
-	private ExpressionNode expr;
+	private List<ExpressionNode> expressions;
 	
 	public ReturnNode(int lineNumber, int colNumber) {
 		super(lineNumber, colNumber);
 	}
 	
-    public ReturnNode(int lineNumber, int colNumber, ExpressionNode expr) {
+    public ReturnNode(int lineNumber, int colNumber, List<ExpressionNode> expressions) {
     	super(lineNumber, colNumber);
-		this.expr = expr;
+		this.expressions = expressions;
 	}
     
-    public ExpressionNode getExpression() {
-    	return expr;
+    public List<ExpressionNode> getExpressions() {
+    	return expressions;
     }
 
 }

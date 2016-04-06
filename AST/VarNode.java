@@ -16,4 +16,8 @@ public class VarNode extends AbstractNode {
     public String getIdent() {
     	return ident;
     }
+    
+    public boolean isArray() {
+    	return type.endsWith("[]");
+    }
 }

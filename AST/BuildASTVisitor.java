@@ -1,6 +1,7 @@
 import java.util.*;
 
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 
 public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
@@ -79,13 +80,36 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		List<TypeNode> typeList = new ArrayList<TypeNode>();
 		if (context.typeList().getRuleContext() instanceof HelloParser.GeneralTypeListContext)
 			for (ParseTree child : nullSafe(context.typeList().children)){
-				if (child instanceof HelloParser.GeneralTypeContext)
+				if (child instanceof TerminalNode)		// Skip commas
+					continue;
+				TypeNode type;
+				System.out.println(child.getText());
+				if (child instanceof HelloParser.TypeGeneralTypeContext)
 				{
-					TypeNode type = new TypeNode(	((HelloParser.GeneralTypeContext) child).start.getLine(),
-													((HelloParser.GeneralTypeContext) child).start.getCharPositionInLine(),
-													child.getText());
-					typeList.add(type);
+					type = new TypeNode(((HelloParser.GeneralTypeContext) child).start.getLine(),
+										((HelloParser.GeneralTypeContext) child).start.getCharPositionInLine(),
+										child.getText());
+					
 				}
+				else if (child.getChild(0) instanceof HelloParser.StructTypeContext) {
+					type = new TypeNode(((HelloParser.GeneralTypeContext) child).start.getLine(),
+							((HelloParser.GeneralTypeContext) child).start.getCharPositionInLine(),
+							((HelloParser.StructTypeContext) child.getChild(0)).Ident().getText());
+				}
+				else if (child.getChild(0) instanceof HelloParser.ArrayTypeContext) {
+					type = new TypeNode(((HelloParser.GeneralTypeContext) child).start.getLine(),
+										((HelloParser.GeneralTypeContext) child).start.getCharPositionInLine(),
+										((HelloParser.ArrayTypeContext) child.getChild(0)).type().getText() + "[]");
+				}
+				else if (child.getChild(0) instanceof HelloParser.StructArrayTypeContext) {
+					type = new TypeNode(((HelloParser.GeneralTypeContext) child).start.getLine(),
+										((HelloParser.GeneralTypeContext) child).start.getCharPositionInLine(),
+										((HelloParser.StructArrayTypeContext) child.getChild(0)).Ident().getText() + "[]");
+				}
+				else
+					throw new NotImplementedException();
+				
+				typeList.add(type);
 			}
 		else
 			typeList.add(new TypeNode(	context.typeList().start.getLine(),
@@ -96,10 +120,32 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		
 		List<VarNode> paramList = new ArrayList<VarNode>();
 		for (HelloParser.ParamContext child : nullSafe(context.paramList().param())) {
-			VarNode param = new VarNode(	child.start.getLine(),
-											child.start.getCharPositionInLine(),
-											child.type().getText(),
-											child.Ident().getText());
+			VarNode param;
+			if (child.generalType().getRuleContext() instanceof HelloParser.TypeGeneralTypeContext)
+				param = new VarNode(child.start.getLine(),
+									child.start.getCharPositionInLine(),
+									child.generalType().getChild(0).getText(),
+									child.Ident().getText());
+			else {
+				HelloParser.ComplexTypeContext ct = ((HelloParser.ComplexTypeContext) child.generalType().getChild(0));
+				if (ct.getRuleContext() instanceof HelloParser.StructTypeContext)
+					param = new VarNode(child.start.getLine(),
+										child.start.getCharPositionInLine(),
+										((HelloParser.StructTypeContext) ct).Ident().getText(),
+										child.Ident().getText());
+				else if (ct.getRuleContext() instanceof HelloParser.ArrayTypeContext)
+					param = new VarNode(child.start.getLine(),
+										child.start.getCharPositionInLine(),
+										((HelloParser.ArrayTypeContext) ct).type().getText() + "[]",
+										child.Ident().getText());
+				else if (ct.getRuleContext() instanceof HelloParser.StructArrayTypeContext)
+					param = new VarNode(child.start.getLine(),
+										child.start.getCharPositionInLine(),
+										((HelloParser.StructArrayTypeContext) ct).Ident().getText() + "[]",
+										child.Ident().getText());
+				else
+					throw new NotImplementedException();
+			}
 			paramList.add(param);
 		}
 
@@ -334,9 +380,12 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	}
 	
 	public AbstractNode visitRetValStmt(HelloParser.RetValStmtContext context) {
+		List<ExpressionNode> expressions = new ArrayList<ExpressionNode>();
+		for (HelloParser.ExprContext expr : context.expr())
+			expressions.add((ExpressionNode) visit(expr));
 		return new ReturnNode(	context.start.getLine(),
 								context.start.getCharPositionInLine(),
-								(ExpressionNode) visit(context.expr()));			
+								expressions);
 	}
 	
 	public AbstractNode visitRetVoidStmt(HelloParser.RetVoidStmtContext context) {
@@ -477,9 +526,17 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		return visit(context.primaryExpr());
 	}
 	
-	public AbstractNode visitUnExpr(HelloParser.UnExprContext context) {
+	public AbstractNode visitNegUnExpr(HelloParser.NegUnExprContext context) {
 		return new UnaryExprNode(	context.start.getLine(),
 									context.start.getCharPositionInLine(),
+									UnaryExprNode.UnaryType.negation,
+									(ExpressionNode) visit(context.unaryExpr()));
+	}
+	
+	public AbstractNode visitNotUnExpr(HelloParser.NotUnExprContext context) {
+		return new UnaryExprNode(	context.start.getLine(),
+									context.start.getCharPositionInLine(),
+									UnaryExprNode.UnaryType.not,
 									(ExpressionNode) visit(context.unaryExpr()));
 	}
 	

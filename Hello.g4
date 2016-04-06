@@ -65,8 +65,8 @@ iterStmt : 'while' '(' expr ')' block												# whileStmt
 		| 'for' '(' first=expr ',' second=expr ',' third=expr ')' block				# forStmt
 		;
 
-returnStmt 	: 'return' expr			# retValStmt
-			| 'return'				# retVoidStmt
+returnStmt 	: 'return' expr	(',' expr)*	# retValStmt
+			| 'return'					# retVoidStmt
 			;
 	
 logicalORExpr : logicalANDExpr							# emptyLogORExpr
@@ -94,8 +94,8 @@ multiplicationExpr 	: unaryExpr												# emptyMultExpr
 					;
 
 unaryExpr 	: primaryExpr			# emptyUnExpr
-          	| '-' unaryExpr			# unExpr
-          	| '!' unaryExpr			# negUnExpr
+          	| '-' unaryExpr			# negUnExpr
+          	| '!' unaryExpr			# notUnExpr
 			;
 			
 primaryExpr	: generalIdent			# generalPrimary

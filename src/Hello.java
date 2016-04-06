@@ -7,7 +7,7 @@ public class Hello
     public static void main( String[] args) throws Exception 
     {
 
-        ANTLRInputStream input = new ANTLRInputStream(new FileReader("TypeCheckTest"));
+        ANTLRInputStream input = new ANTLRInputStream(new FileReader("PrintTest"));
 
         HelloLexer lexer = new HelloLexer(input);
 
@@ -18,8 +18,8 @@ public class Hello
         //try {
         	HelloParser.ProgContext cst = parser.prog();
         	ProgramNode ast = (ProgramNode) new BuildASTVisitor().visitProg(cst);
-        	//new PrettyPrintVisitor().visit(ast);
-        	new TypeCheckVisitor().visit(ast);
+        	new PrettyPrintVisitor().visit(ast);
+        	//new TypeCheckVisitor().visit(ast);
         /*}
         catch (Exception ex) {
         	System.out.println(ex.getMessage());
