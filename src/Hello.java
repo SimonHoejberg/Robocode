@@ -18,8 +18,8 @@ public class Hello
         //try {
         	HelloParser.ProgContext cst = parser.prog();
         	ProgramNode ast = (ProgramNode) new BuildASTVisitor().visitProg(cst);
-        	new PrettyPrintVisitor().visit(ast);
-        	//new TypeCheckVisitor().visit(ast);
+        	// new PrettyPrintVisitor().visit(ast);
+        	new TypeCheckVisitor().visit(ast);
         /*}
         catch (Exception ex) {
         	System.out.println(ex.getMessage());

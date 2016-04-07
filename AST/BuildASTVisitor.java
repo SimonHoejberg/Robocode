@@ -315,7 +315,7 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		for (ParseTree child : nullSafe(context.block().stmts().children)) {
 			StatementNode stmt = (StatementNode) visit(child);
 			blockStatements.add(stmt);
-		}
+		} // Make this a private method
 		
 		List<ExpressionNode> expressions = new ArrayList<ExpressionNode>();	
 		expressions.add((ExpressionNode) visit(context.expr()));
