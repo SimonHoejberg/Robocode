@@ -1,4 +1,4 @@
-import java.util.List;
+import java.util.*;
 
 import symbolTable.STTypeEntry;
 import symbolTable.SymbolTable;
@@ -6,6 +6,7 @@ import symbolTable.SymbolTable;
 public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	SymbolTable symbolTable;
+	List<TypeCheckError> errors;
 	final Object 	NUM = "num".intern(),
 					TEXT = "text".intern(),
 					BOOL = "bool".intern(),
@@ -14,16 +15,20 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	
 	public TypeCheckVisitor() {
 		symbolTable = new SymbolTable();
+		errors = new ArrayList<TypeCheckError>();
 	}
 	
 	@Override
 	public Object visit(AdditiveExprNode node) {
 		Object leftType = visit(node.getLeftChild());
 		Object rightType = visit(node.getRightChild());
-		if (leftType == NUM && rightType == NUM)
-			return node.nodeType = NUM;
+		if (leftType == NUM && rightType == NUM) {
+			node.setNodeType(NUM);
+			return NUM;
+		}
 		
-		throw new RuntimeException("The operator" + node.getType() + "is undefined for the argument type(s) " + leftType + ", " + rightType);
+		errors.add(new TypeCheckError(node, "The operator" + node.getType() + "is undefined for the argument type(s) " + leftType + ", " + rightType));
+		return NUM;
 	}
 
 	@Override
@@ -134,7 +139,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	@Override
 	public Object visit(GeneralIdentNode node) {
-		// TODO Auto-generated method stub
+		// Need to do symbol table lookup here
 		return null;
 	}
 
@@ -166,10 +171,13 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	public Object visit(MultExprNode node) {
 		Object leftType = visit(node.getLeftChild());
 		Object rightType = visit(node.getRightChild());
-		if (leftType == NUM && rightType == NUM)
-			return node.nodeType = NUM;
+		if (leftType == NUM && rightType == NUM)  {
+			node.setNodeType(NUM);
+			return NUM;
+		}
 		
-		throw new RuntimeException("The operator" + node.getType() + "is undefined for the argument type(s) " + leftType + ", " + rightType);
+		errors.add(new TypeCheckError(node, "The operator" + node.getType() + "is undefined for the argument type(s) " + leftType + ", " + rightType));
+		return NUM;
 	}
 
 	@Override
@@ -186,23 +194,28 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	@Override
 	public Object visit(PrimaryExprNode node) {
+		Object type;
 		switch (node.getClass().getName()) {
 			case "GeneralIdentNode":
-				// Need to do symbol table lookup here
-				break;
+				type = visit ((GeneralIdentNode) node);
+				node.setNodeType(type);
+				return type;
 			case "TextLiteralNode":
-				return node.nodeType = TEXT;
+				node.setNodeType(TEXT);
+				return TEXT;
 			case "NumLiteralNode":
-				return node.nodeType = NUM;
+				node.setNodeType(NUM);
+				return NUM;
 			case "BoolLiteralNode":
-				return node.nodeType = BOOL;
+				node.setNodeType(BOOL);
+				return BOOL;
 			case "ParenthesesNode":
-				return node.nodeType = visit(((ParenthesesNode) node).getChild());
+				type = visit(((ParenthesesNode) node).getChild());
+				node.setNodeType(type);
+				return type;
 			default:
 				throw new NotImplementedException();
 		}
-		
-		throw new RuntimeException("The operator + is undefined for the argument type(s) ");
 	}
 
 	@Override
@@ -212,7 +225,8 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		for(int i = 0; i < declarations.size(); ++i)
 		    visit(declarations.get(i));
 		
-		return node.nodeType = VOID;
+		node.setNodeType(VOID);
+		return VOID;
 	}
 
 	@Override
@@ -237,7 +251,8 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 					visit(node.getStatements().get(i));
 				symbolTable.closeScope();
 			case name:
-				return node.nodeType = VOID;
+				node.setNodeType(VOID);
+				return VOID;
 			default:
 				throw new NotImplementedException();
 		}
@@ -275,10 +290,23 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	@Override
 	public Object visit(UnaryExprNode node) {
 		Object child = visit(node.getChild());
-		if (child == NUM)
-			return node.nodeType = NUM;
+		if (node.getType() == UnaryExprNode.UnaryType.negation) {
+			if (child == NUM)
+				node.setNodeType(NUM);
+			else
+				errors.add(new TypeCheckError(node, "The operator - is undefined for the argument type(s) " + child));
+			return NUM;
+		}
+		else if (node.getType() == UnaryExprNode.UnaryType.not) {
+			if (child == BOOL)
+				node.setNodeType(BOOL);
+			else
+				errors.add(new TypeCheckError(node, "The operator ! is undefined for the argument type(s) " + child));
+			return BOOL;
+		}
 		
-		throw new RuntimeException("The operator - is undefined for the argument type(s) " + child);
+		
+		return NUM;
 	}
 
 	@Override
@@ -293,18 +321,23 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			local = false;
 		}
 		
-		if (local)
-			throw new RuntimeException(node.getLineNumber() + ":" + (node.getColumnNumber()+1) + " Duplicate local variable " + var.getIdent());
-		
+		if (local) {
+			errors.add(new TypeCheckError(node, "Duplicate local variable " + var.getIdent()));
+			return VOID;
+		}
+			
 		// Add variable to symbol table
 		symbolTable.enterSymbol(var.getIdent(), new STTypeEntry(var.getType().intern()));
 		
 		Object varType = node.getVariable().getType().intern();
 		Object rhsType = visit(node.getExpression());
-		if (varType == rhsType)
-			return node.nodeType = VOID;
+		if (varType == rhsType) {
+			node.setNodeType(VOID);
+			return VOID;
+		}
 		
-		throw new RuntimeException("Cannot assign variable of type " + varType + " a value of type " + rhsType);
+		errors.add(new TypeCheckError(node, "Cannot assign variable of type " + varType + " a value of type " + rhsType));
+		return VOID;
 	}
 
 	@Override
