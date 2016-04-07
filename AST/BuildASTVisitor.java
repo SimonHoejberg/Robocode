@@ -579,11 +579,11 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
     private static <T> Collection<T> nullSafe(Collection<T> c) {
         return (c == null) ? Collections.<T>emptyList() : c;
     }
-    
-    private <T1, T2> List<T2> CreateList(Collection<T1> list,Class<T2> returntype){
+   
+    private <T1, T2> List<T2> CreateList(Collection<T1> list,Class<T2> type){
     	List<T2> result = new ArrayList<T2>();
 		for (T1 child : nullSafe(list)) {
-			result.add((T2) visit((ParseTree) child));
+			result.add(type.cast(visit((ParseTree) child)));
 		}
     	return result;
     }
