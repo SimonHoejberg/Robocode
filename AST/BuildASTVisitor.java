@@ -10,11 +10,9 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	}
 	
 	public AbstractNode visitDcls(HelloParser.DclsContext context) {
-		List<DeclarationNode> declarations = new ArrayList<DeclarationNode>();
-		for (ParseTree child : nullSafe(context.children)) {
-			DeclarationNode dcl = (DeclarationNode) visit(child);
-			declarations.add(dcl);
-		}
+		List<ParseTree> input = context.children;
+		List<DeclarationNode> declarations = CreateList(input, DeclarationNode.class);
+		
 		return new ProgramNode(	context.start.getLine(),
 								context.start.getCharPositionInLine(),
 								declarations);
@@ -28,12 +26,9 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	}
 	
 	public AbstractNode visitInitBlock(HelloParser.InitBlockContext context) {
-		List<StatementNode> statements = new ArrayList<StatementNode>();
 		
-		for (ParseTree child : nullSafe(context.block().stmts().children)) {
-			StatementNode stmt = (StatementNode) visit(child);
-			statements.add(stmt);		
-		}
+		List<ParseTree> input = context.block().stmts().children;
+		List<StatementNode> statements = CreateList(input, StatementNode.class);
 		
 		return new RobotDeclarationNode(	context.start.getLine(),
 											context.start.getCharPositionInLine(),
@@ -42,12 +37,9 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	}
 	
 	public AbstractNode visitBehaviorBlock(HelloParser.BehaviorBlockContext context) {
-		List<StatementNode> statements = new ArrayList<StatementNode>();
 		
-		for (ParseTree child : nullSafe(context.block().stmts().children)) {
-			StatementNode stmt = (StatementNode) visit(child);
-			statements.add(stmt);		
-		}
+		List<ParseTree> input = context.block().stmts().children;
+		List<StatementNode> statements = CreateList(input, StatementNode.class);
 		
 		return new RobotDeclarationNode(	context.start.getLine(),
 											context.start.getCharPositionInLine(),
@@ -62,11 +54,8 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 										context.eventParam().eventType().getText(),
 										context.eventParam().Ident().getText());
 		
-		List<StatementNode> statements = new ArrayList<StatementNode>();
-		for (ParseTree child : nullSafe(context.block().stmts().children)) {
-			StatementNode stmt = (StatementNode) visit(child);
-			statements.add(stmt);		
-		}
+		List<ParseTree> input = context.block().stmts().children;
+		List<StatementNode> statements = CreateList(input, StatementNode.class);
 		
 		return new EventDeclarationNode(	context.start.getLine(),
 											context.start.getCharPositionInLine(),
@@ -148,12 +137,8 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 			}
 			paramList.add(param);
 		}
-
-		List<StatementNode> statements = new ArrayList<StatementNode>();
-		for (ParseTree child : nullSafe(context.block().stmts().children)) {
-			StatementNode stmt = (StatementNode) visit(child);
-			statements.add(stmt);
-		}
+		List<ParseTree> input = context.block().stmts().children;
+		List<StatementNode> statements = CreateList(input, StatementNode.class);
 		
 		return new FuncDeclarationNode(	context.start.getLine(),
 										context.start.getCharPositionInLine(),
@@ -259,11 +244,8 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		ExpressionNode expr = (ExpressionNode) visit(context.expr());
 		
 		// Statements in "if" block
-		List<StatementNode> ifBlockStatements = new ArrayList<StatementNode>();
-		for (ParseTree child : nullSafe(context.block().stmts().children)) {
-			StatementNode stmt = (StatementNode) visit(child);
-			ifBlockStatements.add(stmt);
-		}
+		List<ParseTree> input = context.block().stmts().children;
+		List<StatementNode> ifBlockStatements = CreateList(input, StatementNode.class);
 		
 		return new IfNode(	context.start.getLine(),
 							context.start.getCharPositionInLine(),
@@ -274,12 +256,8 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		ExpressionNode expr = (ExpressionNode) visit(context.expr());
 		
 		// Statements in "if" block
-		List<StatementNode> ifBlockStatements = new ArrayList<StatementNode>();
-		for (int i = 0; i < context.ifblock.stmts().getChildCount(); ++i) 
-		for (ParseTree child : nullSafe(context.ifblock.stmts().children)){
-			StatementNode stmt = (StatementNode) visit(child);
-			ifBlockStatements.add(stmt);
-		}
+		List<ParseTree> input = context.ifblock.stmts().children;
+		List<StatementNode> ifBlockStatements = CreateList(input, StatementNode.class);
 		
 		// Statements in "else" block
 		List<StatementNode> elseBlockStatements = new ArrayList<StatementNode>();
@@ -297,11 +275,8 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		ExpressionNode expr = (ExpressionNode) visit(context.expr());
 		
 		// Statements in "if" block
-		List<StatementNode> ifBlockStatements = new ArrayList<StatementNode>();
-		for (ParseTree child : nullSafe(context.block().stmts().children)) {
-			StatementNode stmt = (StatementNode) visit(child);
-			ifBlockStatements.add(stmt);
-		}
+		List<ParseTree> input = context.block().stmts().children;
+		List<StatementNode> ifBlockStatements = CreateList(input, StatementNode.class);
 		
 		IfNode next = (IfNode) visit(context.ifStmt());
 		return new ElseIfNode(	context.start.getLine(),
@@ -311,11 +286,8 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	
 	public AbstractNode visitWhileStmt(HelloParser.WhileStmtContext context) {	
 		// Statements in block
-		List<StatementNode> blockStatements = new ArrayList<StatementNode>();
-		for (ParseTree child : nullSafe(context.block().stmts().children)) {
-			StatementNode stmt = (StatementNode) visit(child);
-			blockStatements.add(stmt);
-		} // Make this a private method
+		List<ParseTree> input = context.block().stmts().children;
+		List<StatementNode> blockStatements = CreateList(input, StatementNode.class);
 		
 		List<ExpressionNode> expressions = new ArrayList<ExpressionNode>();	
 		expressions.add((ExpressionNode) visit(context.expr()));
@@ -326,11 +298,8 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	
 	public AbstractNode visitForAssignStmt(HelloParser.ForAssignStmtContext context) {
 		// Statements in block
-		List<StatementNode> blockStatements = new ArrayList<StatementNode>();
-		for (ParseTree child : nullSafe(context.block().stmts().children)) {
-			StatementNode stmt = (StatementNode) visit(child);
-			blockStatements.add(stmt);
-		}
+		List<ParseTree> input = context.block().stmts().children;
+		List<StatementNode> blockStatements = CreateList(input, StatementNode.class);
 		
 		List<ExpressionNode> expressions = new ArrayList<ExpressionNode>();
 		AssignmentNode assignment = new AssignmentNode(	context.basicAssignment().start.getLine(),
@@ -347,11 +316,8 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	
 	public AbstractNode visitForDclStmt(HelloParser.ForDclStmtContext context) {
 		// Statements in block
-		List<StatementNode> blockStatements = new ArrayList<StatementNode>();
-		for (ParseTree child : nullSafe(context.block().stmts().children)) {
-			StatementNode stmt = (StatementNode) visit(child);
-			blockStatements.add(stmt);
-		}
+		List<ParseTree> input = context.block().stmts().children;
+		List<StatementNode> blockStatements = CreateList(input, StatementNode.class);
 		
 		List<ExpressionNode> expressions = new ArrayList<ExpressionNode>();
 		VarDeclarationNode varDcl = (VarDeclarationNode) visit(context.varDcl());
@@ -364,11 +330,8 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 
 	public AbstractNode visitForStmt(HelloParser.ForStmtContext context) {
 		// Statements in block
-		List<StatementNode> blockStatements = new ArrayList<StatementNode>();
-		for (ParseTree child : nullSafe(context.block().stmts().children)) {
-			StatementNode stmt = (StatementNode) visit(child);
-			blockStatements.add(stmt);
-		}
+		List<ParseTree> input = context.block().stmts().children;
+		List<StatementNode> blockStatements = CreateList(input, StatementNode.class);
 		
 		List<ExpressionNode> expressions = new ArrayList<ExpressionNode>();
 		expressions.add((ExpressionNode) visit(context.first));
@@ -380,9 +343,9 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	}
 	
 	public AbstractNode visitRetValStmt(HelloParser.RetValStmtContext context) {
-		List<ExpressionNode> expressions = new ArrayList<ExpressionNode>();
-		for (HelloParser.ExprContext expr : context.expr())
-			expressions.add((ExpressionNode) visit(expr));
+		List<HelloParser.ExprContext> input = context.expr();
+		List<ExpressionNode> expressions = CreateList(input, ExpressionNode.class);
+
 		return new ReturnNode(	context.start.getLine(),
 								context.start.getCharPositionInLine(),
 								expressions);
@@ -569,22 +532,17 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	}
 	
 	public AbstractNode visitGeneralIdent(HelloParser.GeneralIdentContext context) {
-		List<BaseIdentNode> idents = new ArrayList<BaseIdentNode>();
-		for (HelloParser.BaseIdentContext child : nullSafe(context.baseIdent())) {
-			BaseIdentNode ident = (BaseIdentNode) visit(child);
-			idents.add(ident);
-		}
+		List<HelloParser.BaseIdentContext> input = context.baseIdent();
+		List<BaseIdentNode> idents = CreateList(input, BaseIdentNode.class);
+
 		return new GeneralIdentNode(	context.start.getLine(),
 										context.start.getCharPositionInLine(),
 										idents);
 	}
 	
 	public AbstractNode visitFuncBaseIdent(HelloParser.FuncBaseIdentContext context) {
-		List<ExpressionNode> arguments = new ArrayList<ExpressionNode>();
-		for (HelloParser.ExprContext child : nullSafe(context.funcCall().argList().expr())) {
-			ExpressionNode arg = (ExpressionNode) visit(child);
-			arguments.add(arg);
-		}
+		List<HelloParser.ExprContext> input = context.funcCall().argList().expr();
+		List<ExpressionNode> arguments = CreateList(input, ExpressionNode.class);
 		
 		if (context.expr() == null)
 			return new FuncCallNode(	context.start.getLine(),
@@ -610,11 +568,8 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	}
 	
 	public AbstractNode visitFuncCall(HelloParser.FuncCallContext context) {
-		List<ExpressionNode> arguments = new ArrayList<ExpressionNode>();
-		for (HelloParser.ExprContext child : nullSafe(context.argList().expr())) {
-			ExpressionNode arg = (ExpressionNode) visit(child);
-			arguments.add(arg);
-		}
+		List<HelloParser.ExprContext> input = context.argList().expr();
+		List<ExpressionNode> arguments = CreateList(input,ExpressionNode.class);
 		
 		return new FuncCallNode(context.start.getLine(),
 								context.start.getCharPositionInLine(),
@@ -623,5 +578,13 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	
     private static <T> Collection<T> nullSafe(Collection<T> c) {
         return (c == null) ? Collections.<T>emptyList() : c;
+    }
+    
+    private <T1, T2> List<T2> CreateList(Collection<T1> list,Class<T2> returntype){
+    	List<T2> result = new ArrayList<T2>();
+		for (T1 child : nullSafe(list)) {
+			result.add((T2) visit((ParseTree) child));
+		}
+    	return result;
     }
 }
