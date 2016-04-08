@@ -1,7 +1,5 @@
 import java.util.*;
-
-import symbolTable.STTypeEntry;
-import symbolTable.SymbolTable;
+import symbolTable.*;
 
 public class TypeCheckVisitor extends ASTVisitor<Object> {
 
@@ -33,13 +31,39 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	@Override
 	public Object visit(ArrayDeclarationNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		// Check if the symbol has already been defined in this scope
+		boolean local;
+		try {
+			local = symbolTable.declaredLocally(node.getIdent());
+		}
+		catch (Exception ex) {
+			local = false;
+		}
+		
+		if (local) {
+			errors.add(new TypeCheckError(node, "Duplicate local variable " + node.getIdent()));
+			return VOID;
+		}
+		
+		Object varType = node.getType().intern();
+		Object rhsType = visit(node.getSize());
+		
+		// Add variable to symbol table
+		symbolTable.enterSymbol(node.getIdent(), new STArrayEntry(((String) varType + "[]").intern()));
+			
+		if (varType == rhsType) {
+			node.setNodeType(VOID);
+			return VOID;
+		}
+				
+		errors.add(new TypeCheckError(node, "Cannot assign variable of type " + varType + " a value of type " + rhsType));
+		return VOID;
 	}
 
 	@Override
 	public Object visit(AssignmentNode node) {
-		// TODO Auto-generated method stub
+		// Symbol table lookup
 		return null;
 	}
 
@@ -51,8 +75,8 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	@Override
 	public Object visit(BoolLiteralNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		node.setNodeType(BOOL);
+		return BOOL;
 	}
 
 	@Override
@@ -63,8 +87,33 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	@Override
 	public Object visit(DataStructDeclarationNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		// Check if the symbol has already been defined in this scope
+				boolean local;
+				try {
+					local = symbolTable.declaredLocally(node.getIdent());
+				}
+				catch (Exception ex) {
+					local = false;
+				}
+				
+				if (local) {
+					errors.add(new TypeCheckError(node, "Duplicate local variable " + node.getIdent()));
+					return VOID;
+				}
+				
+				Object varType = node.getType().intern();
+				Object rhsType = visit(node.getSize());
+				
+				// Add variable to symbol table
+				symbolTable.enterSymbol(node.getIdent(), new STStructEntry();
+					
+				if (varType == rhsType) {
+					node.setNodeType(VOID);
+					return VOID;
+				}
+						
+				errors.add(new TypeCheckError(node, "Cannot assign variable of type " + varType + " a value of type " + rhsType));
+				return VOID;
 	}
 
 	@Override
@@ -182,8 +231,8 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	@Override
 	public Object visit(NumLiteralNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		node.setNodeType(NUM);
+		return NUM;
 	}
 
 	@Override
@@ -201,14 +250,11 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				node.setNodeType(type);
 				return type;
 			case "TextLiteralNode":
-				node.setNodeType(TEXT);
-				return TEXT;
+				return visit ((TextLiteralNode) node);
 			case "NumLiteralNode":
-				node.setNodeType(NUM);
-				return NUM;
+				return visit ((NumLiteralNode) node);
 			case "BoolLiteralNode":
-				node.setNodeType(BOOL);
-				return BOOL;
+				return visit((BoolLiteralNode) node);
 			case "ParenthesesNode":
 				type = visit(((ParenthesesNode) node).getChild());
 				node.setNodeType(type);
@@ -277,8 +323,8 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	@Override
 	public Object visit(TextLiteralNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		node.setNodeType(TEXT);
+		return TEXT;
 	}
 
 	@Override
@@ -326,11 +372,12 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			return VOID;
 		}
 			
-		// Add variable to symbol table
-		symbolTable.enterSymbol(var.getIdent(), new STTypeEntry(var.getType().intern()));
-		
-		Object varType = node.getVariable().getType().intern();
+		Object varType = var.getType().intern();
 		Object rhsType = visit(node.getExpression());
+		
+		// Add variable to symbol table
+		symbolTable.enterSymbol(var.getIdent(), new STTypeEntry(varType));
+		
 		if (varType == rhsType) {
 			node.setNodeType(VOID);
 			return VOID;
