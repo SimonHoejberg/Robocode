@@ -72,7 +72,7 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 				if (child instanceof TerminalNode)		// Skip commas
 					continue;
 				TypeNode type;
-				System.out.println(child.getText());
+				//System.out.println(child.getText());
 				if (child instanceof HelloParser.TypeGeneralTypeContext)
 				{
 					type = new TypeNode(((HelloParser.GeneralTypeContext) child).start.getLine(),
@@ -161,14 +161,22 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	
 	public AbstractNode visitDataStructDef(HelloParser.DataStructDefContext context) {
 		String typeName = context.Ident().getText();
-		
-		final int PRE_DCLS_TOKENS = 3;
-		final int POST_DCLS_TOKENS = 1;
 		List<DeclarationNode> declarations = new ArrayList<DeclarationNode>();
-		for (int i = PRE_DCLS_TOKENS; i < context.getChildCount()-POST_DCLS_TOKENS; ++i) {
-			DeclarationNode declaration = (DeclarationNode) visit(context.getChild(i));
-			declarations.add(declaration);
+		for(ParseTree o : context.children){
+			if(o instanceof HelloParser.VarDclContext 
+			 || o instanceof HelloParser.DataStructDclContext 
+			 || o instanceof HelloParser.ArrayDclContext){
+				DeclarationNode declaration = (DeclarationNode) visit(o);
+				declarations.add(declaration);
+			}
 		}
+//		final int PRE_DCLS_TOKENS = 3;
+//		final int POST_DCLS_TOKENS = 1;
+//		List<DeclarationNode> declarations = new ArrayList<DeclarationNode>();
+//		for (int i = PRE_DCLS_TOKENS; i < context.getChildCount()-POST_DCLS_TOKENS; ++i) {
+//			DeclarationNode declaration = (DeclarationNode) visit(context.getChild(i));
+//			declarations.add(declaration);
+//		}
 		
 		return new DataStructDefinitionNode(context.start.getLine(),
 											context.start.getCharPositionInLine(),
