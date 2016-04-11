@@ -12,6 +12,9 @@ import nodes.DeclarationNode;
 import nodes.EqualityExprNode;
 import nodes.EventDeclarationNode;
 import nodes.ExpressionNode;
+import nodes.ForNode;
+import nodes.ForWithAssignmentNode;
+import nodes.ForWithDclNode;
 import nodes.FuncCallNode;
 import nodes.FuncDeclarationNode;
 import nodes.GeneralIdentNode;
@@ -33,6 +36,7 @@ import nodes.TypeNode;
 import nodes.UnaryExprNode;
 import nodes.VarDeclarationNode;
 import nodes.VarNode;
+import nodes.WhileNode;
 
 
 public abstract class ASTVisitor<T> {
@@ -48,6 +52,9 @@ public abstract class ASTVisitor<T> {
 	public abstract T visit(EqualityExprNode node);
 	public abstract T visit(EventDeclarationNode node);
 	public abstract T visit(ExpressionNode node);
+	public abstract T visit(ForNode node);
+	public abstract T visit(ForWithAssignmentNode node);
+	public abstract T visit(ForWithDclNode node);
 	public abstract T visit(FuncCallNode node);
 	public abstract T visit(FuncDeclarationNode node);
 	public abstract T visit(GeneralIdentNode node);
@@ -69,6 +76,7 @@ public abstract class ASTVisitor<T> {
 	public abstract T visit(UnaryExprNode node);
 	public abstract T visit(VarDeclarationNode node);
 	public abstract T visit(VarNode node);
+	public abstract T visit(WhileNode node);
 	
 	public T visit(AbstractNode node) throws InstanceNotFoundException {
 		if (node instanceof AdditiveExprNode){
@@ -106,6 +114,15 @@ public abstract class ASTVisitor<T> {
 		}
 		if (node instanceof ExpressionNode){
 			return visit ((ExpressionNode) node);
+		}
+		if(node instanceof ForNode){
+			return visit ((ForNode)node);
+		}
+		if(node instanceof ForWithDclNode){
+			return visit ((ForWithDclNode)node);
+		}
+		if(node instanceof ForWithAssignmentNode){
+			return visit ((ForWithAssignmentNode)node);
 		}
 		if (node instanceof FuncCallNode){
 			return visit ((FuncCallNode) node);
@@ -169,6 +186,9 @@ public abstract class ASTVisitor<T> {
 		}
 		if (node instanceof VarNode){
 			return visit ((VarNode) node);
+		}
+		if(node instanceof WhileNode){
+			return visit ((WhileNode)node);
 		}
 		throw new InstanceNotFoundException();
 		

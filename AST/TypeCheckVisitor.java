@@ -180,6 +180,24 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	}
 
 	@Override
+	public Object visit(ForNode node) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public Object visit(ForWithDclNode node) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public Object visit(ForWithAssignmentNode node) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
 	public Object visit(FuncCallNode node) {
 		// TODO Auto-generated method stub
 		return null;
@@ -424,6 +442,12 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	@Override
 	public Object visit(VarNode node) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public Object visit(WhileNode node) {
 		// TODO Auto-generated method stub
 		return null;
 	}
