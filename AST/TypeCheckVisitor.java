@@ -105,17 +105,17 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				}
 				
 				Object varType = node.getType().intern();
-				Object rhsType = visit(node.getSize());
-				
-				// Add variable to symbol table
-				symbolTable.enterSymbol(node.getIdent(), new STStructEntry();
-					
-				if (varType == rhsType) {
-					node.setNodeType(VOID);
-					return VOID;
-				}
-						
-				errors.add(new TypeCheckError(node, "Cannot assign variable of type " + varType + " a value of type " + rhsType));
+//				Object rhsType = visit(node.getSize());
+//				
+//				// Add variable to symbol table
+//				symbolTable.enterSymbol(node.getIdent(), new STStructEntry();
+//					
+//				if (varType == rhsType) {
+//					node.setNodeType(VOID);
+//					return VOID;
+//				}
+//						
+				//errors.add(new TypeCheckError(node, "Cannot assign variable of type " + varType + " a value of type " + rhsType));
 				return VOID;
 	}
 

@@ -1,7 +1,11 @@
 import java.util.*;
+
 import nodes.*;
+
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
+
 import exceptions.*;
 
 
@@ -164,9 +168,7 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		String typeName = context.Ident().getText();
 		List<DeclarationNode> declarations = new ArrayList<DeclarationNode>();
 		for(ParseTree o : context.children){
-			if(o instanceof HelloParser.VarDclContext 
-			 || o instanceof HelloParser.DataStructDclContext 
-			 || o instanceof HelloParser.ArrayDclContext){
+			if(o instanceof ParserRuleContext){
 				DeclarationNode declaration = (DeclarationNode) visit(o);
 				declarations.add(declaration);
 			}
