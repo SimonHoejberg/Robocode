@@ -164,6 +164,24 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 			visit((PrimaryExprNode) node);
 		return null;
 	}
+	
+	@Override
+	public Void visit(ForNode node) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Void visit(ForWithAssignmentNode node) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Void visit(ForWithDclNode node) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	@Override
 	public Void visit(FuncCallNode node) {
@@ -498,6 +516,12 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 	@Override
 	public Void visit(VarNode node) {
 		System.out.print(node.getType() + " " + node.getIdent());
+		return null;
+	}
+
+	@Override
+	public Void visit(WhileNode node) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 }

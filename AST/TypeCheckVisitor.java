@@ -1,5 +1,7 @@
 import java.util.*;
 
+import org.antlr.v4.parse.ANTLRParser.exceptionGroup_return;
+
 import com.sun.javafx.binding.SelectBinding.AsInteger;
 
 import exceptions.*;
@@ -171,20 +173,43 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	@Override
 	public Object visit(ForNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		List<ExpressionNode> input = node.getExpressions();
+		for(ExpressionNode expr : input){
+			visit(expr);
+		}
+		List<StatementNode> stms = node.getStatements();
+		for(StatementNode stm : stms){
+			visit(stm);
+		}
+		return VOID;
 	}
 	
 	@Override
 	public Object visit(ForWithDclNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		visit(node.getVarDeclaration());
+		List<ExpressionNode> input = node.getExpressions();
+		for(ExpressionNode expr : input){
+			visit(expr);
+		}
+		List<StatementNode> stms = node.getStatements();
+		for(StatementNode stm : stms){
+			visit(stm);
+		}
+		return VOID;
 	}
 	
 	@Override
 	public Object visit(ForWithAssignmentNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		visit(node.getAssignment());
+		List<ExpressionNode> input = node.getExpressions();
+		for(ExpressionNode expr : input){
+			visit(expr);
+		}
+		List<StatementNode> stms = node.getStatements();
+		for(StatementNode stm : stms){
+			visit(stm);
+		}
+		return VOID;
 	}
 	
 	@Override
@@ -438,8 +463,15 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	
 	@Override
 	public Object visit(WhileNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		List<ExpressionNode> input = node.getExpressions();
+		for(ExpressionNode expr : input){
+			visit(expr);
+		}
+		List<StatementNode> stms = node.getStatements();
+		for(StatementNode stm : stms){
+			visit(stm);
+		}
+		return VOID;
 	}
 
 }
