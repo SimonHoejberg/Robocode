@@ -63,11 +63,16 @@ public class SymbolTable implements SymbolTableInterface {
 		throw new Exception(ident + " cannot be resolved to a type");
 	}
 	
-	public boolean declaredLocally(String ident) throws Exception {
+	public boolean declaredLocally(String ident) {
 		// Retrieve symbol
-		SymbolTableEntry entry = retrieveSymbol(ident);
-		
-		// If symbol is in current scope, return true
-		return entry.getScope() == currentScope;
+		try {
+			SymbolTableEntry entry = retrieveSymbol(ident);
+			
+			// If symbol is in current scope, return true
+			return entry.getScope() == currentScope;
+		}
+		catch (Exception ex) {
+			return false;
+		}		
 	}
 }

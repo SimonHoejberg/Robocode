@@ -90,35 +90,25 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		return null;
 	}
 
+	
+	//STArraygEntry cannot be resolved to a type
 	@Override
 	public Object visit(DataStructDeclarationNode node) {
 		// Check if the symbol has already been defined in this scope
-				boolean local;
-				try {
-					local = symbolTable.declaredLocally(node.getIdent());
-				}
-				catch (Exception ex) {
-					local = false;
-				}
+		boolean local;
 				
-				if (local) {
-					errors.add(new TypeCheckError(node, "Duplicate local variable " + node.getIdent()));
-					return VOID;
-				}
+		local = symbolTable.declaredLocally(node.getIdent());
 				
-				Object varType = node.getType().intern();
-				Object rhsType = visit(node.getSize());
-				
-				// Add variable to symbol table
-				symbolTable.enterSymbol(node.getIdent(), new STStructEntry();
-					
-				if (varType == rhsType) {
-					node.setNodeType(VOID);
-					return VOID;
-				}
-						
-				errors.add(new TypeCheckError(node, "Cannot assign variable of type " + varType + " a value of type " + rhsType));
-				return VOID;
+		if (local) {
+			errors.add(new TypeCheckError(node, "Duplicate local variable " + node.getIdent()));
+			return VOID;
+		}
+		
+		// Add variable to symbol table
+		symbolTable.enterSymbol(node.getIdent(), new STStructEntry(node.getType().intern()));
+		
+		node.setNodeType(VOID);
+		return VOID;
 	}
 
 	@Override

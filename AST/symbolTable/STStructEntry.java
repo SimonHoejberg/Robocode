@@ -1,15 +1,9 @@
 package symbolTable;
 
-public class STStructEntry extends SymbolTableEntry {
+public class STStructEntry extends STTypeEntry {
 
-	SymbolTable vars;
-	
-	public STStructEntry(SymbolTable vars) {
-		this.vars = vars;
+	public STStructEntry(Object type) {
+		super(type);
 	}
 	
-	public SymbolTable getVariables() {
-		return vars;
-	}
-
 }
