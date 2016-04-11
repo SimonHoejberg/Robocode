@@ -73,6 +73,9 @@ func void CleverFire(num distance){
 	}else if (distance < 200){
 		fire(1)
 	}
+	for(num i := 0, i < 5, i +:= 1){
+		dostuff()
+	}
 }
 
 event onHitRobot(HitRobotEvent e){
