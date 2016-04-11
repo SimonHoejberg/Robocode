@@ -1,6 +1,6 @@
 import java.util.*;
 
-import exceptions.NotImplementedException;
+import exceptions.*;
 import nodes.*;
 
 public class PrettyPrintVisitor extends ASTVisitor<Void> {
