@@ -1,5 +1,7 @@
 import java.util.*;
 
+import com.sun.javafx.binding.SelectBinding.AsInteger;
+
 import exceptions.*;
 import nodes.*;
 import symbolTable.*;
@@ -203,20 +205,44 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	@Override
 	public Object visit(IterationNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		Object nodeType = node.getNodeType();
+		if(nodeType instanceof ForNode){
+			visit((ForNode)nodeType);
+		}
+		else if(nodeType instanceof ForWithAssignmentNode){
+			visit((ForWithAssignmentNode)nodeType);
+		}
+		else if(nodeType instanceof ForWithDclNode){
+			visit((ForWithDclNode)nodeType);
+		}
+		else if(nodeType instanceof WhileNode){
+			visit((WhileNode)nodeType);
+		}
+		return VOID;
 	}
 
 	@Override
 	public Object visit(LogicalANDExprNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		Object leftType = visit(node.getLeftChild());
+		Object rightType = visit(node.getRightChild());
+		if(leftType == BOOL && rightType == BOOL){
+			node.setNodeType(BOOL);
+			return BOOL;
+		}
+		errors.add(new TypeCheckError(node, "The operator" + node.getNodeType() + "is undefined for the argument type(s) " + leftType + ", " + rightType));
+		return BOOL;
 	}
 
 	@Override
 	public Object visit(LogicalORExprNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		Object leftType = visit(node.getLeftChild());
+		Object rightType = visit(node.getRightChild());
+		if(leftType == BOOL && rightType == BOOL){
+			node.setNodeType(BOOL);
+			return BOOL;
+		}
+		errors.add(new TypeCheckError(node, "The operator" + node.getNodeType() + "is undefined for the argument type(s) " + leftType + ", " + rightType));
+		return BOOL;
 	}
 
 	@Override
@@ -280,8 +306,14 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	@Override
 	public Object visit(RelationExprNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		Object leftType = visit(node.getLeftChild());
+		Object rightType = visit(node.getRightChild());
+		if(leftType == NUM && rightType == NUM){
+			node.setNodeType(BOOL);
+			return BOOL;
+		}
+		errors.add(new TypeCheckError(node, "The operator" + node.getNodeType() + "is undefined for the argument type(s) " + leftType + ", " + rightType));
+		return BOOL;
 	}
 
 	@Override
