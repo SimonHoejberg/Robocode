@@ -173,13 +173,6 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 				declarations.add(declaration);
 			}
 		}
-//		final int PRE_DCLS_TOKENS = 3;
-//		final int POST_DCLS_TOKENS = 1;
-//		List<DeclarationNode> declarations = new ArrayList<DeclarationNode>();
-//		for (int i = PRE_DCLS_TOKENS; i < context.getChildCount()-POST_DCLS_TOKENS; ++i) {
-//			DeclarationNode declaration = (DeclarationNode) visit(context.getChild(i));
-//			declarations.add(declaration);
-//		}
 		
 		return new DataStructDefinitionNode(context.start.getLine(),
 											context.start.getCharPositionInLine(),
@@ -306,51 +299,15 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 							 context.start.getCharPositionInLine(),
  							 expressions, blockStatements);		
 	}
-	
-	public AbstractNode visitForAssignStmt(HelloParser.ForAssignStmtContext context) {
-		// Statements in block
-		List<ParseTree> input = context.block().stmts().children;
-		List<StatementNode> blockStatements = CreateList(input, StatementNode.class);
-		
-		List<ExpressionNode> expressions = new ArrayList<ExpressionNode>();
-		AssignmentNode assignment = new AssignmentNode(context.basicAssignment().start.getLine(),
-													   context.basicAssignment().start.getCharPositionInLine(),
-													   (GeneralIdentNode) visit(context.basicAssignment().Ident()),
-													   AssignmentNode.AssignmentType.basic,
-													   (ExpressionNode) visit(context.basicAssignment().expr()));
-		expressions.add((ExpressionNode) visit(context.second));
-		expressions.add((ExpressionNode) visit(context.third));
-		return new ForWithAssignmentNode(context.start.getLine(),
-										 context.start.getCharPositionInLine(),
-										 expressions, blockStatements, assignment);
-	}
-	
-	public AbstractNode visitForDclStmt(HelloParser.ForDclStmtContext context) {
-		// Statements in block
-		List<ParseTree> input = context.block().stmts().children;
-		List<StatementNode> blockStatements = CreateList(input, StatementNode.class);
-		
-		List<ExpressionNode> expressions = new ArrayList<ExpressionNode>();
-		VarDeclarationNode varDcl = (VarDeclarationNode) visit(context.varDcl());
-		expressions.add((ExpressionNode) visit(context.second));
-		expressions.add((ExpressionNode) visit(context.third));
-		return new ForWithDclNode(context.start.getLine(),
-								  context.start.getCharPositionInLine(),
-								  expressions, blockStatements, varDcl);
-	}
 
 	public AbstractNode visitForStmt(HelloParser.ForStmtContext context) {
 		// Statements in block
 		List<ParseTree> input = context.block().stmts().children;
 		List<StatementNode> blockStatements = CreateList(input, StatementNode.class);
 		
-		List<ExpressionNode> expressions = new ArrayList<ExpressionNode>();
-		expressions.add((ExpressionNode) visit(context.first));
-		expressions.add((ExpressionNode) visit(context.second));
-		expressions.add((ExpressionNode) visit(context.third));
 		return new ForNode(context.start.getLine(),
 						   context.start.getCharPositionInLine(),
-						   expressions, blockStatements);
+						   visit(context.getChild(2)),visit(context.getChild(4)),visit(context.getChild(6)), blockStatements);
 	}
 	
 	public AbstractNode visitRetValStmt(HelloParser.RetValStmtContext context) {

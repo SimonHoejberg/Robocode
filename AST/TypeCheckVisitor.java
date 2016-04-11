@@ -185,34 +185,6 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	}
 	
 	@Override
-	public Object visit(ForWithDclNode node) {
-		visit(node.getVarDeclaration());
-		List<ExpressionNode> input = node.getExpressions();
-		for(ExpressionNode expr : input){
-			visit(expr);
-		}
-		List<StatementNode> stms = node.getStatements();
-		for(StatementNode stm : stms){
-			visit(stm);
-		}
-		return VOID;
-	}
-	
-	@Override
-	public Object visit(ForWithAssignmentNode node) {
-		visit(node.getAssignment());
-		List<ExpressionNode> input = node.getExpressions();
-		for(ExpressionNode expr : input){
-			visit(expr);
-		}
-		List<StatementNode> stms = node.getStatements();
-		for(StatementNode stm : stms){
-			visit(stm);
-		}
-		return VOID;
-	}
-	
-	@Override
 	public Object visit(FuncCallNode node) {
 		// TODO Auto-generated method stub
 		return null;
@@ -241,12 +213,6 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		Object nodeType = node.getNodeType();
 		if(nodeType instanceof ForNode){
 			visit((ForNode)nodeType);
-		}
-		else if(nodeType instanceof ForWithAssignmentNode){
-			visit((ForWithAssignmentNode)nodeType);
-		}
-		else if(nodeType instanceof ForWithDclNode){
-			visit((ForWithDclNode)nodeType);
 		}
 		else if(nodeType instanceof WhileNode){
 			visit((WhileNode)nodeType);

@@ -1,5 +1,7 @@
 import java.util.*;
 
+import com.sun.javafx.binding.SelectBinding.AsInteger;
+
 import exceptions.*;
 import nodes.*;
 
@@ -28,7 +30,7 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 	public Void visit(ArrayDeclarationNode node) {
 		System.out.print(node.getType() + " " + node.getIdent() + "[");
 		visit(node.getSize());
-		System.out.println("]");
+		System.out.print("]");
 		
 		return null;
 	}
@@ -38,7 +40,6 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 		visit(node.getGeneralIdent());
 		System.out.print(node.getType().toString());
 		visit(node.getExpression());
-		System.out.println();
 		
 		return null;
 	}
@@ -70,14 +71,13 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 	@Override
 	public Void visit(CallStatementNode node) {
 		visit(node.getIdent());
-		System.out.println();
 		
 		return null;
 	}
 
 	@Override
 	public Void visit(DataStructDeclarationNode node) {
-		System.out.println(node.getType() + " " + node.getIdent());
+		System.out.print(node.getType() + " " + node.getIdent());
 		return null;
 	}
 
@@ -115,6 +115,7 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 			visit((DataStructDeclarationNode) node);
 		else if (node instanceof ArrayDeclarationNode)
 			visit((ArrayDeclarationNode) node);
+		System.out.println();
 		return null;
 	}
 
@@ -129,7 +130,7 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 
 	@Override
 	public Void visit(EventDeclarationNode node) {
-		System.out.print("\nevent " + node.getIdent() + "(");
+		System.out.print("event " + node.getIdent() + "(");
 		visit(node.getParam());
 		System.out.println(") {");
 		
@@ -140,7 +141,7 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 		
 		indentationLevel--;
 		
-		System.out.println("}\n");
+		System.out.println("}");
 		return null;
 	}
 
@@ -172,18 +173,6 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 	}
 
 	@Override
-	public Void visit(ForWithAssignmentNode node) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Void visit(ForWithDclNode node) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public Void visit(FuncCallNode node) {
 		System.out.print(node.getIdent() + "(");
 		
@@ -200,7 +189,7 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 
 	@Override
 	public Void visit(FuncDeclarationNode node) {
-		System.out.print("\nfunc ");
+		System.out.print("func ");
 		for (int i = 0; i < node.getReturnTypes().size(); ++i) {
 			visit(node.getReturnTypes().get(i));
 			if (i+1 < node.getReturnTypes().size())
@@ -221,7 +210,7 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 		
 		indentationLevel--;
 		
-		System.out.println("}\n");
+		System.out.println("}");
 		return null;
 	}
 
@@ -250,12 +239,13 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 		indentationLevel--;
 		
 		addIndentation();
-		System.out.println("}");
+		System.out.print("}");
 		
 		switch (node.getClass().getName()) {
 			case "nodes.IfNode":				
 				break;
 			case "nodes.IfElseNode":
+				System.out.println();
 				addIndentation();
 				System.out.println("else {");
 				
@@ -267,10 +257,11 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 				indentationLevel--;
 				
 				addIndentation();
-				System.out.println("}");
+				System.out.print("}");
 				
 				break;
 			case "nodes.ElseIfNode":
+				System.out.println();
 				addIndentation();
 				System.out.print("else ");
 				visit(((ElseIfNode) node).getNext());
@@ -284,38 +275,32 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 
 	@Override
 	public Void visit(IterationNode node) {
-		
 		switch (node.getClass().getName()) {
 			case "WhileNode":	
 				System.out.print("while (");
 				visit(node.getExpressions().get(0));
 				System.out.println(") {");	
 				break;
-			case "ForWithAssignmentNode":
-				System.out.println("for (");
-				visit(((ForWithAssignmentNode) node).getAssignment());
+			case "nodes.ForNode":
+				System.out.print("for (");
+				if(((ForNode)node).assign instanceof AssignmentNode){
+					visit((AssignmentNode)((ForNode)node).assign);
+				}
+				else if(((ForNode)node).assign instanceof VarDeclarationNode){
+					visit((VarDeclarationNode)((ForNode)node).assign);
+				}
+				else if(((ForNode)node).assign instanceof ExpressionNode){
+					visit((ExpressionNode)((ForNode)node).assign);
+				}
 				System.out.print("; ");
-				visit(node.getExpressions().get(0));
+				visit((ExpressionNode)((ForNode)node).predicate);
 				System.out.print("; ");
-				visit(node.getExpressions().get(1));
-				System.out.println(") {");		
-				break;
-			case "ForWithDclNode":
-				System.out.println("for (");
-				visit(((ForWithDclNode) node).getVarDeclaration());
-				System.out.print("; ");
-				visit(node.getExpressions().get(0));
-				System.out.print("; ");
-				visit(node.getExpressions().get(1));
-				System.out.println(") {");	
-				break;
-			case "ForNode":
-				System.out.println("for (");
-				visit(node.getExpressions().get(0));
-				System.out.print("; ");
-				visit(node.getExpressions().get(1));
-				System.out.print("; ");
-				visit(node.getExpressions().get(2));
+				if(((ForNode)node).update instanceof AssignmentNode){
+					visit((AssignmentNode)((ForNode)node).update);
+				}
+				else if(((ForNode)node).update instanceof ExpressionNode){
+					visit((ExpressionNode)((ForNode)node).update);
+				}
 				System.out.println(") {");	
 				break;
 			default:
@@ -330,7 +315,7 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 		indentationLevel--;
 		
 		addIndentation();
-		System.out.println("}");
+		System.out.print("}");
 		
 		return null;
 	}
@@ -423,7 +408,6 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 					System.out.print(", ");
 			}
 		}
-		System.out.println();
 		
 		return null;
 	}
@@ -432,10 +416,10 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 	public Void visit(RobotDeclarationNode node) {
 		switch (node.getType()) {
 			case name:
-				System.out.println("\nroboname := " + node.getName() + '\n');
+				System.out.println("roboname := " + node.getName());
 				break;
 			case initialization:
-				System.out.println("\nrobot initialization() {");
+				System.out.println("robot initialization() {");
 				
 				indentationLevel++;
 				
@@ -444,10 +428,10 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 				
 				indentationLevel--;
 				
-				System.out.println("}\n");
+				System.out.println("}");
 				break;
 			case behavior:
-				System.out.println("\nrobot behavior() {");
+				System.out.println("robot behavior() {");
 				
 				indentationLevel++;
 				
@@ -456,7 +440,7 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 				
 				indentationLevel--;
 				
-				System.out.println("}\n");
+				System.out.println("}");
 				break;
 			default:
 				throw new NotImplementedException();
@@ -480,6 +464,7 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 			visit((IterationNode) node);
 		else if (node instanceof ReturnNode)
 			visit((ReturnNode) node);
+		System.out.println();
 		return null;
 	}
 
@@ -509,7 +494,6 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 		visit(node.getVariable());
 		System.out.print(" := ");
 		visit(node.getExpression());
-		System.out.println();
 		return null;
 	}
 
