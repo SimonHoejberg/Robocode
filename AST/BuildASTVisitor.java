@@ -1,48 +1,8 @@
 import java.util.*;
-
-import nodes.AbstractNode;
-import nodes.AdditiveExprNode;
-import nodes.ArrayDeclarationNode;
-import nodes.AssignmentNode;
-import nodes.BaseIdentNode;
-import nodes.BoolLiteralNode;
-import nodes.CallStatementNode;
-import nodes.DataStructDeclarationNode;
-import nodes.DataStructDefinitionNode;
-import nodes.DeclarationNode;
-import nodes.ElseIfNode;
-import nodes.EqualityExprNode;
-import nodes.EventDeclarationNode;
-import nodes.ExpressionNode;
-import nodes.ForNode;
-import nodes.ForWithAssignmentNode;
-import nodes.ForWithDclNode;
-import nodes.FuncCallNode;
-import nodes.FuncDeclarationNode;
-import nodes.GeneralIdentNode;
-import nodes.IfElseNode;
-import nodes.IfNode;
-import nodes.LogicalANDExprNode;
-import nodes.LogicalORExprNode;
-import nodes.MultExprNode;
-import nodes.NumLiteralNode;
-import nodes.ParenthesesNode;
-import nodes.ProgramNode;
-import nodes.RelationExprNode;
-import nodes.ReturnNode;
-import nodes.RobotDeclarationNode;
-import nodes.StatementNode;
-import nodes.TextLiteralNode;
-import nodes.TypeNode;
-import nodes.UnaryExprNode;
-import nodes.VarDeclarationNode;
-import nodes.VarNode;
-import nodes.WhileNode;
-
+import nodes.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
-
-import exceptions.NotImplementedException;
+import exceptions.*;
 
 
 public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
