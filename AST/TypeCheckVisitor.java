@@ -7,6 +7,7 @@ import com.sun.javafx.binding.SelectBinding.AsInteger;
 import exceptions.*;
 import nodes.*;
 import symbolTable.*;
+import symbolTable.STSubprogramEntry.SubprogramType;
 
 public class TypeCheckVisitor extends ASTVisitor<Object> {
 
@@ -152,7 +153,6 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	@Override
 	public Object visit(EventDeclarationNode node) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
