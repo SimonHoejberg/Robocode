@@ -13,7 +13,10 @@ robot initialization(){
 	num turnDirection := 1
 	bool moving := false
 	num remainingDistance := 0
-
+	simon dude[2]
+	dude[1].victor := 2
+	dude[0].mad.yes := false
+	dude[1].emil[0] := 2
 	setBodyColor(Color.gray)
 	setGunColor(Color.lightGray)
 	setRadarColor(Color.red)

@@ -52,7 +52,7 @@ assignmentOp : op=(':=' | '+:=' | '-:=' | '*:=' | '/:=' | '%:=');
 
 expr : logicalORExpr ;
 
-stmts  : (varDcl | assign | callStmt | ifStmt | iterStmt | returnStmt)*;
+stmts  : (varDcl | dataStructDcl | arrayDcl | assign | callStmt | ifStmt | iterStmt | returnStmt )*;
 
 ifStmt : 'if' '(' expr ')' block									# ifThenStmt
 		|'if' '(' expr ')' ifblock=block 'else' elseblock=block		# ifElseStmt

@@ -454,6 +454,10 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 		addIndentation();
 		if (node instanceof VarDeclarationNode)
 			visit((VarDeclarationNode) node);
+		else if (node instanceof ArrayDeclarationNode)
+			visit((ArrayDeclarationNode) node);
+		else if (node instanceof DataStructDeclarationNode)
+			visit((DataStructDeclarationNode) node);
 		else if (node instanceof AssignmentNode)
 			visit((AssignmentNode) node);
 		else if (node instanceof CallStatementNode)
