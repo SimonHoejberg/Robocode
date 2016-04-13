@@ -142,7 +142,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	public Object visit(EqualityExprNode node) {
 		Object leftType = visit(node.getLeftChild());
 		Object rightType = visit(node.getRightChild());
-		if(leftType == rightType){
+		if(leftType == NUM && rightType == NUM || leftType == TEXT && rightType == TEXT ){
 			node.setNodeType(BOOL);
 			return BOOL;
 		}
