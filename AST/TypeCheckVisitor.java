@@ -140,8 +140,14 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	@Override
 	public Object visit(EqualityExprNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		Object leftType = visit(node.getLeftChild());
+		Object rightType = visit(node.getRightChild());
+		if(leftType == rightType){
+			node.setNodeType(BOOL);
+			return BOOL;
+		}
+		errors.add(new TypeCheckError(node, "The operator" + node.getNodeType() + "is undefined for the argument type(s) " + leftType + ", " + rightType));
+		return BOOL;
 	}
 
 	@Override
@@ -273,17 +279,17 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	public Object visit(PrimaryExprNode node) {
 		Object type;
 		switch (node.getClass().getName()) {
-			case "GeneralIdentNode":
+			case "nodes.GeneralIdentNode":
 				type = visit ((GeneralIdentNode) node);
 				node.setNodeType(type);
 				return type;
-			case "TextLiteralNode":
+			case "nodes.TextLiteralNode":
 				return visit ((TextLiteralNode) node);
-			case "NumLiteralNode":
+			case "nodes.NumLiteralNode":
 				return visit ((NumLiteralNode) node);
-			case "BoolLiteralNode":
+			case "nodes.BoolLiteralNode":
 				return visit((BoolLiteralNode) node);
-			case "ParenthesesNode":
+			case "nodes.ParenthesesNode":
 				type = visit(((ParenthesesNode) node).getChild());
 				node.setNodeType(type);
 				return type;

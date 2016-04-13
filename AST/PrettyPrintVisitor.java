@@ -276,7 +276,7 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 	@Override
 	public Void visit(IterationNode node) {
 		switch (node.getClass().getName()) {
-			case "WhileNode":	
+			case "nodes.WhileNode":	
 				System.out.print("while (");
 				visit(node.getExpressions().get(0));
 				System.out.println(") {");	

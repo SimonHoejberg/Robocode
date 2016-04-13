@@ -20,7 +20,8 @@ robot initialization(){
 	setBulletColor(Color.black)
 }
 
-func num foo(){
+func num doStuff(){
+	return 1
 }
 
 robot behavior(){
@@ -73,10 +74,40 @@ func void CleverFire(num distance){
 	}else if (distance < 200){
 		fire(1)
 	}
+	
 	for(num i := 0, i < 5, i +:= 1){
 		dostuff()
 	}
+	
+	num h := 0
+	for(h:=0, h < 5, h +:= 1){
+		dostuff()
+	}
+	
+	num i:= 0
+	for(i=h, i < 5, i +:= 1){
+		dostuff()
+	}
+	
+	for(num i := 0, i < 5, i!=6){
+		dostuff()
+	}
+	
+	num h := 0
+	for(h:=0, h < 5, h!=6){
+		dostuff()
+	}
+	
+	num i:= 0
+	for(i=h, i < 5, i!=6){
+		dostuff()
+	}
+	while(1=1){
+		dostuff()
+	}
 }
+
+
 
 event onHitRobot(HitRobotEvent e){
 	if (e.getBearing() >= 0){
