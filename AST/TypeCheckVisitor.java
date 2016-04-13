@@ -348,6 +348,10 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	public Object visit(StatementNode node) {
 		if (node instanceof VarDeclarationNode)
 			return visit((VarDeclarationNode) node);
+		else if (node instanceof ArrayDeclarationNode)
+			return visit((ArrayDeclarationNode) node);
+		else if (node instanceof DataStructDeclarationNode)
+			return visit((DataStructDeclarationNode) node);
 		else if (node instanceof AssignmentNode)
 			return visit((AssignmentNode) node);
 		else if (node instanceof CallStatementNode)
