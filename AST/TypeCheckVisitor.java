@@ -370,6 +370,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	@Override
 	public Object visit(IfNode node) {
+		
 		Object exprType = visit(node.getExpression());
 		if (exprType != BOOL)
 			errors.add(new TypeCheckError(node, "Type mismatch: cannot convert from " + exprType + " to boolean"));
@@ -380,7 +381,20 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		for (StatementNode stmt : stmts)
 			visit(stmt);
 		
-		return VOID;
+		switch (node.getClass().getName()) {
+			case "nodes.IfNode":
+				return VOID;
+			case "nodes.IfElseNode":
+				stmts = ((IfElseNode) node).getElseBlockStatements();
+				for (StatementNode stmt : stmts)
+					visit(stmt);
+				return VOID;
+			case "nodes.ElseIfNode":
+				visit(((ElseIfNode) node).getNext());
+				return VOID;
+			default:
+				throw new NotImplementedException();
+		}	
 	}
 
 	@Override
