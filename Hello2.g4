@@ -3,11 +3,6 @@
  */
 grammar Hello2;
 
-options{
-	output=AST;
-}
-
-
 
 prog : dcls;         // match keyword hello followed by an identifier
 

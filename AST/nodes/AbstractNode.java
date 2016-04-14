@@ -1,5 +1,4 @@
 package nodes;
-import org.antlr.v4.runtime.tree.ParseTree;
 
 public abstract class AbstractNode {
 	protected Object nodeType;

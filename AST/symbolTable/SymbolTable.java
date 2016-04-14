@@ -1,6 +1,5 @@
 package symbolTable;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class SymbolTable implements SymbolTableInterface {
