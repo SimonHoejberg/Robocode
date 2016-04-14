@@ -337,12 +337,11 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	
 	@Override
 	public Object visit(GeneralIdentNode node) {
-		Object currentType;
 		List<BaseIdentNode> idents = node.getIdents();
+		Object type;
 		for (int i = 0; i < idents.size(); ++i) {
 			BaseIdentNode ident = idents.get(i);
 			
-			Object type;
 			if (ident instanceof FuncCallNode)
 				type = visit((FuncCallNode) ident);
 			else
@@ -355,24 +354,33 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			
 			if (i+1 < idents.size()) {
 				if (type == NUM || type == BOOL || type == TEXT || type == VOID) {
+					currentStructDef = null;
 					errors.add(new TypeCheckError(ident, "The primitive type " + type + " of " + ident + " does not have a field " + idents.get(i+1)));
 					return VOID;
 				}
 			} 
 			else {
+				currentStructDef = null;
 				node.setNodeType(type);
 				return type;
 			}
 		}
-		
-		// Need to do symbol table lookup here
-		return null;
+		throw new RuntimeException("GeneralIdentNode " + node + " is empty");
 	}
 
 	@Override
 	public Object visit(IfNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		Object exprType = visit(node.getExpression());
+		if (exprType != BOOL)
+			errors.add(new TypeCheckError(node, "Type mismatch: cannot convert from " + exprType + " to boolean"));
+		else
+			node.setNodeType(VOID);
+		
+		List<StatementNode> stmts = node.getIfBlockStatements();
+		for (StatementNode stmt : stmts)
+			visit(stmt);
+		
+		return VOID;
 	}
 
 	@Override
