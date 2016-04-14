@@ -280,10 +280,31 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	@Override
 	public Object visit(ForNode node) {
-		List<ExpressionNode> input = node.getExpressions();
-		for(ExpressionNode expr : input){
-			visit(expr);
-		}
+		Object assign = node.assign;
+		
+		if (assign instanceof ExpressionNode)
+			visit((ExpressionNode) assign);
+		else if (assign instanceof VarDeclarationNode)
+			visit((VarDeclarationNode) assign);
+		else if (assign instanceof AssignmentNode)
+			visit((AssignmentNode) assign);
+		else
+			throw new NotImplementedException();
+
+		Object exprType = visit((ExpressionNode) node.predicate);
+		if (exprType != BOOL)
+			errors.add(new TypeCheckError(node, "Type mismatch: cannot convert from " + exprType + " to boolean"));
+		else
+			node.setNodeType(VOID);
+		
+		Object update = node.update;
+		if (update instanceof ExpressionNode)
+			visit((ExpressionNode) update);
+		else if (update instanceof AssignmentNode)
+			visit((AssignmentNode) update);
+		else
+			throw new NotImplementedException();
+		
 		List<StatementNode> stms = node.getStatements();
 		for(StatementNode stm : stms){
 			visit(stm);
@@ -629,9 +650,12 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	@Override
 	public Object visit(WhileNode node) {
 		List<ExpressionNode> input = node.getExpressions();
-		for(ExpressionNode expr : input){
-			visit(expr);
-		}
+		Object exprType = visit(input.get(0));
+		if (exprType != BOOL)
+			errors.add(new TypeCheckError(node, "Type mismatch: cannot convert from " + exprType + " to boolean"));
+		else
+			node.setNodeType(VOID);
+		
 		List<StatementNode> stms = node.getStatements();
 		for(StatementNode stm : stms){
 			visit(stm);
