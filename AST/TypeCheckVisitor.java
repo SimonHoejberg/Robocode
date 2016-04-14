@@ -246,7 +246,9 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		}
 		
 		// Add variable to symbol table
-		symbolTable.enterSymbol(node.getIdent(), new STSubprogramEntry(SubprogramType.event,new Object[]{},symbolTable)); //FIXME should not be the global symbolTable
+		SymbolTable eventTable = new SymbolTable();
+		eventTable.enterSymbol(node.getParam().getIdent(), new STTypeEntry(node.getParam().getType().intern()));
+		symbolTable.enterSymbol(node.getIdent(), new STSubprogramEntry(SubprogramType.event,new Object[]{},eventTable));
 		symbolTable.openScope();
 		List<StatementNode> input = node.getStatements();
 		for(StatementNode i : input)
@@ -345,7 +347,11 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		}
 		
 		// Add variable to symbol table
-		symbolTable.enterSymbol(node.getIdent(), new STSubprogramEntry(SubprogramType.func,node.getReturnTypes().toArray(),symbolTable)); //FIXME should not be the global symbolTable 
+		SymbolTable funcTable = new SymbolTable();
+		List<VarNode> params = node.getParamList();
+		for(VarNode param : params)
+			funcTable.enterSymbol(param.getIdent(), new STTypeEntry(param.getType().intern()));
+		symbolTable.enterSymbol(node.getIdent(), new STSubprogramEntry(SubprogramType.func,node.getReturnTypes().toArray(),funcTable)); 
 		symbolTable.openScope();
 		List<StatementNode> input = node.getStatements();
 		for(StatementNode i : input)
