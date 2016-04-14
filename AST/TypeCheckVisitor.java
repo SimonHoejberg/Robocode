@@ -55,8 +55,10 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		Object rhsType = visit(node.getSize());
 		
 		// Add variable to symbol table
-		symbolTable.enterSymbol(node.getIdent(), new STArrayEntry(((String) varType + "[]").intern()));
-			
+		if(currentStructDef == null)
+			symbolTable.enterSymbol(node.getIdent(), new STArrayEntry(((String) varType + "[]").intern()));
+		else	
+			currentStructDef.getVariables().enterSymbol(node.getIdent(), new STArrayEntry(((String) varType + "[]").intern()));
 		if (varType == rhsType) {
 			node.setNodeType(VOID);
 			return VOID;
@@ -169,16 +171,36 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		}
 		
 		// Add variable to symbol table
-		symbolTable.enterSymbol(node.getIdent(), new STStructEntry(node.getType().intern()));
-		
+		if(currentStructDef == null)
+			symbolTable.enterSymbol(node.getIdent(), new STStructEntry(node.getType().intern()));
+		else
+			currentStructDef.getVariables().enterSymbol(node.getIdent(), new STStructEntry(node.getType().intern()));
 		node.setNodeType(VOID);
 		return VOID;
 	}
 
 	@Override
 	public Object visit(DataStructDefinitionNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		// Check if the symbol has already been defined in this scope
+		boolean local;
+				
+		local = symbolTable.declaredLocally(node.getTypeName());
+				
+		if (local) {
+			errors.add(new TypeCheckError(node, "Duplicate struct definition " + node.getTypeName()));
+			return VOID;
+		}
+		
+		// Add variable to symbol table
+		STStructDefEntry def = new STStructDefEntry(new SymbolTable());
+		currentStructDef = def;
+		List<DeclarationNode> input = node.getDeclarations();
+		for(DeclarationNode d : input)
+			visit(d);
+		currentStructDef = null;
+		symbolTable.enterSymbol(node.getTypeName().intern(), def);
+		node.setNodeType(VOID);
+		return VOID;
 	}
 
 	@Override
@@ -546,8 +568,10 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		Object rhsType = visit(node.getExpression());
 		
 		// Add variable to symbol table
-		symbolTable.enterSymbol(var.getIdent(), new STTypeEntry(varType));
-		
+		if(currentStructDef == null)
+			symbolTable.enterSymbol(var.getIdent(), new STTypeEntry(varType));
+		else
+			currentStructDef.getVariables().enterSymbol(var.getIdent(), new STTypeEntry(varType));
 		if (varType == rhsType) {
 			node.setNodeType(VOID);
 			return VOID;
