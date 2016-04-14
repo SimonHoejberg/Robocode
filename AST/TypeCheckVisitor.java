@@ -246,7 +246,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		}
 		
 		// Add variable to symbol table
-		symbolTable.enterSymbol(node.getIdent(), new STSubprogramEntry(SubprogramType.event,new Object[]{},symbolTable));
+		symbolTable.enterSymbol(node.getIdent(), new STSubprogramEntry(SubprogramType.event,new Object[]{},symbolTable)); //FIXME should not be the global symbolTable
 		symbolTable.openScope();
 		List<StatementNode> input = node.getStatements();
 		for(StatementNode i : input)
@@ -314,8 +314,25 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	@Override
 	public Object visit(FuncDeclarationNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		boolean local;
+		
+		local = symbolTable.declaredLocally(node.getIdent());
+				
+		if (local) {
+			errors.add(new TypeCheckError(node, "Duplicate func " + node.getIdent()));
+			return VOID;
+		}
+		
+		// Add variable to symbol table
+		symbolTable.enterSymbol(node.getIdent(), new STSubprogramEntry(SubprogramType.func,node.getReturnTypes().toArray(),symbolTable)); //FIXME should not be the global symbolTable 
+		symbolTable.openScope();
+		List<StatementNode> input = node.getStatements();
+		for(StatementNode i : input)
+			visit(i);
+		
+		symbolTable.closeScope();
+		node.setNodeType(VOID);
+		return VOID;
 	}
 	
 	@Override
