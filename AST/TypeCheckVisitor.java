@@ -9,6 +9,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	SymbolTable symbolTable;
 	List<TypeCheckError> errors;
+	private STStructDefEntry currentStructDef;
 	final Object 	NUM = "num".intern(),
 					TEXT = "text".intern(),
 					BOOL = "bool".intern(),
@@ -68,13 +69,56 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	@Override
 	public Object visit(AssignmentNode node) {
 		// Symbol table lookup
+		Object lhs = visit(node.getGeneralIdent());
+		Object rhs = visit(node.getExpression());
 		return null;
 	}
-
+	
 	@Override
 	public Object visit(BaseIdentNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			SymbolTableEntry entry;
+			if (currentStructDef == null)
+				entry = currentStructDef.getVariables().retrieveSymbol(node.getIdent());
+			else
+				entry = symbolTable.retrieveSymbol(node.getIdent());
+			Object type;
+			if (entry instanceof STStructEntry) {
+				type = ((STStructEntry) entry).getType();
+				currentStructDef = (STStructDefEntry) symbolTable.retrieveSymbol((String) type);	// FIXME Exception handling? Shouldn't be required
+				node.setNodeType(type);
+				return type;
+			}
+			else if (entry instanceof STArrayEntry) {
+				STArrayEntry arrayEntry = (STArrayEntry) entry;
+				type = arrayEntry.getType();
+				if (type == NUM || type == TEXT || type == BOOL) {
+					node.setNodeType(type);
+					return type;
+				}
+				else {
+					currentStructDef = (STStructDefEntry) symbolTable.retrieveSymbol((String) type);	// FIXME Exception handling? Shouldn't be required
+					node.setNodeType(type);																// FIXME Maybe add [] to type since technically it's an array?
+					return type;
+				}
+			}
+			else if (entry instanceof STStructDefEntry || entry instanceof STSubprogramEntry) {
+				// FIXME Error
+				return VOID;
+			}
+			else if (entry instanceof STTypeEntry) {
+				type = ((STTypeEntry) entry).getType();
+				node.setNodeType(type);
+				return type;
+			}
+			else {
+				throw new NotImplementedException();
+			}
+		}
+		catch (Exception ex) {
+			errors.add(new TypeCheckError(node, node.getIdent() + " cannot be resolved"));
+			return VOID;
+		}
 	}
 
 	@Override
@@ -89,8 +133,6 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		return null;
 	}
 
-	
-	//STArraygEntry cannot be resolved to a type
 	@Override
 	public Object visit(DataStructDeclarationNode node) {
 		// Check if the symbol has already been defined in this scope
@@ -100,6 +142,29 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				
 		if (local) {
 			errors.add(new TypeCheckError(node, "Duplicate local variable " + node.getIdent()));
+			return VOID;
+		}
+		
+		// Look up type
+		boolean defExists;
+		
+		try {
+			Stack<SymbolTableEntry> entries = symbolTable.retrieveSymbolStack(node.getType());
+			defExists = false;
+			for (SymbolTableEntry entry : entries) {
+				// Check if all entries are not of type structdef
+				if (entry instanceof STStructDefEntry) {
+					defExists = true;
+					break;
+				}
+			}
+		}
+		catch (Exception ex) {
+			defExists = false;
+		}
+		
+		if (!defExists) {
+			errors.add(new TypeCheckError(node, node.getType() + " cannot be resolved to a type"));
 			return VOID;
 		}
 		
@@ -215,9 +280,37 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
 	@Override
 	public Object visit(GeneralIdentNode node) {
+		Object currentType;
+		List<BaseIdentNode> idents = node.getIdents();
+		for (int i = 0; i < idents.size(); ++i) {
+			BaseIdentNode ident = idents.get(i);
+			
+			Object type;
+			if (ident instanceof FuncCallNode)
+				type = visit((FuncCallNode) ident);
+			else
+				type = visit(ident);
+			
+			// TODO "The primitive type " + type + " of " + ident + " does not have a field " + ident2;
+			// "Cannot invoke " + methodName + " on the primitive type " + type;
+			
+			// Set currentStruct to null before returning
+			
+			if (i+1 < idents.size()) {
+				if (type == NUM || type == BOOL || type == TEXT || type == VOID) {
+					errors.add(new TypeCheckError(ident, "The primitive type " + type + " of " + ident + " does not have a field " + idents.get(i+1)));
+					return VOID;
+				}
+			} 
+			else {
+				node.setNodeType(type);
+				return type;
+			}
+		}
+		
 		// Need to do symbol table lookup here
 		return null;
 	}
@@ -285,8 +378,9 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	@Override
 	public Object visit(ParenthesesNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		Object type = visit(node.getChild());
+		node.setNodeType(type);
+		return type;
 	}
 
 	@Override
@@ -338,6 +432,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	@Override
 	public Object visit(ReturnNode node) {
 		// TODO Auto-generated method stub
+		// Does it return the correct values for the func?
 		return null;
 	}
 
@@ -387,8 +482,10 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	@Override
 	public Object visit(TypeNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		// Add to func's list of return types?
+		Object type = node.getType().intern();
+		node.setNodeType(type);
+		return type;
 	}
 
 	@Override

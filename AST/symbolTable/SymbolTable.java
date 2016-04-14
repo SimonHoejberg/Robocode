@@ -54,7 +54,7 @@ public class SymbolTable implements SymbolTableInterface {
 		// Retrieve the symbol
 		if (table.containsKey(ident)) {
 			Stack<SymbolTableEntry> stack = table.get(ident);
-			if (!stack.isEmpty())
+			if (!stack.isEmpty())		// FIXME Possibly unnecessary?
 				return table.get(ident).peek();
 		}
 		
@@ -62,6 +62,17 @@ public class SymbolTable implements SymbolTableInterface {
 		throw new Exception(ident + " cannot be resolved to a type");
 	}
 	
+	public Stack<SymbolTableEntry> retrieveSymbolStack(String ident) throws Exception {
+		// Retrieve the symbol
+		if (table.containsKey(ident)) {
+			Stack<SymbolTableEntry> stack = table.get(ident);
+			return stack;
+		}
+		
+		// If symbol could not be found, throw exception
+		throw new Exception(ident + " cannot be resolved to a type");
+	}
+		
 	public boolean declaredLocally(String ident) {
 		// Retrieve symbol
 		try {
