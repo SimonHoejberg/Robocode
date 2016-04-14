@@ -271,8 +271,23 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	
 	@Override
 	public Object visit(FuncCallNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		Object type; // FIXME support for multiple return types
+		try {
+			SymbolTableEntry entry = symbolTable.retrieveSymbol(node.getIdent());
+			if (entry instanceof STSubprogramEntry) {
+				type = ((STSubprogramEntry) entry).getReturnTypes().get(0);
+				node.setNodeType(type);
+				return type;
+			}
+			else {
+				errors.add(new TypeCheckError(node, "The method " + node.getIdent() + " is undefined"));
+				return VOID;
+			}
+		}
+		catch (Exception ex) {
+			errors.add(new TypeCheckError(node, "The method " + node.getIdent() + " is undefined for the type " + currentStructDef));
+			return VOID;
+		}
 	}
 
 	@Override
