@@ -34,7 +34,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			return NUM;
 		}
 		
-		errors.add(new TypeCheckError(node, "The operator" + node.getType() + "is undefined for the argument type(s) " + leftType + ", " + rightType));
+		errors.add(new TypeCheckError(node, "The operator " + node.getType() + " is undefined for the argument type(s) " + leftType + ", " + rightType));
 		return NUM;
 	}
 
@@ -242,7 +242,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			node.setNodeType(BOOL);
 			return BOOL;
 		}
-		errors.add(new TypeCheckError(node, "The operator" + node.getNodeType() + "is undefined for the argument type(s) " + leftType + ", " + rightType));
+		errors.add(new TypeCheckError(node, "The operator " + node.getNodeType() + " is undefined for the argument type(s) " + leftType + ", " + rightType));
 		return BOOL;
 	}
 
@@ -394,7 +394,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			if (i+1 < idents.size()) {
 				if (type == NUM || type == BOOL || type == TEXT || type == VOID) {
 					currentStructDef = null;
-					errors.add(new TypeCheckError(ident, "The primitive type " + type + " of " + ident + " does not have a field " + idents.get(i+1)));
+					errors.add(new TypeCheckError(ident, "The primitive type " + type + " of " + ident.getIdent() + " does not have a field " + idents.get(i+1).getIdent()));
 					return VOID;
 				}
 			} 
@@ -456,7 +456,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			node.setNodeType(BOOL);
 			return BOOL;
 		}
-		errors.add(new TypeCheckError(node, "The operator" + node.getNodeType() + "is undefined for the argument type(s) " + leftType + ", " + rightType));
+		errors.add(new TypeCheckError(node, "The operator " + node.getNodeType() + " is undefined for the argument type(s) " + leftType + ", " + rightType));
 		return BOOL;
 	}
 
@@ -468,7 +468,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			node.setNodeType(BOOL);
 			return BOOL;
 		}
-		errors.add(new TypeCheckError(node, "The operator" + node.getNodeType() + "is undefined for the argument type(s) " + leftType + ", " + rightType));
+		errors.add(new TypeCheckError(node, "The operator " + node.getNodeType() + " is undefined for the argument type(s) " + leftType + ", " + rightType));
 		return BOOL;
 	}
 
@@ -481,7 +481,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			return NUM;
 		}
 		
-		errors.add(new TypeCheckError(node, "The operator" + node.getType() + "is undefined for the argument type(s) " + leftType + ", " + rightType));
+		errors.add(new TypeCheckError(node, "The operator " + node.getType() + " is undefined for the argument type(s) " + leftType + ", " + rightType));
 		return NUM;
 	}
 
@@ -540,7 +540,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			node.setNodeType(BOOL);
 			return BOOL;
 		}
-		errors.add(new TypeCheckError(node, "The operator" + node.getNodeType() + "is undefined for the argument type(s) " + leftType + ", " + rightType));
+		errors.add(new TypeCheckError(node, "The operator " + node.getNodeType() + " is undefined for the argument type(s) " + leftType + ", " + rightType));
 		return BOOL;
 	}
 
