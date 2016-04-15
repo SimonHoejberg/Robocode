@@ -61,9 +61,9 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		
 		// Add variable to symbol table
 		if(currentStructDef == null)
-			symbolTable.enterSymbol(node.getIdent(), new STArrayEntry(((String) varType + "[]").intern()));
+			symbolTable.enterSymbol(node.getIdent(), new STArrayEntry(varType));		// new STArrayEntry(((String) varType + "[]").intern())
 		else	
-			currentStructDef.getVariables().enterSymbol(node.getIdent(), new STArrayEntry(((String) varType + "[]").intern()));
+			currentStructDef.getVariables().enterSymbol(node.getIdent(), new STArrayEntry(varType)); 	// new STArrayEntry(((String) varType + "[]").intern())
 		if (rhsType == NUM) {
 			node.setNodeType(VOID);
 			return VOID;
@@ -94,9 +94,10 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		try {
 			SymbolTableEntry entry;
 			if (currentStructDef == null)
-				entry = currentStructDef.getVariables().retrieveSymbol(node.getIdent());
-			else
 				entry = symbolTable.retrieveSymbol(node.getIdent());
+			else
+				entry = currentStructDef.getVariables().retrieveSymbol(node.getIdent());
+			
 			Object type;
 			if (entry instanceof STStructEntry) {
 				type = ((STStructEntry) entry).getType();
@@ -106,6 +107,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			}
 			else if (entry instanceof STArrayEntry) {
 				STArrayEntry arrayEntry = (STArrayEntry) entry;
+				//System.out.println(((STArrayEntry) entry).getType());
 				type = arrayEntry.getType();
 				if (type == NUM || type == TEXT || type == BOOL) {
 					node.setNodeType(type);
@@ -562,10 +564,10 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		for (int i = 0; i < returnTypes.size(); ++i) {
 			Object current = visit(returnTypes.get(i));
 			try {
-				if (current == returnParams.get(i))
+				if (current == ((TypeNode) returnParams.get(i)).getType().intern())
 					continue;
 				else {
-					errors.add(new TypeCheckError(returnTypes.get(i), "Type mismatch: cannot convert from " + returnParams.get(i) + " to " + current));
+					errors.add(new TypeCheckError(returnTypes.get(i), "Type mismatch: cannot convert from " + current + " to " + ((TypeNode) returnParams.get(i)).getType()));
 					return VOID;
 				}
 			}

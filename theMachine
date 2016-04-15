@@ -23,7 +23,7 @@ robot initialization(){
 }
 
 func num doStuff(){
-	return 1
+	return (dude[1].victor + 1)/5
 }
 
 robot behavior(){
