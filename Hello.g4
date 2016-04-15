@@ -58,11 +58,9 @@ ifStmt : 'if' '(' expr ')' block									# ifThenStmt
 		;
 
 iterStmt : 'while' '(' expr ')' block												# whileStmt
-		| 'for' '(' basicAssignment ',' second=expr ',' third=expr ')' block		# forStmt
-		| 'for' '(' varDcl ',' second=expr ','third=expr ')' block					# forStmt
+		| 'for' '(' assign ',' second=expr ',' third=expr ')' block		# forStmt
 		| 'for' '(' first=expr ',' second=expr ',' third=expr ')' block				# forStmt
-		| 'for' '(' basicAssignment ',' second=expr ',' assign ')' block		# forStmt
-		| 'for' '(' varDcl ',' second=expr ',' assign ')' block					# forStmt
+		| 'for' '(' assign ',' second=expr ',' assign ')' block		# forStmt
 		| 'for' '(' first=expr ',' second=expr ',' assign ')' block				# forStmt
 		;
 
