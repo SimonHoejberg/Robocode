@@ -6,10 +6,11 @@ import symbolTable.*;
 import symbolTable.STSubprogramEntry.SubprogramType;
 
 public class TypeCheckVisitor extends ASTVisitor<Object> {
-
 	SymbolTable symbolTable;
 	List<TypeCheckError> errors;
 	private STStructDefEntry currentStructDef;
+	private STSubprogramEntry currentFuncDcl;
+	private String currentFuncDclName;
 	final Object 	NUM = "num".intern(),
 					TEXT = "text".intern(),
 					BOOL = "bool".intern(),
@@ -350,7 +351,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	@Override
 	public Object visit(FuncDeclarationNode node) {
 		boolean local;
-		
+		// TODO set currentFuncDcl
 		local = symbolTable.declaredLocally(node.getIdent());
 				
 		if (local) {
@@ -543,12 +544,41 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		errors.add(new TypeCheckError(node, "The operator " + node.getNodeType() + " is undefined for the argument type(s) " + leftType + ", " + rightType));
 		return BOOL;
 	}
-
+	
 	@Override
 	public Object visit(ReturnNode node) {
 		// Does it return the correct values for the func?
+		STSubprogramEntry entry = currentFuncDcl;
 		
-		return null;
+		// Get return parameters
+		List<Object> returnParams = entry.getReturnTypes();
+		
+		// Evaluate expressions to get return types and compare them
+		List<ExpressionNode> returnTypes = node.getExpressions();
+		for (int i = 0; i < returnTypes.size(); ++i) {
+			Object current = visit(returnTypes.get(i));
+			try {
+				if (current == returnParams.get(i))
+					continue;
+				else {
+					errors.add(new TypeCheckError(returnTypes.get(i), "Type mismatch: cannot convert from " + returnParams.get(i) + " to " + current));
+					return VOID;
+				}
+			}
+			catch (NullPointerException ex) {
+				String paramString = "";
+				for (int j = 0; j < returnParams.size(); ++j) {
+					paramString += returnParams.get(j).toString();
+					if (j+1 < returnParams.size())
+						paramString += ", ";
+				}
+				errors.add(new TypeCheckError(returnTypes.get(i), currentFuncDclName + " returns too many arguments(" + returnTypes.size() + "). Expected " + paramString));
+			}
+
+		}
+		
+		node.setNodeType(VOID);
+		return VOID;
 	}
 
 	@Override
