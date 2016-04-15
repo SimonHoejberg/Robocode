@@ -223,6 +223,7 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 				throw new NotImplementedException();
 		}
 		
+		
 		return new AssignmentNode(context.start.getLine(),
 								  context.start.getCharPositionInLine(),
 								  (GeneralIdentNode) visit(context.generalIdent()),

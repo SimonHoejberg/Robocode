@@ -2,7 +2,7 @@ grammar Hello;
 
 prog : dcls;         			
 
-dcls : (robonameAssign | initBlock | behaviorBlock | eventDcl | funcDcl | varDcl | dataStructDef | dataStructDcl |  arrayDcl)+;
+dcls : (robonameAssign | initBlock | behaviorBlock | eventDcl | funcDcl |  dataStructDef )+;
 
 robonameAssign : 'roboname' ':=' TextLit;
 
@@ -34,7 +34,7 @@ funcCall : Ident '(' argList ')' ;
 
 argList : (expr (',' expr)*)?;
 
-varDcl : type basicAssignment;
+varDcl : type Ident;
 
 baseIdent 	: funcCall ('[' expr ']')?   	# funcBaseIdent
 			| Ident ('[' expr ']')?			# identBaseIdent
@@ -44,9 +44,7 @@ generalIdent : baseIdent ('.' baseIdent)*;
 
 callStmt : (generalIdent '.')? funcCall;
 
-assign : generalIdent assignmentOp expr;
-
-basicAssignment : Ident ':=' expr;
+assign : (varDcl | generalIdent) (',' (varDcl | generalIdent))* assignmentOp expr;
 
 assignmentOp : op=(':=' | '+:=' | '-:=' | '*:=' | '/:=' | '%:=');
 

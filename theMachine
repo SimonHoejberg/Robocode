@@ -23,6 +23,10 @@ robot initialization(){
 }
 
 func num doStuff(){
+	num hej := 0
+	text t := ""
+	bool f := false
+	hej,t,f := test()
 	return (dude[1].victor + 1)/5
 }
 
