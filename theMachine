@@ -86,22 +86,22 @@ func void CleverFire(num distance){
 		dostuff()
 	}
 	
-	num i:= 0
-	for(i=h, i < 5, i +:= 1){
+	num j:= 0
+	for(j=h, j < 5, j +:= 1){
 		dostuff()
 	}
 	
-	for(num i := 0, i < 5, i!=6){
+	for(num k := 0, k < 5, k!=6){
 		dostuff()
 	}
 	
-	num h := 0
-	for(h:=0, h < 5, h!=6){
+	num g := 0
+	for(g:=0, g < 5, g!=6){
 		dostuff()
 	}
 	
-	num i:= 0
-	for(i=h, i < 5, i!=6){
+	num l:= 0
+	for(l=h, l < 5, l!=6){
 		dostuff()
 	}
 	while(1=1){
