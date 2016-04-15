@@ -7,7 +7,6 @@ public abstract class ASTVisitor<T> {
 	public abstract T visit(AssignmentNode node);
 	public abstract T visit(BaseIdentNode node);
 	public abstract T visit(BoolLiteralNode node);
-	public abstract T visit(CallStatementNode node);
 	public abstract T visit(DataStructDeclarationNode node);
 	public abstract T visit(DataStructDefinitionNode node);
 	public abstract T visit(DeclarationNode node);

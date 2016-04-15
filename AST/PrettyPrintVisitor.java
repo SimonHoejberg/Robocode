@@ -67,13 +67,6 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 	}
 
 	@Override
-	public Void visit(CallStatementNode node) {
-		visit(node.getIdent());
-		
-		return null;
-	}
-
-	@Override
 	public Void visit(DataStructDeclarationNode node) {
 		System.out.print(node.getType() + " " + node.getIdent());
 		return null;
@@ -458,8 +451,6 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 			visit((DataStructDeclarationNode) node);
 		else if (node instanceof AssignmentNode)
 			visit((AssignmentNode) node);
-		else if (node instanceof CallStatementNode)
-			visit((CallStatementNode) node);
 		else if (node instanceof IfNode)
 			visit((IfNode) node);
 		else if (node instanceof IterationNode)

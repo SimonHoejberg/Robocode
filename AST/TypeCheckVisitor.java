@@ -73,7 +73,15 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		// Symbol table lookup
 		Object lhs = visit(node.getGeneralIdent());
 		Object rhs = visit(node.getExpression());
-		return null;
+		
+		// Since assignments can't be part of an expression, we set the type to void
+		if (lhs == rhs) {
+			node.setNodeType(VOID);
+			return VOID;
+		}
+		
+		errors.add(new TypeCheckError(node, "Cannot assign variable of type " + lhs + " a value of type " + rhs));
+		return VOID;
 	}
 	
 	@Override
@@ -127,12 +135,6 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	public Object visit(BoolLiteralNode node) {
 		node.setNodeType(BOOL);
 		return BOOL;
-	}
-
-	@Override
-	public Object visit(CallStatementNode node) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -534,8 +536,8 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	@Override
 	public Object visit(ReturnNode node) {
-		// TODO Auto-generated method stub
 		// Does it return the correct values for the func?
+		
 		return null;
 	}
 
@@ -649,8 +651,8 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	@Override
 	public Object visit(VarNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		node.setNodeType(VOID);
+		return VOID;
 	}
 	
 	@Override
