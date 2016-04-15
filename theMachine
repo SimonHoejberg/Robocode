@@ -1,13 +1,12 @@
 roboname := "TheMachine"
 
+container rage {bool yes := true}
+
 container simon{
 	num victor := 1
  	num emil[2]
  	rage mad
 }
-
-container rage {bool yes := true}
-
 
 robot initialization(){
 	num turnDirection := 1

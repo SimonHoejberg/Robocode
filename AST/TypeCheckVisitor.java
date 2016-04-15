@@ -555,6 +555,10 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	public Object visit(RobotDeclarationNode node) {
 		switch (node.getType()) {
 			case initialization:
+				for (int i = 0; i < node.getStatements().size(); ++i)
+					visit(node.getStatements().get(i));
+				node.setNodeType(VOID);
+				return VOID;
 			case behavior:
 				symbolTable.openScope();
 				for (int i = 0; i < node.getStatements().size(); ++i)

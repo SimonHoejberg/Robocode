@@ -25,6 +25,7 @@ public class Hello
         	vis.visit(ast);
         	
         	List<TypeCheckError> errors = vis.getErrorList(); 
+        	System.out.println(errors.size()+" Errors");
         	for(TypeCheckError error : errors)
         		System.out.println("Error "+ error.msg + " on " + error.node.getLineNumber() +":" +error.node.getColumnNumber());
         /*}
