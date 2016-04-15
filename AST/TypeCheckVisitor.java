@@ -355,7 +355,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		local = symbolTable.declaredLocally(node.getIdent());
 				
 		if (local) {
-			errors.add(new TypeCheckError(node, "Duplicate func " + node.getIdent()));
+			errors.add(new TypeCheckError(node, "Duplicate function " + node.getIdent()));
 			return VOID;
 		}
 		
@@ -364,13 +364,17 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		List<VarNode> params = node.getParamList();
 		for(VarNode param : params)
 			funcTable.enterSymbol(param.getIdent(), new STTypeEntry(param.getType().intern()));
-		symbolTable.enterSymbol(node.getIdent(), new STSubprogramEntry(SubprogramType.func,node.getReturnTypes().toArray(),funcTable)); 
+		currentFuncDcl = new STSubprogramEntry(SubprogramType.func,node.getReturnTypes().toArray(),funcTable);
+		currentFuncDclName = node.getIdent();
+		symbolTable.enterSymbol(currentFuncDclName, currentFuncDcl); 
 		symbolTable.openScope();
 		List<StatementNode> input = node.getStatements();
 		for(StatementNode i : input)
 			visit(i);
 		
 		symbolTable.closeScope();
+		currentFuncDcl = null;
+		currentFuncDclName = null;
 		node.setNodeType(VOID);
 		return VOID;
 	}
