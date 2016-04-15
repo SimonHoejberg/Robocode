@@ -17,22 +17,16 @@ public class Hello
 
         HelloParser parser = new HelloParser(tokens);
         
-        //try {
-        	HelloParser.ProgContext cst = parser.prog();
-        	ProgramNode ast = (ProgramNode) new BuildASTVisitor().visitProg(cst);
-        	new PrettyPrintVisitor().visit(ast);
-        	TypeCheckVisitor vis = new TypeCheckVisitor();
-        	vis.visit(ast);
-        	
-        	List<TypeCheckError> errors = vis.getErrorList(); 
-        	System.out.println(errors.size()+" Errors");
-        	for(TypeCheckError error : errors)
-        		System.out.println("Error "+ error.msg + " on " + error.node.getLineNumber() +":" +error.node.getColumnNumber());
-        /*}
-        catch (Exception ex) {
-        	System.out.println(ex.getMessage());
-        }*/
+        HelloParser.ProgContext cst = parser.prog();
+        ProgramNode ast = (ProgramNode) new BuildASTVisitor().visitProg(cst);
+        new PrettyPrintVisitor().visit(ast);
+        TypeCheckVisitor vis = new TypeCheckVisitor();
+        vis.visit(ast);
         
+        List<TypeCheckError> errors = vis.getErrorList(); 
+        System.out.println(errors.size()+" Errors");
+        for(TypeCheckError error : errors)
+        	System.out.println("Error "+ error.msg + " on " + error.node.getLineNumber() +":" +error.node.getColumnNumber());
         
         //ParseTree tree = parser.prog(); // begin parsing at rule 'r'
         //System.out.println(tree.toStringTree(parser)); // print LISP-style tree
