@@ -1,4 +1,5 @@
 import java.io.FileReader;
+import java.util.List;
 
 import nodes.ProgramNode;
 
@@ -20,7 +21,12 @@ public class Hello
         	HelloParser.ProgContext cst = parser.prog();
         	ProgramNode ast = (ProgramNode) new BuildASTVisitor().visitProg(cst);
         	new PrettyPrintVisitor().visit(ast);
-        	new TypeCheckVisitor().visit(ast);
+        	TypeCheckVisitor vis = new TypeCheckVisitor();
+        	vis.visit(ast);
+        	
+        	List<TypeCheckError> errors = vis.getErrorList(); 
+        	for(TypeCheckError error : errors)
+        		System.out.println("Error "+ error.msg + " on " + error.node.getLineNumber() +":" +error.node.getColumnNumber());
         /*}
         catch (Exception ex) {
         	System.out.println(ex.getMessage());

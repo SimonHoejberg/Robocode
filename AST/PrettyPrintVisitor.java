@@ -65,6 +65,12 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 		
 		return null;
 	}
+	
+	@Override
+	public Void visit(CallStatementNode node){
+		
+		return null;
+	}
 
 	@Override
 	public Void visit(DataStructDeclarationNode node) {

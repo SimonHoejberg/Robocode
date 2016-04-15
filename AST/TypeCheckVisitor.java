@@ -21,6 +21,10 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		errors = new ArrayList<TypeCheckError>();
 	}
 	
+	public List<TypeCheckError> getErrorList(){
+		return errors;
+	}
+	
 	@Override
 	public Object visit(AdditiveExprNode node) {
 		Object leftType = visit(node.getLeftChild());
@@ -135,6 +139,12 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	public Object visit(BoolLiteralNode node) {
 		node.setNodeType(BOOL);
 		return BOOL;
+	}
+	
+	@Override
+	public Object visit(CallStatementNode node) {
+		// FIXME help
+		return null;
 	}
 
 	@Override

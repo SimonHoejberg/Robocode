@@ -7,6 +7,7 @@ public abstract class ASTVisitor<T> {
 	public abstract T visit(AssignmentNode node);
 	public abstract T visit(BaseIdentNode node);
 	public abstract T visit(BoolLiteralNode node);
+	public abstract T visit(CallStatementNode node);
 	public abstract T visit(DataStructDeclarationNode node);
 	public abstract T visit(DataStructDefinitionNode node);
 	public abstract T visit(DeclarationNode node);
@@ -53,8 +54,8 @@ public abstract class ASTVisitor<T> {
 		if (node instanceof BoolLiteralNode){
 			return visit ((BoolLiteralNode) node);
 		}
-		if (node instanceof CallStatementNode){
-			return visit ((CallStatementNode) node);
+		if(node instanceof CallStatementNode){
+			return visit((CallStatementNode)node);
 		}
 		if (node instanceof DataStructDeclarationNode){
 			return visit ((DataStructDeclarationNode) node);
