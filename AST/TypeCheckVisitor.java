@@ -63,12 +63,12 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			symbolTable.enterSymbol(node.getIdent(), new STArrayEntry(((String) varType + "[]").intern()));
 		else	
 			currentStructDef.getVariables().enterSymbol(node.getIdent(), new STArrayEntry(((String) varType + "[]").intern()));
-		if (varType == rhsType) {
+		if (rhsType == NUM) {
 			node.setNodeType(VOID);
 			return VOID;
 		}
 				
-		errors.add(new TypeCheckError(node, "Cannot assign variable of type " + varType + " a value of type " + rhsType));
+		errors.add(new TypeCheckError(node, "Array size must be of type num"));
 		return VOID;
 	}
 
