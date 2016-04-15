@@ -26,6 +26,10 @@ func num doStuff(){
 	return (dude[1].victor + 1)/5
 }
 
+func num, text, bool test(){
+	return 4,"hej",true
+}
+
 robot behavior(){
 	if (moving){
 		if (remainingDistance > 0){

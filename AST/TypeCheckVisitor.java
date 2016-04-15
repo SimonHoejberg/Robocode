@@ -571,9 +571,12 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		
 		// Evaluate expressions to get return types and compare them
 		List<ExpressionNode> returnTypes = node.getExpressions();
-		for (int i = 0; i < returnTypes.size(); ++i) {
-			Object current = visit(returnTypes.get(i));
-			try {
+		int returnTypeSize = returnTypes.size();
+		int returnParamsSize = returnParams.size();
+		if(returnParamsSize == returnTypeSize){
+			for (int i = 0; i < returnTypeSize; ++i) {
+				Object current = visit(returnTypes.get(i));
+
 				if (current == ((TypeNode) returnParams.get(i)).getType().intern())
 					continue;
 				else {
@@ -581,21 +584,28 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 					return VOID;
 				}
 			}
-			catch (ArrayIndexOutOfBoundsException ex) {
-				String paramString = "";
-				for (int j = 0; j < returnParams.size(); ++j) {
-					paramString += returnParams.get(j).toString();
-					if (j+1 < returnParams.size())
-						paramString += ", ";
-				}
-				errors.add(new TypeCheckError(returnTypes.get(i), currentFuncDclName + " returns too many arguments(" + returnTypes.size() + "). Expected " + paramString));
-			}
-
 		}
-		
+		else if(returnTypeSize > returnParamsSize){
+			returnTypeErrorListCreater(returnParamsSize, returnTypeSize, returnParams, node,"many");
+		}
+		else if(returnTypeSize < returnParamsSize){
+			returnTypeErrorListCreater(returnParamsSize, returnTypeSize, returnParams, node,"few");
+		}
 		node.setNodeType(VOID);
 		return VOID;
 	}
+	
+	private void returnTypeErrorListCreater(int returnParamsSize, int returnTypeSize, List<Object> returnParams, ReturnNode node, String word){
+		String paramString = "";
+		for (int j = 0; j < returnParamsSize; ++j) {
+			paramString += ((TypeNode)returnParams.get(j)).getType();
+			if (j+1 < returnParamsSize)
+				paramString += ", ";
+		}
+		errors.add(new TypeCheckError(node, "Method "+ currentFuncDclName + " returns too "+ word +" arguments(" + returnTypeSize + "). Expected " + paramString));
+	
+	}
+	
 
 	@Override
 	public Object visit(RobotDeclarationNode node) {
