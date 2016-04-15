@@ -93,8 +93,18 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	public Object visit(BaseIdentNode node) {
 		try {
 			SymbolTableEntry entry;
-			if (currentStructDef == null)
-				entry = symbolTable.retrieveSymbol(node.getIdent());
+			if (currentStructDef == null) {
+				if (currentFuncDcl != null) {
+					try {
+						entry = currentFuncDcl.getParameters().retrieveSymbol(node.getIdent());
+					}
+					catch (Exception ex) {
+						entry = symbolTable.retrieveSymbol(node.getIdent());
+					}
+				}
+				else
+					entry = symbolTable.retrieveSymbol(node.getIdent());
+			}
 			else
 				entry = currentStructDef.getVariables().retrieveSymbol(node.getIdent());
 			
@@ -571,7 +581,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 					return VOID;
 				}
 			}
-			catch (NullPointerException ex) {
+			catch (ArrayIndexOutOfBoundsException ex) {
 				String paramString = "";
 				for (int j = 0; j < returnParams.size(); ++j) {
 					paramString += returnParams.get(j).toString();
