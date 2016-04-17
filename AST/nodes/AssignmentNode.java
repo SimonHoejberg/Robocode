@@ -1,4 +1,6 @@
 package nodes;
+import java.util.List;
+
 import exceptions.NotImplementedException;
 
 public class AssignmentNode extends StatementNode {
@@ -29,18 +31,18 @@ public class AssignmentNode extends StatementNode {
     }
 
 
-    private GeneralIdentNode generalIdent;
+    private List<AbstractNode> generalIdent;
     private AssignmentType type;
     private ExpressionNode expr;
     
-    public AssignmentNode(int lineNumber, int colNumber, GeneralIdentNode generalIdent, AssignmentType type, ExpressionNode expr) {
+    public AssignmentNode(int lineNumber, int colNumber, List<AbstractNode> output, AssignmentType type, ExpressionNode expr) {
     	super(lineNumber, colNumber);
-    	this.generalIdent = generalIdent;
+    	this.generalIdent = output;
     	this.type = type;
     	this.expr = expr;
     }
     
-    public GeneralIdentNode getGeneralIdent() {
+    public List<AbstractNode> getGeneralIdent() {
     	return generalIdent;
     }
     

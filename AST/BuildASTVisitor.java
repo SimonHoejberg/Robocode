@@ -157,11 +157,10 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		VarNode variable = new VarNode(context.start.getLine(),
 									   context.start.getCharPositionInLine(),
 									   context.type().getText(),
-									   context.basicAssignment().Ident().getText());
+									   context.Ident().getText());
 		return new VarDeclarationNode(context.start.getLine(),
 									  context.start.getCharPositionInLine(),
-									  variable,
-									  (ExpressionNode) visit(context.basicAssignment().expr()));
+									  variable);
 	}
 	
 	public AbstractNode visitDataStructDef(HelloParser.DataStructDefContext context) {
@@ -223,10 +222,16 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 				throw new NotImplementedException();
 		}
 		
-		
+		List<AbstractNode> output = new ArrayList<AbstractNode>();
+		List<HelloParser.GeneralIdentContext> input = context.generalIdent();
+		List<HelloParser.VarDclContext> secinput = context.varDcl();
+		for(HelloParser.GeneralIdentContext i : input)
+			output.add((GeneralIdentNode) visit(i));
+		for(HelloParser.VarDclContext j : secinput)
+			output.add((VarDeclarationNode)visit(j));
 		return new AssignmentNode(context.start.getLine(),
 								  context.start.getCharPositionInLine(),
-								  (GeneralIdentNode) visit(context.generalIdent()),
+								  output,
 								  type,
 								  (ExpressionNode) visit(context.expr()));
 	}

@@ -35,7 +35,17 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 
 	@Override
 	public Void visit(AssignmentNode node) {
-		visit(node.getGeneralIdent());
+		List<AbstractNode> input = node.getGeneralIdent();
+		int size = input.size();
+		for (int i = 0; i < size; i++) {
+			if(input.get(i) instanceof GeneralIdentNode)
+				visit(((GeneralIdentNode)input.get(i)));
+			else
+				visit(((VarDeclarationNode)input.get(i)));
+			if(i == size-1){
+				System.out.println(", ");
+			}
+		}
 		System.out.print(node.getType().toString());
 		visit(node.getExpression());
 		
@@ -492,7 +502,7 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 	public Void visit(VarDeclarationNode node) {
 		visit(node.getVariable());
 		System.out.print(" := ");
-		visit(node.getExpression());
+		//visit(node.getExpression());
 		return null;
 	}
 

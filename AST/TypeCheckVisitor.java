@@ -76,16 +76,17 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	@Override
 	public Object visit(AssignmentNode node) {
 		// Symbol table lookup
-		Object lhs = visit(node.getGeneralIdent());
+		//FIXME need to check every item on lhs with function call or just if it is varDcl that only :=
+		//Object lhs = visit(node.getGeneralIdent());
 		Object rhs = visit(node.getExpression());
 		
 		// Since assignments can't be part of an expression, we set the type to void
-		if (lhs == rhs) {
-			node.setNodeType(VOID);
-			return VOID;
-		}
+		//if (lhs == rhs) {
+			//node.setNodeType(VOID);
+			//return VOID;
+		//}
 		
-		errors.add(new TypeCheckError(node, "Cannot assign variable of type " + lhs + " a value of type " + rhs));
+		//errors.add(new TypeCheckError(node, "Cannot assign variable of type " + lhs + " a value of type " + rhs));
 		return VOID;
 	}
 	
@@ -701,22 +702,24 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			errors.add(new TypeCheckError(node, "Duplicate local variable " + var.getIdent()));
 			return VOID;
 		}
-			
-		Object varType = var.getType().intern();
-		Object rhsType = visit(node.getExpression());
-		
-		// Add variable to symbol table
-		if(currentStructDef == null)
-			symbolTable.enterSymbol(var.getIdent(), new STTypeEntry(varType));
-		else
-			currentStructDef.getVariables().enterSymbol(var.getIdent(), new STTypeEntry(varType));
-		if (varType == rhsType) {
-			node.setNodeType(VOID);
-			return VOID;
-		}
-		
-		errors.add(new TypeCheckError(node, "Cannot assign variable of type " + varType + " a value of type " + rhsType));
+		node.setNodeType(VOID);
 		return VOID;
+			
+//		Object varType = var.getType().intern();
+//		Object rhsType = visit(node.getExpression());
+//		
+//		// Add variable to symbol table
+//		if(currentStructDef == null)
+//			symbolTable.enterSymbol(var.getIdent(), new STTypeEntry(varType));
+//		else
+//			currentStructDef.getVariables().enterSymbol(var.getIdent(), new STTypeEntry(varType));
+//		if (varType == rhsType) {
+//			node.setNodeType(VOID);
+//			return VOID;
+//		}
+//		
+//		errors.add(new TypeCheckError(node, "Cannot assign variable of type " + varType + " a value of type " + rhsType));
+//		return VOID;
 	}
 
 	@Override
