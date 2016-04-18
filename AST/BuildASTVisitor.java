@@ -153,14 +153,20 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 									   statements);	
 	}
 	
+	public AbstractNode visitVar(HelloParser.VarContext context){
+		return new VarNode(context.start.getLine(),
+				   		   context.start.getCharPositionInLine(),
+				           context.type().getText(),
+				           context.Ident().getText());
+	}
+	
 	public AbstractNode visitVarDcl(HelloParser.VarDclContext context) {
-		VarNode variable = new VarNode(context.start.getLine(),
-									   context.start.getCharPositionInLine(),
-									   context.type().getText(),
-									   context.Ident().getText());
+		List<HelloParser.VarContext> input = context.var();
+		List<VarNode> variable = CreateList(input, VarNode.class);
+		ExpressionNode expr = (ExpressionNode) visit(context.expr());
 		return new VarDeclarationNode(context.start.getLine(),
 									  context.start.getCharPositionInLine(),
-									  variable);
+									  variable,expr);
 	}
 	
 	public AbstractNode visitDataStructDef(HelloParser.DataStructDefContext context) {
@@ -224,11 +230,11 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		
 		List<AbstractNode> output = new ArrayList<AbstractNode>();
 		List<HelloParser.GeneralIdentContext> input = context.generalIdent();
-		List<HelloParser.VarDclContext> secinput = context.varDcl();
+		List<HelloParser.VarContext> secinput = context.var();
 		for(HelloParser.GeneralIdentContext i : input)
 			output.add((GeneralIdentNode) visit(i));
-		for(HelloParser.VarDclContext j : secinput)
-			output.add((VarDeclarationNode)visit(j));
+		for(HelloParser.VarContext j : secinput)
+			output.add((VarNode)visit(j));
 		return new AssignmentNode(context.start.getLine(),
 								  context.start.getCharPositionInLine(),
 								  output,

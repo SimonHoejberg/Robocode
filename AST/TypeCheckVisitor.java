@@ -689,18 +689,20 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	@Override
 	public Object visit(VarDeclarationNode node) {
 		// Check if the symbol has already been defined in this scope
-		VarNode var = node.getVariable();
-		boolean local;
-		try {
-			local = symbolTable.declaredLocally(var.getIdent());
-		}
-		catch (Exception ex) {
-			local = false;
-		}
+		List<VarNode> input = node.getVariable();
+		for(VarNode var : input){
+			boolean local;
+			try {
+				local = symbolTable.declaredLocally(var.getIdent());
+			}
+			catch (Exception ex) {
+				local = false;
+			}
 		
-		if (local) {
-			errors.add(new TypeCheckError(node, "Duplicate local variable " + var.getIdent()));
-			return VOID;
+			if (local) {
+				errors.add(new TypeCheckError(node, "Duplicate local variable " + var.getIdent()));
+				return VOID;
+			}
 		}
 		node.setNodeType(VOID);
 		return VOID;
