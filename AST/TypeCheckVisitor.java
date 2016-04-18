@@ -99,7 +99,6 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		int rhsSize = rhs.size();
 		if(lhsSize == rhsSize){
 			for (int i = 0; i < lhsSize; ++i) {
-				Object current = lhs.get(i);
 
 				if (lhs.get(i) == rhs.get(i))
 					continue;
@@ -108,12 +107,6 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 					return VOID;
 				}
 			}
-		}
-		else if(lhsSize > rhsSize){
-			errors.add(new TypeCheckError(node, "To many variables, method returns "+ rhsSize));
-		}
-		else if(lhsSize < rhsSize){
-			errors.add(new TypeCheckError(node, "Missing variables, method returns "+ rhsSize));
 		}
 		node.setNodeType(VOID);
 		return VOID;
