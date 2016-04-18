@@ -77,8 +77,6 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	@Override
 	public Object visit(AssignmentNode node) {
 		// Symbol table lookup
-		//FIXME need to check every item on lhs with function call or just if it is varDcl that only :=
-		//Object lhs = visit(node.getGeneralIdent());
 		List<Object> lhs = new ArrayList<Object>();
 		List<AbstractNode> input = node.getGeneralIdent();
 		for(AbstractNode n : input){
@@ -111,16 +109,6 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		}
 		node.setNodeType(VOID);
 		return VOID;
-		
-		
-		// Since assignments can't be part of an expression, we set the type to void
-		//if (lhs == rhs) {
-			//node.setNodeType(VOID);
-			//return VOID;
-		//}
-		
-		//errors.add(new TypeCheckError(node, "Cannot assign variable of type " + lhs + " a value of type " + rhs));
-
 	}
 	
 	
