@@ -749,9 +749,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				return VOID;
 			}
 		}
-		node.setNodeType(VOID);
-		return VOID;
-			
+		//FIXME missing to enter stuff in the symbolTable
 //		Object varType = var.getType().intern();
 //		Object rhsType = visit(node.getExpression());
 //		
@@ -767,6 +765,9 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 //		
 //		errors.add(new TypeCheckError(node, "Cannot assign variable of type " + varType + " a value of type " + rhsType));
 //		return VOID;
+		
+		node.setNodeType(VOID);
+		return VOID;
 	}
 
 	@Override
