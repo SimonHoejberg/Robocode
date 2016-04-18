@@ -86,7 +86,38 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			else
 				lhs.add(visit((VarNode)n));
 		}
-		Object rhs = visit(node.getExpression());
+		List<Object> rhs = new ArrayList<Object>();
+		Object temp = visit(node.getExpression());
+		if(temp instanceof List<?>){
+			rhs.addAll((List<Object>)temp);
+		}
+		else{
+			rhs.add(temp);
+		}
+		
+		int lhsSize = lhs.size();
+		int rhsSize = rhs.size();
+		if(lhsSize == rhsSize){
+			for (int i = 0; i < lhsSize; ++i) {
+				Object current = lhs.get(i);
+
+				if (lhs.get(i) == rhs.get(i))
+					continue;
+				else {
+					errors.add(new TypeCheckError(node, "Cannot assign variable of type " + lhs.get(i) + " a value of type " + rhs.get(i)));
+					return VOID;
+				}
+			}
+		}
+		else if(lhsSize > rhsSize){
+			errors.add(new TypeCheckError(node, "To many variables, method returns "+ rhsSize));
+		}
+		else if(lhsSize < rhsSize){
+			errors.add(new TypeCheckError(node, "Missing variables, method returns "+ rhsSize));
+		}
+		node.setNodeType(VOID);
+		return VOID;
+		
 		
 		// Since assignments can't be part of an expression, we set the type to void
 		//if (lhs == rhs) {
@@ -95,8 +126,9 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		//}
 		
 		//errors.add(new TypeCheckError(node, "Cannot assign variable of type " + lhs + " a value of type " + rhs));
-		return VOID;
+
 	}
+	
 	
 	@Override
 	public Object visit(BaseIdentNode node) {
@@ -350,11 +382,11 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	
 	@Override
 	public Object visit(FuncCallNode node) {
-		Object type; // FIXME support for multiple return types
+		List<Object> type = new ArrayList<Object>(); // FIXME support for multiple return types
 		try {
 			SymbolTableEntry entry = symbolTable.retrieveSymbol(node.getIdent());
 			if (entry instanceof STSubprogramEntry) {
-				type = ((STSubprogramEntry) entry).getReturnTypes().get(0);
+				type = ((STSubprogramEntry) entry).getReturnTypes();
 				node.setNodeType(type);
 				return type;
 			}
@@ -403,14 +435,19 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	@Override
 	public Object visit(GeneralIdentNode node) {
 		List<BaseIdentNode> idents = node.getIdents();
-		Object type;
+		List<Object> type = new ArrayList<Object>();
 		for (int i = 0; i < idents.size(); ++i) {
 			BaseIdentNode ident = idents.get(i);
 			
-			if (ident instanceof FuncCallNode)
-				type = visit((FuncCallNode) ident);
+			if (ident instanceof FuncCallNode){
+				Object temp = visit((FuncCallNode) ident);
+				if(temp instanceof List<?>)
+					type.addAll((List<Object>)temp);
+				else
+					type.add(temp);
+			}
 			else
-				type = visit(ident);
+				type.add(visit(ident));
 			
 			// TODO "The primitive type " + type + " of " + ident + " does not have a field " + ident2;
 			// "Cannot invoke " + methodName + " on the primitive type " + type;
@@ -418,16 +455,23 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			// Set currentStruct to null before returning
 			
 			if (i+1 < idents.size()) {
-				if (type == NUM || type == BOOL || type == TEXT || type == VOID) {
+				if (type.get(0) == NUM || type.get(0) == BOOL || type.get(0) == TEXT || type.get(0) == VOID) {
 					currentStructDef = null;
-					errors.add(new TypeCheckError(ident, "The primitive type " + type + " of " + ident.getIdent() + " does not have a field " + idents.get(i+1).getIdent()));
+					errors.add(new TypeCheckError(ident, "The primitive type " + type.get(0) + " of " + ident.getIdent() + " does not have a field " + idents.get(i+1).getIdent()));
 					return VOID;
 				}
 			} 
 			else {
-				currentStructDef = null;
-				node.setNodeType(type);
-				return type;
+				if(type.size() >1){
+					currentStructDef = null;
+					node.setNodeType(type);
+					return type;
+				}
+				else{
+					currentStructDef = null;
+					node.setNodeType(type.get(0));
+					return type.get(0);
+				}
 			}
 		}
 		throw new RuntimeException("GeneralIdentNode " + node + " is empty");
