@@ -34,7 +34,9 @@ funcCall : Ident '(' argList ')' ;
 
 argList : (expr (',' expr)*)?;
 
-varDcl : type Ident;
+var : type Ident;
+
+varDcl : var (',' var)* ':=' expr;
 
 baseIdent 	: funcCall ('[' expr ']')?   	# funcBaseIdent
 			| Ident ('[' expr ']')?			# identBaseIdent
@@ -44,7 +46,7 @@ generalIdent : baseIdent ('.' baseIdent)*;
 
 callStmt : (generalIdent '.')? funcCall;
 
-assign : (varDcl | generalIdent) (',' (varDcl | generalIdent))* assignmentOp expr;
+assign : (var | generalIdent) (',' (var | generalIdent))* assignmentOp expr;
 
 assignmentOp : op=(':=' | '+:=' | '-:=' | '*:=' | '/:=' | '%:=');
 
