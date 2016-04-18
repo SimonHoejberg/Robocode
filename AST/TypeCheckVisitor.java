@@ -73,6 +73,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		return VOID;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object visit(AssignmentNode node) {
 		// Symbol table lookup
@@ -425,6 +426,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		return VOID;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object visit(GeneralIdentNode node) {
 		List<BaseIdentNode> idents = node.getIdents();
