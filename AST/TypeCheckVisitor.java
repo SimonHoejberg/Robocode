@@ -78,6 +78,14 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		// Symbol table lookup
 		//FIXME need to check every item on lhs with function call or just if it is varDcl that only :=
 		//Object lhs = visit(node.getGeneralIdent());
+		List<Object> lhs = new ArrayList<Object>();
+		List<AbstractNode> input = node.getGeneralIdent();
+		for(AbstractNode n : input){
+			if(n instanceof GeneralIdentNode)
+				lhs.add(visit((GeneralIdentNode)n));
+			else
+				lhs.add(visit((VarNode)n));
+		}
 		Object rhs = visit(node.getExpression());
 		
 		// Since assignments can't be part of an expression, we set the type to void
@@ -144,7 +152,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			}
 		}
 		catch (Exception ex) {
-			errors.add(new TypeCheckError(node, node.getIdent() + " cannot be resolved"));
+			errors.add(new TypeCheckError(node, node.getIdent() + " cannot be resolved")); //FIXME Errors
 			return VOID;
 		}
 	}
