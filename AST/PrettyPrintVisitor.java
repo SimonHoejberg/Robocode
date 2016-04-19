@@ -72,13 +72,12 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 	@Override
 	public Void visit(BoolLiteralNode node) {
 		System.out.print(node.getBool());
-		
 		return null;
 	}
 	
 	@Override
 	public Void visit(CallStatementNode node){
-
+		visit(node.getIdent());
 		return null;
 	}
 
@@ -469,6 +468,8 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 			visit((AssignmentNode) node);
 		else if (node instanceof IfNode)
 			visit((IfNode) node);
+		else if(node instanceof CallStatementNode)
+			visit((CallStatementNode)node);
 		else if (node instanceof IterationNode)
 			visit((IterationNode) node);
 		else if (node instanceof ReturnNode)
