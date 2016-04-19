@@ -46,7 +46,9 @@ generalIdent : baseIdent ('.' baseIdent)*;
 
 callStmt : (generalIdent '.')? funcCall;
 
-assign : (var | generalIdent) (',' (var | generalIdent))* assignmentOp expr;
+assignHelp : (var | generalIdent);
+
+assign : assignHelp (',' assignHelp)* assignmentOp expr;
 
 assignmentOp : op=(':=' | '+:=' | '-:=' | '*:=' | '/:=' | '%:=');
 

@@ -79,10 +79,16 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		// Symbol table lookup
 		List<Object> lhs = new ArrayList<Object>();
 		List<AbstractNode> input = node.getGeneralIdent();
+		Object bs;
 		for(AbstractNode n : input){
-			if(n instanceof GeneralIdentNode)
-				lhs.add(visit((GeneralIdentNode)n));
-			else
+			if(n instanceof GeneralIdentNode){
+				bs = visit((GeneralIdentNode)n); 
+				if(bs instanceof List<?>)
+					lhs.addAll((List<Object>)bs);
+				else
+					lhs.add(bs);
+			}	
+			else if(n instanceof VarNode)
 				lhs.add(visit((VarNode)n));
 		}
 		List<Object> rhs = new ArrayList<Object>();
@@ -96,15 +102,32 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		
 		int lhsSize = lhs.size();
 		int rhsSize = rhs.size();
+		GeneralIdentNode gen;
+		VarNode var;
 		if(lhsSize == rhsSize){
 			for (int i = 0; i < lhsSize; ++i) {
-
-				if (lhs.get(i) == rhs.get(i))
-					continue;
-				else {
-					errors.add(new TypeCheckError(node, "Cannot assign variable of type " + lhs.get(i) + " a value of type " + rhs.get(i)));
-					return VOID;
+				if(lhs.get(i) instanceof GeneralIdentNode){
+					gen = (GeneralIdentNode)lhs.get(i);
+					if (gen.getNodeType() == rhs.get(i))
+						continue;
+					else {
+						errors.add(new TypeCheckError(node, "Cannot assign variable of type " + gen.getNodeType() + " a value of type " + rhs.get(i)));
+						return VOID;
+					}
 				}
+				else if(lhs.get(i) instanceof VarNode){
+					var = (VarNode)lhs.get(i);
+					if (var.getNodeType() == rhs.get(i))
+						continue;
+					else {
+						errors.add(new TypeCheckError(node, "Cannot assign variable of type " + var.getNodeType() + " a value of type " + rhs.get(i)));
+						return VOID;
+					}
+				}
+				else{
+					errors.add(new TypeCheckError(node, "Lefthand side is not a generalIdentNode or varNode but is "));
+				}
+				
 			}
 		}
 		node.setNodeType(VOID);

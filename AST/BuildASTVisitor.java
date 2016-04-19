@@ -227,14 +227,16 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 			default:
 				throw new NotImplementedException();
 		}
-		
 		List<AbstractNode> output = new ArrayList<AbstractNode>();
-		List<HelloParser.GeneralIdentContext> input = context.generalIdent();
-		List<HelloParser.VarContext> secinput = context.var();
-		for(HelloParser.GeneralIdentContext i : input)
-			output.add((GeneralIdentNode) visit(i));
-		for(HelloParser.VarContext j : secinput)
-			output.add((VarNode)visit(j));
+		List<HelloParser.AssignHelpContext> input = context.assignHelp();
+		for(Object o : input){
+			if(o instanceof HelloParser.VarContext){
+				output.add(visit((HelloParser.VarContext)o));
+			}
+			else if(o instanceof HelloParser.GeneralIdentContext){
+				output.add(visit((HelloParser.GeneralIdentContext)o));
+			}
+		}
 		return new AssignmentNode(context.start.getLine(),
 								  context.start.getCharPositionInLine(),
 								  output,
