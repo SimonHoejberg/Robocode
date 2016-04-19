@@ -79,11 +79,13 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		// Symbol table lookup
 		List<Object> lhs = new ArrayList<Object>();
 		List<AbstractNode> input = node.getGeneralIdent();
+		System.out.println(node.getLineNumber()+" : "+input.size());
 		Object bs;
 		for(AbstractNode n : input){
-			System.out.println(n);
+			System.out.println(node.getLineNumber()+" : "+n);
 			if(n instanceof GeneralIdentNode){
 				bs = visit((GeneralIdentNode)n); 
+				System.out.println(node.getLineNumber()+" : "+bs);
 				if(bs instanceof List<?>)
 					lhs.addAll((List<Object>)bs);
 				else
@@ -130,7 +132,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 					}
 				}
 				else{
-					errors.add(new TypeCheckError(node, "Lefthand side is not a generalIdentNode or varNode but is "));
+					errors.add(new TypeCheckError(node, "Lefthand side is not a generalIdentNode or varNode but is "+ lhs.get(i).getClass()));
 				}
 				
 			}
@@ -448,19 +450,16 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	@Override
 	public Object visit(GeneralIdentNode node) {
 		List<BaseIdentNode> idents = node.getIdents();
-		List<Object> type = new ArrayList<Object>();
+		Object type;
 		for (int i = 0; i < idents.size(); ++i) {
 			BaseIdentNode ident = idents.get(i);
 			
 			if (ident instanceof FuncCallNode){
 				Object temp = visit((FuncCallNode) ident);
-				if(temp instanceof List<?>)
-					type.addAll((List<Object>)temp);
-				else
-					type.add(temp);
+				type = temp;
 			}
 			else
-				type.add(visit(ident));
+				type = visit(ident);
 			
 			// TODO "The primitive type " + type + " of " + ident + " does not have a field " + ident2;
 			// "Cannot invoke " + methodName + " on the primitive type " + type;
@@ -468,23 +467,16 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			// Set currentStruct to null before returning
 			
 			if (i+1 < idents.size()) {
-				if (type.get(0) == NUM || type.get(0) == BOOL || type.get(0) == TEXT || type.get(0) == VOID) {
+				if (type == NUM || type == BOOL || type == TEXT || type == VOID) {
 					currentStructDef = null;
-					errors.add(new TypeCheckError(ident, "The primitive type " + type.get(0) + " of " + ident.getIdent() + " does not have a field " + idents.get(i+1).getIdent()));
+					errors.add(new TypeCheckError(ident, "The primitive type " + type + " of " + ident.getIdent() + " does not have a field " + idents.get(i+1).getIdent()));
 					return VOID;
 				}
 			} 
 			else {
-				if(type.size() >1){
-					currentStructDef = null;
-					node.setNodeType(type);
-					return type;
-				}
-				else{
-					currentStructDef = null;
-					node.setNodeType(type.get(0));
-					return type.get(0);
-				}
+				currentStructDef = null;
+				node.setNodeType(type);
+				return type;
 			}
 		}
 		throw new RuntimeException("GeneralIdentNode " + node + " is empty");

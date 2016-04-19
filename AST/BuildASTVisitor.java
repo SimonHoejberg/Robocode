@@ -203,6 +203,15 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 										context.dataStructDcl().Ident(0).getText(), context.dataStructDcl().Ident(1).getText(), (ExpressionNode) visit(context.expr()));
 	}
 	
+	public AbstractNode visitAssignHelp(HelloParser.AssignHelpContext context){
+		if(context.generalIdent() != null)
+			return visit(context.generalIdent());
+		else if(context.var() != null)
+			return visit(context.var());
+		else
+			throw new NullPointerException("Both generalIdent and Var are null");
+	}
+	
 	public AbstractNode visitAssign(HelloParser.AssignContext context) {
 		AssignmentNode.AssignmentType type;
 		switch (context.assignmentOp().op.getType()) {
@@ -229,13 +238,8 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 		}
 		List<AbstractNode> output = new ArrayList<AbstractNode>();
 		List<HelloParser.AssignHelpContext> input = context.assignHelp();
-		for(Object o : input){
-			if(o instanceof HelloParser.VarContext){
-				output.add(visit((HelloParser.VarContext)o));
-			}
-			else if(o instanceof HelloParser.GeneralIdentContext){
-				output.add(visit((HelloParser.GeneralIdentContext)o));
-			}
+		for(HelloParser.AssignHelpContext o : input){
+			output.add(visit(o));
 		}
 		return new AssignmentNode(context.start.getLine(),
 								  context.start.getCharPositionInLine(),
