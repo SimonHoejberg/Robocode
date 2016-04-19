@@ -81,6 +81,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		List<AbstractNode> input = node.getGeneralIdent();
 		Object bs;
 		for(AbstractNode n : input){
+			System.out.println(n);
 			if(n instanceof GeneralIdentNode){
 				bs = visit((GeneralIdentNode)n); 
 				if(bs instanceof List<?>)
@@ -108,6 +109,8 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			for (int i = 0; i < lhsSize; ++i) {
 				if(lhs.get(i) instanceof GeneralIdentNode){
 					gen = (GeneralIdentNode)lhs.get(i);
+					System.out.println(gen.getNodeType());
+					System.out.println(rhs.get(i));
 					if (gen.getNodeType() == rhs.get(i))
 						continue;
 					else {
@@ -117,6 +120,8 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				}
 				else if(lhs.get(i) instanceof VarNode){
 					var = (VarNode)lhs.get(i);
+					System.out.println(var.getNodeType());
+					System.out.println(rhs.get(i));
 					if (var.getNodeType() == rhs.get(i))
 						continue;
 					else {
@@ -129,6 +134,8 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				}
 				
 			}
+		}else{
+			errors.add(new TypeCheckError(node, "Lefthand side ("+ lhsSize +")& righthand side ("+ rhsSize +")"));
 		}
 		node.setNodeType(VOID);
 		return VOID;
