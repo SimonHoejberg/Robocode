@@ -31,7 +31,7 @@ func num doStuff(){
 	text t := ""
 	bool f := false
 	hej,t,f := test(7)
-	num heee, text lol, bool yep := test()
+	num heee, text lol, bool yep := test(test(5))
 	return (dude[1].victor + 1)/5
 }
 

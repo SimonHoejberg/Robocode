@@ -156,16 +156,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		try {
 			SymbolTableEntry entry;
 			if (currentStructDef == null) {
-				if (currentFuncDcl != null) {
-					try {
-						entry = currentFuncDcl.getParameters().retrieveSymbol(node.getIdent());
-					}
-					catch (Exception ex) {
-						entry = symbolTable.retrieveSymbol(node.getIdent());
-					}
-				}
-				else
-					entry = symbolTable.retrieveSymbol(node.getIdent());
+				entry = symbolTable.retrieveSymbol(node.getIdent());
 			}
 			else
 				entry = currentStructDef.getVariables().retrieveSymbol(node.getIdent());
@@ -264,7 +255,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		node.setNodeType(VOID);
 		return VOID;
 	}
-
+	
 	@Override
 	public Object visit(DataStructDefinitionNode node) {
 		// Check if the symbol has already been defined in this scope
@@ -332,10 +323,11 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		}
 		
 		// Add variable to symbol table
-		SymbolTable eventTable = new SymbolTable();
-		eventTable.enterSymbol(node.getParam().getIdent(), new STTypeEntry(node.getParam().getType().intern()));
-		symbolTable.enterSymbol(node.getIdent(), new STSubprogramEntry(SubprogramType.event,new ArrayList<TypeNode>(),eventTable));
+		List<VarNode> eventParams = new ArrayList<VarNode>();
+		eventParams.add(node.getParam());
+		symbolTable.enterSymbol(node.getIdent(), new STSubprogramEntry(SubprogramType.event,new ArrayList<TypeNode>(),eventParams));
 		symbolTable.openScope();
+		symbolTable.enterSymbol(node.getParam().getIdent(), new STTypeEntry(node.getParam().getType().intern()));
 		List<StatementNode> input = node.getStatements();
 		for(StatementNode i : input)
 			visit(i);
@@ -404,20 +396,51 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	public Object visit(FuncCallNode node) {
 		List<Object> type = new ArrayList<Object>();
 		try {
+			// TODO class method calls
 			SymbolTableEntry entry = symbolTable.retrieveSymbol(node.getIdent());
 			if (entry instanceof STSubprogramEntry) {
 				STSubprogramEntry subprogram = (STSubprogramEntry) entry;
-				//List<ExpressionNode> arguments = node.getArguments();
-				//List<Object> params = subprogram.getParameters();
-				//int argSize = arguments.size();
+				List<ExpressionNode> arguments = node.getArguments();
+				List<VarNode> params = subprogram.getParameters();
 				
+				int argSize = arguments.size();
+				int paramSize = params.size();
 				
-				
-				List<TypeNode> returnParams = subprogram.getReturnTypes();
-				for (TypeNode param : returnParams)
-					type.add(param.getType().intern());
-				node.setNodeType(type);
-				return type;
+				if (argSize == paramSize) {
+					for (int i = 0; i < argSize; ++i) {
+						if (visit(arguments.get(i)) == params.get(i).getType().intern())
+							continue;
+						
+						errors.add(new TypeCheckError(arguments.get(i), "Type mismatch: cannot convert from " + arguments.get(i).getNodeType() + " to " + params.get(i).getType()));
+						return VOID;
+					}
+					List<TypeNode> returnParams = subprogram.getReturnTypes();
+					for (TypeNode param : returnParams)
+						type.add(param.getType().intern());
+					node.setNodeType(type);
+					return type;
+				}
+				else {
+					String argString = "";
+					for (int i = 0; i < argSize; ++i) {
+						ExpressionNode arg = arguments.get(i);
+						argString += visit(arg);
+						if (i+1 < argSize)
+							argString += ", ";
+					}
+					String paramString = "";
+					for (int i = 0; i < paramSize; ++i) {
+						VarNode param = params.get(i);
+						paramString += param.getType();
+						if (i+1 < paramSize)
+							paramString += ", ";
+					}
+					if (argSize == 0)
+						errors.add(new TypeCheckError(node, "No arguments passed, expected " + paramString));
+					else
+						errors.add(new TypeCheckError(node, "Invalid argument(s) " + argString + ", expected " + paramString));
+					return VOID;
+				}
 			}
 			else {
 				errors.add(new TypeCheckError(node, "The method " + node.getIdent() + " is undefined"));
@@ -440,15 +463,14 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			return VOID;
 		}
 		
-		// Add variable to symbol table
-		SymbolTable funcTable = new SymbolTable();
+		// Add FuncDcl to symbol table
 		List<VarNode> params = node.getParamList();
-		for(VarNode param : params)
-			funcTable.enterSymbol(param.getIdent(), new STTypeEntry(param.getType().intern()));
-		currentFuncDcl = new STSubprogramEntry(SubprogramType.func,node.getReturnTypes(),funcTable);
+		currentFuncDcl = new STSubprogramEntry(SubprogramType.func,node.getReturnTypes(),params);
 		currentFuncDclName = node.getIdent();
 		symbolTable.enterSymbol(currentFuncDclName, currentFuncDcl); 
 		symbolTable.openScope();
+		for(VarNode param : params)
+			symbolTable.enterSymbol(param.getIdent(), new STTypeEntry(param.getType().intern()));
 		List<StatementNode> input = node.getStatements();
 		for(StatementNode i : input)
 			visit(i);
@@ -637,6 +659,8 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	public Object visit(ReturnNode node) {
 		// Does it return the correct values for the func?
 		STSubprogramEntry entry = currentFuncDcl;
+		
+		// TODO check if actually part of func
 		
 		// Get return parameters
 		List<TypeNode> returnParams = entry.getReturnTypes();
