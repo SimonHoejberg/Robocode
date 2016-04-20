@@ -40,8 +40,10 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 		for (int i = 0; i < size; i++) {
 			if(input.get(i) instanceof GeneralIdentNode)
 				visit(((GeneralIdentNode)input.get(i)));
-			else
+			else if(input.get(i) instanceof VarNode)
 				visit(((VarNode)input.get(i)));
+			else
+				visit(((DataStructDeclarationNode)input.get(i)));
 			if(i != size-1){
 				System.out.print(", ");
 			}

@@ -37,7 +37,7 @@ public class JavaCGVisitor extends ASTVisitor<Void> {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
 	@Override
 	public Void visit(DataStructDeclarationNode node) {
 		// TODO Auto-generated method stub

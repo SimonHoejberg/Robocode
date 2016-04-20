@@ -14,7 +14,7 @@ block : '{' stmts '}' ;
 
 dataStructDef : 'container' Ident '{' (varDcl | dataStructDcl | arrayDcl )+ '}' ;
 
-dataStructDcl : Ident Ident ;
+dataStructDcl : Ident Ident;
 
 arrayDcl 	: type Ident '[' expr']'  		# basicArrayDcl
    			| dataStructDcl '[' expr ']' 	# structArrayDcl
@@ -46,7 +46,7 @@ generalIdent : baseIdent ('.' baseIdent)*;
 
 callStmt : (generalIdent '.')? funcCall;
 
-assignHelp : (var | generalIdent);
+assignHelp : (var | generalIdent | dataStructDcl);
 
 assign : assignHelp (',' assignHelp)* assignmentOp expr;
 

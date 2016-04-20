@@ -97,9 +97,22 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				dcl += ", ";
 				hasVarDcl = true;
 			}
+			else if(n instanceof DataStructDeclarationNode){
+				lhs.add(visit((DataStructDeclarationNode)n));
+				dcl += ((DataStructDeclarationNode) n).getType().intern() + " " + ((DataStructDeclarationNode) n).getIdent();
+				dcl += ", ";
+				hasVarDcl = true;
+			}
 		}
+		for(Object l : lhs)
+			if(l!= NUM && !node.getType().equals(AssignmentType.basic)){
+				errors.add(new TypeCheckError(node, "Can not use the operator "+node.getType().toString()+" on non-num types"));
+				break;
+			}
+				
 		if(hasVarDcl && !node.getType().equals(AssignmentType.basic))
 			errors.add(new TypeCheckError(node, "Can not use the operator "+node.getType().toString()+" when declaring variables "+ dcl.substring(0, dcl.length()-2)));
+		
 		
 		List<Object> rhs = new ArrayList<Object>();
 		Object temp = visit(node.getExpression());
@@ -187,7 +200,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	public Object visit(CallStatementNode node) {
 		return visit((GeneralIdentNode) node.getIdent());
 	}
-
+	
 	@Override
 	public Object visit(DataStructDeclarationNode node) {
 		// Check if the symbol has already been defined in this scope
@@ -228,8 +241,8 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			symbolTable.enterSymbol(node.getIdent(), new STStructEntry(node.getType().intern()));
 		else
 			currentStructDef.getVariables().enterSymbol(node.getIdent(), new STStructEntry(node.getType().intern()));
-		node.setNodeType(VOID);
-		return VOID;
+		node.setNodeType(node.getType().intern());
+		return node.getType().intern();
 	}
 	
 	@Override

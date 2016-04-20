@@ -186,9 +186,9 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	}
 	
 	public AbstractNode visitDataStructDcl(HelloParser.DataStructDclContext context) {
-		return new DataStructDeclarationNode(context.start.getLine(),
-											 context.start.getCharPositionInLine(),
-											 context.Ident(0).getText(), context.Ident(1).getText());
+			return new DataStructDeclarationNode(context.start.getLine(),
+					 context.start.getCharPositionInLine(),
+					 context.Ident(0).getText(), context.Ident(1).getText());
 	}
 	
 	public AbstractNode visitBasicArrayDcl(HelloParser.BasicArrayDclContext context) {
@@ -208,8 +208,10 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 			return visit(context.generalIdent());
 		else if(context.var() != null)
 			return visit(context.var());
+		else if(context.dataStructDcl() != null)
+			return visit(context.dataStructDcl());
 		else
-			throw new NullPointerException("Both generalIdent and Var are null");
+			throw new NullPointerException("Both generalIdent, Var and dataStructDcl are null");
 	}
 	
 	public AbstractNode visitAssign(HelloParser.AssignContext context) {
