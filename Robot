@@ -1,0 +1,156 @@
+ void	ahead(double distance) 
+          Immediately moves your robot ahead (forward) by distance measured in pixels.
+ void	back(double distance) 
+          Immediately moves your robot backward by distance measured in pixels.
+ void	doNothing() 
+          Do nothing this turn, meaning that the robot will skip it's turn.
+ void	fire(double power) 
+          Immediately fires a bullet.
+ Bullet	fireBullet(double power) 
+          Immediately fires a bullet.
+ IBasicEvents	getBasicEventListener() 
+          This method is called by the game to notify this robot about basic robot event.
+ double	getBattleFieldHeight() 
+          Returns the height of the current battlefield measured in pixels.
+ double	getBattleFieldWidth() 
+          Returns the width of the current battlefield measured in pixels.
+ double	getEnergy() 
+          Returns the robot's current energy.
+ Graphics2D	getGraphics() 
+          Returns a graphics context used for painting graphical items for the robot.
+ double	getGunCoolingRate() 
+          Returns the rate at which the gun will cool down, i.e. the amount of heat the gun heat will drop per turn.
+ double	getGunHeading() 
+          Returns the direction that the robot's gun is facing, in degrees.
+ double	getGunHeat() 
+          Returns the current heat of the gun.
+ double	getHeading() 
+          Returns the direction that the robot's body is facing, in degrees.
+ double	getHeight() 
+          Returns the height of the robot measured in pixels.
+ IInteractiveEvents	getInteractiveEventListener() 
+          This method is called by the game to notify this robot about interactive events, i.e. keyboard and mouse events.
+ String	getName() 
+          Returns the robot's name.
+ int	getNumRounds() 
+          Returns the number of rounds in the current battle.
+ int	getNumSentries() 
+          Returns how many sentry robots that are left in the current round.
+ int	getOthers() 
+          Returns how many opponents that are left in the current round.
+ IPaintEvents	getPaintEventListener() 
+          This method is called by the game to notify this robot about painting events.
+ double	getRadarHeading() 
+          Returns the direction that the robot's radar is facing, in degrees.
+ Runnable	getRobotRunnable() 
+          This method is called by the game to invoke the run() method of your robot, where the program of your robot is implemented.
+ int	getRoundNum() 
+          Returns the current round number (0 to getNumRounds() - 1) of the battle.
+ int	getSentryBorderSize() 
+          Returns the sentry border size for a BorderSentry that defines the how far a BorderSentry is allowed to move from the border edges measured in units.
+ long	getTime() 
+          Returns the game time of the current round, where the time is equal to the current turn in the round.
+ double	getVelocity() 
+          Returns the velocity of the robot measured in pixels/turn.
+ double	getWidth() 
+          Returns the width of the robot measured in pixels.
+ double	getX() 
+          Returns the X position of the robot. (0,0) is at the bottom left of the battlefield.
+ double	getY() 
+          Returns the Y position of the robot. (0,0) is at the bottom left of the battlefield.
+ void	onBattleEnded(BattleEndedEvent event) 
+          This method is called after the end of the battle, even when the battle is aborted.
+ void	onBulletHit(BulletHitEvent event) 
+          This method is called when one of your bullets hits another robot.
+ void	onBulletHitBullet(BulletHitBulletEvent event) 
+          This method is called when one of your bullets hits another bullet.
+ void	onBulletMissed(BulletMissedEvent event) 
+          This method is called when one of your bullets misses, i.e. hits a wall.
+ void	onDeath(DeathEvent event) 
+          This method is called if your robot dies.
+ void	onHitByBullet(HitByBulletEvent event) 
+          This method is called when your robot is hit by a bullet.
+ void	onHitRobot(HitRobotEvent event) 
+          This method is called when your robot collides with another robot.
+ void	onHitWall(HitWallEvent event) 
+          This method is called when your robot collides with a wall.
+ void	onKeyPressed(KeyEvent e) 
+          This method is called when a key has been pressed.
+ void	onKeyReleased(KeyEvent e) 
+          This method is called when a key has been released.
+ void	onKeyTyped(KeyEvent e) 
+          This method is called when a key has been typed (pressed and released).
+ void	onMouseClicked(MouseEvent e) 
+          This method is called when a mouse button has been clicked (pressed and released).
+ void	onMouseDragged(MouseEvent e) 
+          This method is called when a mouse button has been pressed and then dragged.
+ void	onMouseEntered(MouseEvent e) 
+          This method is called when the mouse has entered the battle view.
+ void	onMouseExited(MouseEvent e) 
+          This method is called when the mouse has exited the battle view.
+ void	onMouseMoved(MouseEvent e) 
+          This method is called when the mouse has been moved.
+ void	onMousePressed(MouseEvent e) 
+          This method is called when a mouse button has been pressed.
+ void	onMouseReleased(MouseEvent e) 
+          This method is called when a mouse button has been released.
+ void	onMouseWheelMoved(MouseWheelEvent e) 
+          This method is called when the mouse wheel has been rotated.
+ void	onPaint(Graphics2D g) 
+          This method is called every time the robot is painted.
+ void	onRobotDeath(RobotDeathEvent event) 
+          This method is called when another robot dies.
+ void	onRoundEnded(RoundEndedEvent event) 
+          This method is called after the end of a round.
+ void	onScannedRobot(ScannedRobotEvent event) 
+          This method is called when your robot sees another robot, i.e. when the robot's radar scan "hits" another robot.
+ void	onStatus(StatusEvent e) 
+          This method is called every turn in a battle round in order to provide the robot status as a complete snapshot of the robot's current state at that specific time.
+ void	onWin(WinEvent event) 
+          This method is called if your robot wins a battle.
+ void	resume() 
+          Immediately resumes the movement you stopped by stop(), if any.
+ void	run() 
+          The main method in every robot.
+ void	scan() 
+          Scans for other robots.
+ void	setAdjustGunForRobotTurn(boolean independent) 
+          Sets the gun to turn independent from the robot's turn.
+ void	setAdjustRadarForGunTurn(boolean independent) 
+          Sets the radar to turn independent from the gun's turn.
+ void	setAdjustRadarForRobotTurn(boolean independent) 
+          Sets the radar to turn independent from the robot's turn.
+ void	setAllColors(Color color) 
+          Sets all the robot's color to the same color in the same time, i.e. the color of the body, gun, radar, bullet, and scan arc.
+ void	setBodyColor(Color color) 
+          Sets the color of the robot's body.
+ void	setBulletColor(Color color) 
+          Sets the color of the robot's bullets.
+ void	setColors(Color bodyColor, Color gunColor, Color radarColor) 
+          Sets the color of the robot's body, gun, and radar in the same time.
+ void	setColors(Color bodyColor, Color gunColor, Color radarColor, Color bulletColor, Color scanArcColor) 
+          Sets the color of the robot's body, gun, radar, bullet, and scan arc in the same time.
+ void	setDebugProperty(String key, String value) 
+          Sets the debug property with the specified key to the specified value.
+ void	setGunColor(Color color) 
+          Sets the color of the robot's gun.
+ void	setRadarColor(Color color) 
+          Sets the color of the robot's radar.
+ void	setScanColor(Color color) 
+          Sets the color of the robot's scan arc.
+ void	stop() 
+          Immediately stops all movement, and saves it for a call to resume().
+ void	stop(boolean overwrite) 
+          Immediately stops all movement, and saves it for a call to resume().
+ void	turnGunLeft(double degrees) 
+          Immediately turns the robot's gun to the left by degrees.
+ void	turnGunRight(double degrees) 
+          Immediately turns the robot's gun to the right by degrees.
+ void	turnLeft(double degrees) 
+          Immediately turns the robot's body to the left by degrees.
+ void	turnRadarLeft(double degrees) 
+          Immediately turns the robot's radar to the left by degrees.
+ void	turnRadarRight(double degrees) 
+          Immediately turns the robot's radar to the right by degrees.
+ void	turnRight(double degrees) 
+          Immediately turns the robot's body to the right by degrees.
