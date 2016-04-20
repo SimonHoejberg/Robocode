@@ -31,19 +31,19 @@ public class AssignmentNode extends StatementNode {
     }
 
 
-    private List<AbstractNode> generalIdent;
+    private List<AbstractNode> vars;
     private AssignmentType type;
     private ExpressionNode expr;
     
     public AssignmentNode(int lineNumber, int colNumber, List<AbstractNode> output, AssignmentType type, ExpressionNode expr) {
     	super(lineNumber, colNumber);
-    	this.generalIdent = output;
+    	this.vars = output;
     	this.type = type;
     	this.expr = expr;
     }
     
-    public List<AbstractNode> getGeneralIdent() {
-    	return generalIdent;
+    public List<AbstractNode> getVariables() {
+    	return vars;
     }
     
     public AssignmentType getType() {

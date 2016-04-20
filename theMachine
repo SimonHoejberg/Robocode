@@ -22,15 +22,16 @@ robot initialization(){
 	setBulletColor(Color.black)
 }
 
-func num, text, bool test(){
-	return 4,"hej",true
+func num, text, bool test(num yea){
+	return 2*yea,"hej", true
 }
 
 func num doStuff(){
 	num hej := 0
 	text t := ""
 	bool f := false
-	t,hej,f := test()
+	hej,t,f := test(7)
+	num heee, text lol, bool yep := test()
 	return (dude[1].victor + 1)/5
 }
 

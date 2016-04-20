@@ -2,6 +2,7 @@ package symbolTable;
 
 import java.util.Arrays;
 import java.util.List;
+import nodes.TypeNode;
 
 public class STSubprogramEntry extends SymbolTableEntry {
 	public enum SubprogramType {
@@ -9,12 +10,12 @@ public class STSubprogramEntry extends SymbolTableEntry {
 	}
 	
 	SubprogramType type;
-	List<Object> returnTypes;
+	List<TypeNode> returnTypes;
 	SymbolTable params;
 	
-	public STSubprogramEntry(SubprogramType type, Object[] returnTypes, SymbolTable params) {
+	public STSubprogramEntry(SubprogramType type, List<TypeNode> returnTypes, SymbolTable params) {
 		this.type = type;
-		this.returnTypes = Arrays.asList(returnTypes);
+		this.returnTypes = returnTypes;
 		this.params = params;
 	}
 	
@@ -22,7 +23,7 @@ public class STSubprogramEntry extends SymbolTableEntry {
 		return type;
 	}
 	
-	public List<Object> getReturnTypes() {
+	public List<TypeNode> getReturnTypes() {
 		return returnTypes;
 	}
 	

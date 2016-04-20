@@ -78,7 +78,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	public Object visit(AssignmentNode node) {
 		// Symbol table lookup
 		List<Object> lhs = new ArrayList<Object>();
-		List<AbstractNode> input = node.getGeneralIdent();
+		List<AbstractNode> input = node.getVariables();
 		System.out.println(node.getLineNumber()+" : "+input.size());
 		Object bs;
 		for(AbstractNode n : input){
@@ -109,6 +109,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		VarNode var;
 		if(lhsSize == rhsSize){
 			for (int i = 0; i < lhsSize; ++i) {
+				/*
 				if(lhs.get(i) instanceof GeneralIdentNode){
 					gen = (GeneralIdentNode)lhs.get(i);
 					System.out.println(gen.getNodeType());
@@ -134,10 +135,16 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				else{
 					errors.add(new TypeCheckError(node, "Lefthand side is not a generalIdentNode or varNode but is "+ lhs.get(i).getClass()));
 				}
-				
+				*/
+				if (lhs.get(i) == rhs.get(i))
+					continue;
+				else {
+					errors.add(new TypeCheckError(node, "Cannot assign variable of type " + lhs.get(i) + " a value of type " + rhs.get(i)));
+					return VOID;
+				}
 			}
-		}else{
-			errors.add(new TypeCheckError(node, "Lefthand side ("+ lhsSize +")& righthand side ("+ rhsSize +")"));
+		} else {
+			errors.add(new TypeCheckError(node, "Lefthand side is of size "+ lhsSize +" and righthand side of size "+ rhsSize));
 		}
 		node.setNodeType(VOID);
 		return VOID;
@@ -211,8 +218,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	
 	@Override
 	public Object visit(CallStatementNode node) {
-		// FIXME help
-		return null;
+		return visit((GeneralIdentNode) node.getIdent());
 	}
 
 	@Override
@@ -328,7 +334,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		// Add variable to symbol table
 		SymbolTable eventTable = new SymbolTable();
 		eventTable.enterSymbol(node.getParam().getIdent(), new STTypeEntry(node.getParam().getType().intern()));
-		symbolTable.enterSymbol(node.getIdent(), new STSubprogramEntry(SubprogramType.event,new Object[]{},eventTable));
+		symbolTable.enterSymbol(node.getIdent(), new STSubprogramEntry(SubprogramType.event,new ArrayList<TypeNode>(),eventTable));
 		symbolTable.openScope();
 		List<StatementNode> input = node.getStatements();
 		for(StatementNode i : input)
@@ -396,11 +402,20 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	
 	@Override
 	public Object visit(FuncCallNode node) {
-		List<Object> type = new ArrayList<Object>(); // FIXME support for multiple return types
+		List<Object> type = new ArrayList<Object>();
 		try {
 			SymbolTableEntry entry = symbolTable.retrieveSymbol(node.getIdent());
 			if (entry instanceof STSubprogramEntry) {
-				type = ((STSubprogramEntry) entry).getReturnTypes();
+				STSubprogramEntry subprogram = (STSubprogramEntry) entry;
+				//List<ExpressionNode> arguments = node.getArguments();
+				//List<Object> params = subprogram.getParameters();
+				//int argSize = arguments.size();
+				
+				
+				
+				List<TypeNode> returnParams = subprogram.getReturnTypes();
+				for (TypeNode param : returnParams)
+					type.add(param.getType().intern());
 				node.setNodeType(type);
 				return type;
 			}
@@ -410,7 +425,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			}
 		}
 		catch (Exception ex) {
-			errors.add(new TypeCheckError(node, "The method " + node.getIdent() + " is undefined for the type " + currentStructDef));
+			errors.add(new TypeCheckError(node, "The method " + node.getIdent() + " is undefined for the type " + currentStructDef));	// TODO this is not relevant yet
 			return VOID;
 		}
 	}
@@ -418,7 +433,6 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	@Override
 	public Object visit(FuncDeclarationNode node) {
 		boolean local;
-		// TODO set currentFuncDcl
 		local = symbolTable.declaredLocally(node.getIdent());
 				
 		if (local) {
@@ -431,7 +445,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		List<VarNode> params = node.getParamList();
 		for(VarNode param : params)
 			funcTable.enterSymbol(param.getIdent(), new STTypeEntry(param.getType().intern()));
-		currentFuncDcl = new STSubprogramEntry(SubprogramType.func,node.getReturnTypes().toArray(),funcTable);
+		currentFuncDcl = new STSubprogramEntry(SubprogramType.func,node.getReturnTypes(),funcTable);
 		currentFuncDclName = node.getIdent();
 		symbolTable.enterSymbol(currentFuncDclName, currentFuncDcl); 
 		symbolTable.openScope();
@@ -625,7 +639,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		STSubprogramEntry entry = currentFuncDcl;
 		
 		// Get return parameters
-		List<Object> returnParams = entry.getReturnTypes();
+		List<TypeNode> returnParams = entry.getReturnTypes();
 		
 		// Evaluate expressions to get return types and compare them
 		List<ExpressionNode> returnTypes = node.getExpressions();
@@ -635,10 +649,10 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			for (int i = 0; i < returnTypeSize; ++i) {
 				Object current = visit(returnTypes.get(i));
 
-				if (current == ((TypeNode) returnParams.get(i)).getType().intern())
+				if (current == returnParams.get(i).getType().intern())
 					continue;
 				else {
-					errors.add(new TypeCheckError(returnTypes.get(i), "Type mismatch: cannot convert from " + current + " to " + ((TypeNode) returnParams.get(i)).getType()));
+					errors.add(new TypeCheckError(returnTypes.get(i), "Type mismatch: cannot convert from " + current + " to " + returnParams.get(i).getType()));
 					return VOID;
 				}
 			}
@@ -653,10 +667,10 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		return VOID;
 	}
 	
-	private void returnTypeErrorListCreater(int returnParamsSize, int returnTypeSize, List<Object> returnParams, ReturnNode node, String word){
+	private void returnTypeErrorListCreater(int returnParamsSize, int returnTypeSize, List<TypeNode> returnParams, ReturnNode node, String word){
 		String paramString = "";
 		for (int j = 0; j < returnParamsSize; ++j) {
-			paramString += ((TypeNode)returnParams.get(j)).getType();
+			paramString += returnParams.get(j).getType();
 			if (j+1 < returnParamsSize)
 				paramString += ", ";
 		}
@@ -743,43 +757,57 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		return NUM;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object visit(VarDeclarationNode node) {
-		// Check if the symbol has already been defined in this scope
 		List<VarNode> input = node.getVariable();
-		for(VarNode var : input){
-			boolean local;
-			try {
-				local = symbolTable.declaredLocally(var.getIdent());
-			}
-			catch (Exception ex) {
-				local = false;
-			}
 		
-			if (local) {
-				errors.add(new TypeCheckError(node, "Duplicate local variable " + var.getIdent()));
+		// Evaluate Expression
+		List<Object> rhsType = new ArrayList<Object>();
+		Object temp = visit(node.getExpression());
+		if (temp instanceof List<?>)
+			rhsType.addAll((List<Object>) temp);
+		else
+			rhsType.add(temp);
+		
+		int inputSize = input.size();
+		int rhsSize = rhsType.size();
+		if (inputSize == rhsSize) {
+			for(int i = 0; i < inputSize; ++i) {
+				VarNode var = input.get(i);
+				// Check if the symbol has already been defined in this scope
+				boolean local;
+				try {
+					local = symbolTable.declaredLocally(var.getIdent());
+				}
+				catch (Exception ex) {
+					local = false;
+				}
+			
+				if (local) {
+					errors.add(new TypeCheckError(node, "Duplicate local variable " + var.getIdent()));
+					return VOID;
+				}
+				
+				Object varType = var.getType().intern();
+				
+				// Add variable to symbol table
+				if(currentStructDef == null)
+					symbolTable.enterSymbol(var.getIdent(), new STTypeEntry(varType));
+				else
+					currentStructDef.getVariables().enterSymbol(var.getIdent(), new STTypeEntry(varType));
+				if (varType == rhsType.get(i))	// TODO support multiple return
+					continue;
+				
+				errors.add(new TypeCheckError(node, "Cannot assign variable of type " + varType + " a value of type " + rhsType.get(i)));
 				return VOID;
 			}
+		} else {
+			errors.add(new TypeCheckError(node, "Lefthand side is of size "+ inputSize +" and righthand side of size "+ rhsSize));
 		}
-		//FIXME missing to enter stuff in the symbolTable
-//		Object varType = var.getType().intern();
-//		Object rhsType = visit(node.getExpression());
-//		
-//		// Add variable to symbol table
-//		if(currentStructDef == null)
-//			symbolTable.enterSymbol(var.getIdent(), new STTypeEntry(varType));
-//		else
-//			currentStructDef.getVariables().enterSymbol(var.getIdent(), new STTypeEntry(varType));
-//		if (varType == rhsType) {
-//			node.setNodeType(VOID);
-//			return VOID;
-//		}
-//		
-//		errors.add(new TypeCheckError(node, "Cannot assign variable of type " + varType + " a value of type " + rhsType));
-//		return VOID;
-		
 		node.setNodeType(VOID);
 		return VOID;
+		
 	}
 
 	@Override

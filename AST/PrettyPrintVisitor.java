@@ -35,7 +35,7 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 
 	@Override
 	public Void visit(AssignmentNode node) {
-		List<AbstractNode> input = node.getGeneralIdent();
+		List<AbstractNode> input = node.getVariables();
 		int size = input.size();
 		for (int i = 0; i < size; i++) {
 			if(input.get(i) instanceof GeneralIdentNode)
