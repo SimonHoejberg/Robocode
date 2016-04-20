@@ -2,6 +2,7 @@ import java.util.*;
 
 import exceptions.*;
 import nodes.*;
+import nodes.AssignmentNode.AssignmentType;
 import symbolTable.*;
 import symbolTable.STSubprogramEntry.SubprogramType;
 
@@ -79,63 +80,38 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		// Symbol table lookup
 		List<Object> lhs = new ArrayList<Object>();
 		List<AbstractNode> input = node.getVariables();
-		System.out.println(node.getLineNumber()+" : "+input.size());
+		boolean hasVarDcl = false;
+		String dcl = "";
 		Object bs;
 		for(AbstractNode n : input){
-			System.out.println(node.getLineNumber()+" : "+n);
 			if(n instanceof GeneralIdentNode){
-				bs = visit((GeneralIdentNode)n); 
-				System.out.println(node.getLineNumber()+" : "+bs);
-				if(bs instanceof List<?>)
-					lhs.addAll((List<Object>)bs);
-				else
-					lhs.add(bs);
+					bs = visit((GeneralIdentNode)n); 
+					if(bs instanceof List<?>)
+						lhs.addAll((List<Object>)bs);
+					else
+						lhs.add(bs);
 			}	
-			else if(n instanceof VarNode)
+			else if(n instanceof VarNode){
 				lhs.add(visit((VarNode)n));
+				dcl += ((VarNode) n).getType().intern() + " " + ((VarNode) n).getIdent();
+				dcl += ", ";
+				hasVarDcl = true;
+			}
 		}
+		if(hasVarDcl && !node.getType().equals(AssignmentType.basic))
+			errors.add(new TypeCheckError(node, "Can not use the operator "+node.getType().toString()+" when declaring variables "+ dcl.substring(0, dcl.length()-2)));
+		
 		List<Object> rhs = new ArrayList<Object>();
 		Object temp = visit(node.getExpression());
-		if(temp instanceof List<?>){
+		if(temp instanceof List<?>)
 			rhs.addAll((List<Object>)temp);
-		}
-		else{
+		else
 			rhs.add(temp);
-		}
 		
 		int lhsSize = lhs.size();
 		int rhsSize = rhs.size();
-		GeneralIdentNode gen;
-		VarNode var;
 		if(lhsSize == rhsSize){
 			for (int i = 0; i < lhsSize; ++i) {
-				/*
-				if(lhs.get(i) instanceof GeneralIdentNode){
-					gen = (GeneralIdentNode)lhs.get(i);
-					System.out.println(gen.getNodeType());
-					System.out.println(rhs.get(i));
-					if (gen.getNodeType() == rhs.get(i))
-						continue;
-					else {
-						errors.add(new TypeCheckError(node, "Cannot assign variable of type " + gen.getNodeType() + " a value of type " + rhs.get(i)));
-						return VOID;
-					}
-				}
-				else if(lhs.get(i) instanceof VarNode){
-					var = (VarNode)lhs.get(i);
-					System.out.println(var.getNodeType());
-					System.out.println(rhs.get(i));
-					if (var.getNodeType() == rhs.get(i))
-						continue;
-					else {
-						errors.add(new TypeCheckError(node, "Cannot assign variable of type " + var.getNodeType() + " a value of type " + rhs.get(i)));
-						return VOID;
-					}
-				}
-				else{
-					errors.add(new TypeCheckError(node, "Lefthand side is not a generalIdentNode or varNode but is "+ lhs.get(i).getClass()));
-				}
-				*/
 				if (lhs.get(i) == rhs.get(i))
 					continue;
 				else {
@@ -836,8 +812,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	@Override
 	public Object visit(VarNode node) {
-		node.setNodeType(VOID);
-		return VOID;
+		return node.getType().intern();
 	}
 	
 	@Override
