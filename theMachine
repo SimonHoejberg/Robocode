@@ -5,6 +5,7 @@ container rage {bool yes := true}
 container simon{
 	num victor := 1
  	num emil[2]
+ 	num vic[]
  	rage mad
 }
 

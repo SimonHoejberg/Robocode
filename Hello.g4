@@ -19,6 +19,10 @@ dataStructDcl : Ident Ident;
 arrayDcl 	: type Ident '[' expr']'  		# basicArrayDcl
    			| dataStructDcl '[' expr ']' 	# structArrayDcl
    			;
+   			
+sizelessArrayDcl 	: type Ident '[' ']'	# basicSizelessDcl
+					| dataStructDcl '[' ']'	# structSizelessDcl
+					;
 
 eventDcl : 'event' Ident '(' eventParam ')' block ;
 
@@ -46,7 +50,7 @@ generalIdent : baseIdent ('.' baseIdent)*;
 
 callStmt : (generalIdent '.')? funcCall;
 
-assignHelp : (var | generalIdent | dataStructDcl);
+assignHelp : (var | generalIdent | dataStructDcl | arrayDcl | sizelessArrayDcl);
 
 assign : assignHelp (',' assignHelp)* assignmentOp expr;
 

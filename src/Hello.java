@@ -8,13 +8,13 @@ public class Hello
 {
     public static void main( String[] args) throws Exception
     {
-    	
+    	/*
     	ANTLRInputStream docInput = new ANTLRInputStream(new FileReader("Robot"));
     	RoboDocLexer docLexer = new RoboDocLexer(docInput);
     	CommonTokenStream docTokens = new CommonTokenStream(docLexer);
     	RoboDocParser docParser = new RoboDocParser(docTokens);
         RoboDocParser.ProgContext docCst = docParser.prog();
-
+        */
         ANTLRInputStream input = new ANTLRInputStream(new FileReader("theMachine"));
 
         HelloLexer lexer = new HelloLexer(input);

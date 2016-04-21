@@ -19,8 +19,8 @@ type 	: 'void'		#voidType
 
 description : Text*;
 
-Ident : [a-zA-Z]+ ([a-zA-Z0-9])*;
-
 Text : .*?;
+
+Ident : [a-zA-Z]+ ([a-zA-Z0-9])*;
 
 WS : [ \t\r\n]->skip;
