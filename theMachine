@@ -26,10 +26,15 @@ func num, num, num test3(){
 	return 2,4,6
 }
 
+func num[] test4(){
+	return dude[1].emil
+}
+
 func num, simon,bool test2(){
 	num hej := 0
 	num hej2 := 0
 	num hej3 := 0
+	num he22[3] := test4()
 	hej, hej2, hej3 +:= test3()
 	return 2, dude[0],true
 }
