@@ -2,15 +2,22 @@ grammar RoboDoc;
 
 prog : dcls;         			
 
-dcls : (method)*;
+dcls : libname (method)*;
+
+libname : Text;
 
 method : type Ident '(' param (',' param)* ')' description;
 
 param : type Ident;
 
-type : 'hey' | 'hej';
+type 	: 'void'		#voidType
+		| 'int'			#intType
+		| 'long'		#longType
+		| 'double'		#doubleType
+		| 'String'		#stringType
+		;
 
-description : Text;
+description : Text*;
 
 Ident : [a-zA-Z]+ ([a-zA-Z0-9])*;
 

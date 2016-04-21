@@ -1,3 +1,4 @@
+ Robot
  void	ahead(double distance) 
           Immediately moves your robot ahead (forward) by distance measured in pixels.
  void	back(double distance) 
