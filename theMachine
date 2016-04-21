@@ -5,7 +5,6 @@ container rage {bool yes := true}
 container simon{
 	num victor := 1
  	num emil[2]
- 	num vic[]
  	rage mad
  	num hej[]
 }
@@ -24,6 +23,14 @@ robot initialization(){
 	setBulletColor(Color.black)
 }
 
+func num[], bool arrayAndBool() {
+	num out[3]
+	out[0] := 1
+	out[1] := 2
+	out[2] := 3
+	return out, true
+}
+
 func num, num, num test3(){
 	return 2,4,6
 }
@@ -33,6 +40,8 @@ func num[] test4(){
 }
 
 func num, simon,bool test2(){
+	bool epic := false
+	num janus[], epic := arrayAndBool()
 	num hej := 0
 	num hej2 := 0
 	num hej3 := 0

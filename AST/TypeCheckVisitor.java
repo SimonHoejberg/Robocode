@@ -15,7 +15,10 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	final Object 	NUM = "num".intern(),
 					TEXT = "text".intern(),
 					BOOL = "bool".intern(),
-					VOID = "void".intern();
+					VOID = "void".intern(),
+					NUM_ARRAY = "num[]".intern(),
+					TEXT_ARRAY = "text[]".intern(),
+					BOOL_ARRAY = "bool[]".intern();
 	
 	
 	public TypeCheckVisitor() {
@@ -36,12 +39,14 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			return NUM;
 		}
 		
-		errors.add(new TypeCheckError(node, "The operator " + node.getType() + " is undefined for the argument type(s) " + leftType + ", " + rightType));
+		errors.add(new TypeCheckError(node, "The operator '" + node.getType().toString().trim() + "' is undefined for the argument type(s) " + leftType + ", " + rightType));
 		return NUM;
 	}
 
 	@Override
 	public Object visit(ArrayDeclarationNode node) {
+		
+		Object varType = (node.getType() + "[]").intern();
 		
 		// Check if the symbol has already been defined in this scope
 		boolean local;
@@ -54,24 +59,28 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		
 		if (local) {
 			errors.add(new TypeCheckError(node, "Duplicate local variable " + node.getIdent()));
-			return VOID;
+			return varType;
 		}
-		
-		Object varType = node.getType().intern();
-		Object rhsType = visit(node.getSize());
 		
 		// Add variable to symbol table
 		if(currentStructDef == null)
 			symbolTable.enterSymbol(node.getIdent(), new STArrayEntry(varType));		// new STArrayEntry(((String) varType + "[]").intern())
 		else	
 			currentStructDef.getVariables().enterSymbol(node.getIdent(), new STArrayEntry(varType)); 	// new STArrayEntry(((String) varType + "[]").intern())
-		if (rhsType == NUM) {
-			node.setNodeType(VOID);
-			return VOID;
+		
+		if (node.getSize() != null) {
+			Object sizeType = visit(node.getSize());
+			if (sizeType == NUM) {
+				node.setNodeType(varType);
+				return varType;
+			}
+		} else {
+			node.setNodeType(varType);
+			return varType;
 		}
 				
 		errors.add(new TypeCheckError(node, "Array size must be of type num"));
-		return VOID;
+		return varType;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -103,15 +112,22 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				dcl += ", ";
 				hasVarDcl = true;
 			}
+			else if (n instanceof ArrayDeclarationNode) {
+				ArrayDeclarationNode arrayNode = (ArrayDeclarationNode) n;
+				lhs.add(visit(arrayNode));
+				dcl += arrayNode.getType().intern() + " " + arrayNode.getIdent() + "[]";
+				dcl += ", ";
+				hasVarDcl = true;
+			}
 		}
 		for(Object l : lhs)
-			if(l!= NUM && !node.getType().equals(AssignmentType.basic)){
-				errors.add(new TypeCheckError(node, "Can not use the operator "+node.getType().toString()+" on non-num types"));
+			if(l != NUM && !node.getType().equals(AssignmentType.basic)){
+				errors.add(new TypeCheckError(node, "Can not use the operator '"+node.getType().toString().trim()+"' on non-num types"));
 				break;
 			}
 				
 		if(hasVarDcl && !node.getType().equals(AssignmentType.basic))
-			errors.add(new TypeCheckError(node, "Can not use the operator "+node.getType().toString()+" when declaring variables "+ dcl.substring(0, dcl.length()-2)));
+			errors.add(new TypeCheckError(node, "Can not use the operator '"+node.getType().toString().trim()+"' when declaring variables "+ dcl.substring(0, dcl.length()-2)));
 		
 		
 		List<Object> rhs = new ArrayList<Object>();
@@ -161,13 +177,17 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				STArrayEntry arrayEntry = (STArrayEntry) entry;
 				//System.out.println(((STArrayEntry) entry).getType());
 				type = arrayEntry.getType();
-				if (type == NUM || type == TEXT || type == BOOL) {
+				if (node.getIndex() != null) {
+					String str = type.toString();
+					type = str.substring(0,str.length()-2).intern();
+				}
+				if (type == NUM || type == TEXT || type == BOOL || type == NUM_ARRAY || type == TEXT_ARRAY || type == BOOL_ARRAY) {	
 					node.setNodeType(type);
 					return type;
 				}
 				else {
 					currentStructDef = (STStructDefEntry) symbolTable.retrieveSymbol((String) type);	// FIXME Exception handling? Shouldn't be required
-					node.setNodeType(type);																// FIXME Maybe add [] to type since technically it's an array?
+					node.setNodeType(type);															// FIXME Maybe add [] to type since technically it's an array?
 					return type;
 				}
 			}
@@ -296,7 +316,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			node.setNodeType(BOOL);
 			return BOOL;
 		}
-		errors.add(new TypeCheckError(node, "The operator " + node.getNodeType() + " is undefined for the argument type(s) " + leftType + ", " + rightType));
+		errors.add(new TypeCheckError(node, "The operator '" + node.getType().toString().trim() + "' is undefined for the argument type(s) " + leftType + ", " + rightType));
 		return BOOL;
 	}
 
@@ -432,12 +452,15 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				}
 			}
 			else {
-				errors.add(new TypeCheckError(node, "The method " + node.getIdent() + " is undefined"));
+				errors.add(new TypeCheckError(node, "The function " + node.getIdent() + " is undefined"));
 				return VOID;
 			}
 		}
 		catch (Exception ex) {
-			errors.add(new TypeCheckError(node, "The method " + node.getIdent() + " is undefined for the type " + currentStructDef));	// TODO this is not relevant yet
+			if (currentStructDef != null)
+				errors.add(new TypeCheckError(node, "The function " + node.getIdent() + " is undefined for the type " + currentStructDef));	// TODO this is not relevant yet
+			else
+				errors.add(new TypeCheckError(node, "The function " + node.getIdent() + " is undefined"));
 			return VOID;
 		}
 	}
@@ -556,7 +579,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			node.setNodeType(BOOL);
 			return BOOL;
 		}
-		errors.add(new TypeCheckError(node, "The operator " + node.getNodeType() + " is undefined for the argument type(s) " + leftType + ", " + rightType));
+		errors.add(new TypeCheckError(node, "The operator '&' is undefined for the argument type(s) " + leftType + ", " + rightType));
 		return BOOL;
 	}
 
@@ -568,7 +591,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			node.setNodeType(BOOL);
 			return BOOL;
 		}
-		errors.add(new TypeCheckError(node, "The operator " + node.getNodeType() + " is undefined for the argument type(s) " + leftType + ", " + rightType));
+		errors.add(new TypeCheckError(node, "The operator '|' is undefined for the argument type(s) " + leftType + ", " + rightType));
 		return BOOL;
 	}
 
@@ -581,7 +604,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			return NUM;
 		}
 		
-		errors.add(new TypeCheckError(node, "The operator " + node.getType() + " is undefined for the argument type(s) " + leftType + ", " + rightType));
+		errors.add(new TypeCheckError(node, "The operator '" + node.getType().toString().trim() + "' is undefined for the argument type(s) " + leftType + ", " + rightType));
 		return NUM;
 	}
 
@@ -640,7 +663,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			node.setNodeType(BOOL);
 			return BOOL;
 		}
-		errors.add(new TypeCheckError(node, "The operator " + node.getNodeType() + " is undefined for the argument type(s) " + leftType + ", " + rightType));
+		errors.add(new TypeCheckError(node, "The operator '" + node.getType().toString().trim() + "' is undefined for the argument type(s) " + leftType + ", " + rightType));
 		return BOOL;
 	}
 	
@@ -755,14 +778,14 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			if (child == NUM)
 				node.setNodeType(NUM);
 			else
-				errors.add(new TypeCheckError(node, "The operator - is undefined for the argument type(s) " + child));
+				errors.add(new TypeCheckError(node, "The operator '-' is undefined for the argument type(s) " + child));
 			return NUM;
 		}
 		else if (node.getType() == UnaryExprNode.UnaryType.not) {
 			if (child == BOOL)
 				node.setNodeType(BOOL);
 			else
-				errors.add(new TypeCheckError(node, "The operator ! is undefined for the argument type(s) " + child));
+				errors.add(new TypeCheckError(node, "The operator '!' is undefined for the argument type(s) " + child));
 			return BOOL;
 		}
 		
