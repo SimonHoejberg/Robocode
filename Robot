@@ -103,7 +103,7 @@
  void	onRoundEnded(RoundEndedEvent event) 
 "This method is called after the end of a round."
  void	onScannedRobot(ScannedRobotEvent event) 
-"This method is called when your robot sees another robot, i.e. when the robot's radar scan "hits" another robot."
+"This method is called when your robot sees another robot, i.e. when the robot's radar scan 'hits' another robot."
  void	onStatus(StatusEvent e) 
 "This method is called every turn in a battle round in order to provide the robot status as a complete snapshot of the robot's current state at that specific time."
  void	onWin(WinEvent event) 
