@@ -16,20 +16,14 @@ public class BuildDocASTVisitor extends RoboDocBaseVisitor<Object> {
 		for (ParseTree method : context.children)
 			methods.add((Method) visit(method));
 		
-		Library lib = new Library((String) visit(context.libname()), methods);
-		
-		return lib;
-	}
-	
-	public Object visit(RoboDocParser.LibnameContext context) {
-		return context.Text().getText();
+		return methods;
 	}
 	
 	public Object visit(RoboDocParser.MethodContext context) {
-		List<VarNode> params = new ArrayList<VarNode>();
+		List<MethodParam> params = new ArrayList<MethodParam>();
 		List<RoboDocParser.ParamContext> arguments = context.param();
 		for (RoboDocParser.ParamContext arg : arguments) {
-			params.add((VarNode) visit(arg));
+			params.add((MethodParam) visit(arg));
 		}
 		
 		return new Method(context.type().getText().intern(),

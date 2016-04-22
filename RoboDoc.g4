@@ -4,7 +4,7 @@ prog : dcls;
 
 dcls : (method)*;
 
-method : type Ident '(' params?')' Text;
+method : type Ident '(' params?')' description;
 
 params : type Ident (',' type Ident)* ;
 
@@ -42,6 +42,7 @@ robocode : 'Color'		#ColorType
 		| 'BattleEndedEvent' #BattleEndedEventType
 		;
 
+description : Text;
 
 Ident : [a-zA-Z]+ ([a-zA-Z0-9])*;
 
