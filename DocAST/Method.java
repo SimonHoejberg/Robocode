@@ -4,10 +4,10 @@ import nodes.VarNode;
 public class Method {
 	private Object type;
 	private String ident;
-	private List<VarNode> params;
+	private List<MethodParam> params;
 	private String description;
 	
-	public Method (Object type, String ident, List<VarNode> params, String description) {
+	public Method (Object type, String ident, List<MethodParam> params, String description) {
 		this.type = type;
 		this.ident = ident;
 		this.params = params;
@@ -22,7 +22,7 @@ public class Method {
 		return ident;
 	}
 	
-	public List<VarNode> getParameters() {
+	public List<MethodParam> getParameters() {
 		return params;
 	}
 	

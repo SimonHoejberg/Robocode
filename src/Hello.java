@@ -14,26 +14,29 @@ public class Hello
     	CommonTokenStream docTokens = new CommonTokenStream(docLexer);
     	RoboDocParser docParser = new RoboDocParser(docTokens);
     	RoboDocParser.ProgContext docCst = docParser.prog();
+    	@SuppressWarnings("unchecked")
+		List<Method> DocAST = (List<Method>) new BuildDocASTVisitor().visit(docCst);
         
-//        ANTLRInputStream input = new ANTLRInputStream(new FileReader("theMachine"));
-//
-//        HelloLexer lexer = new HelloLexer(input);
-//
-//        CommonTokenStream tokens = new CommonTokenStream(lexer);
-//
-//        HelloParser parser = new HelloParser(tokens);
-//        
-//        HelloParser.ProgContext cst = parser.prog();
-//        ProgramNode ast = (ProgramNode) new BuildASTVisitor().visitProg(cst);
-//        new PrettyPrintVisitor().visit(ast);
-//        TypeCheckVisitor vis = new TypeCheckVisitor();
-//        vis.visit(ast);
-//        
-//        List<TypeCheckError> errors = vis.getErrorList(); 
-//        System.out.println(errors.size()+" Errors");
-//        for(TypeCheckError error : errors)
-//        	System.out.println(error.node.getLineNumber() +":" +error.node.getColumnNumber() + "\tError:\t" + error.msg);
-//        
+        ANTLRInputStream input = new ANTLRInputStream(new FileReader("theMachine"));
+
+        HelloLexer lexer = new HelloLexer(input);
+
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+
+        HelloParser parser = new HelloParser(tokens);
+        
+        HelloParser.ProgContext cst = parser.prog();
+        ProgramNode ast = (ProgramNode) new BuildASTVisitor().visitProg(cst);
+        new PrettyPrintVisitor().visit(ast);
+        TypeCheckVisitor vis = new TypeCheckVisitor();
+        vis.AddRobocodeMethods(DocAST);
+        vis.visit(ast);
+        
+        List<TypeCheckError> errors = vis.getErrorList(); 
+        System.out.println(errors.size()+" Errors");
+        for(TypeCheckError error : errors)
+        	System.out.println(error.node.getLineNumber() +":" +error.node.getColumnNumber() + "\tError:\t" + error.msg);
+        
         
         
         

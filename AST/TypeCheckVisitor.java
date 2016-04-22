@@ -26,6 +26,13 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		errors = new ArrayList<TypeCheckError>();
 	}
 	
+	public void AddRobocodeMethods(Object DocAST){
+		@SuppressWarnings("unchecked")
+		List<Method> methods = (List<Method>)DocAST;
+		for(Method method : methods)
+			visitClassMethod(method);
+	}
+	
 	public List<TypeCheckError> getErrorList(){
 		return errors;
 	}
@@ -398,6 +405,28 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		for(StatementNode stm : stms){
 			visit(stm);
 		}
+		return VOID;
+	}
+	
+	public Object visitClassMethod(Method node){
+		List<VarNode> params = new ArrayList<VarNode>();
+		if(node.getParameters() != null){
+			List<MethodParam> docParams = node.getParameters();
+			for(MethodParam param : docParams){
+				VarNode var = new VarNode(0,0,DocTypeConverter.Convert(param.getType()),param.getIdent());
+				params.add(var);
+			}
+		}
+		List<TypeNode> returnTypes = new ArrayList<TypeNode>();
+		returnTypes.add(new TypeNode(0, 0,DocTypeConverter.Convert(node.getType()) ));
+			
+		// Add FuncDcl to symbol table
+		
+		currentFuncDcl = new STSubprogramEntry(SubprogramType.func,returnTypes,params);
+		currentFuncDclName = node.getIdent();
+		symbolTable.enterSymbol(currentFuncDclName, currentFuncDcl); 
+		currentFuncDcl = null;
+		currentFuncDclName = null;
 		return VOID;
 	}
 	
