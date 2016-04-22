@@ -1,5 +1,4 @@
 import java.util.List;
-import nodes.VarNode;
 
 public class Method {
 	private Object type;

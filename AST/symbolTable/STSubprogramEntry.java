@@ -1,6 +1,5 @@
 package symbolTable;
 
-import java.util.Arrays;
 import java.util.List;
 import nodes.TypeNode;
 import nodes.VarNode;

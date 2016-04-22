@@ -1,8 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
 
-import org.antlr.v4.runtime.tree.ParseTree;
-
 public class BuildDocASTVisitor extends RoboDocBaseVisitor<Object> {
 	public Object visit(RoboDocParser.ProgContext context) {
 		return visit(context.dcls());
@@ -20,6 +18,7 @@ public class BuildDocASTVisitor extends RoboDocBaseVisitor<Object> {
 		return lib;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public Object visit(RoboDocParser.MethodContext context) {
 		List<MethodParam> params;
 		if (context.params() == null)

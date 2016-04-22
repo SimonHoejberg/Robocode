@@ -1,4 +1,3 @@
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,11 +6,9 @@ import java.util.List;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 
-import nodes.StatementNode;
 import nodes.TypeNode;
 import nodes.VarNode;
 import symbolTable.STSubprogramEntry;
-import symbolTable.STTypeEntry;
 import symbolTable.SymbolTable;
 import symbolTable.STSubprogramEntry.SubprogramType;
 
