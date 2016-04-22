@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.*;
 
 import exceptions.*;
@@ -21,9 +22,18 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 					BOOL_ARRAY = "bool[]".intern();
 	
 	
+	private LibraryImporter libImporter;
+	
 	public TypeCheckVisitor() {
 		symbolTable = new SymbolTable();
 		errors = new ArrayList<TypeCheckError>();
+		libImporter = new LibraryImporter();
+		try {
+			libImporter.importLibraries(symbolTable, "Robot");			
+		}
+		catch (IOException ex) {
+			System.out.println("Import failed! " + ex.getMessage());
+		}
 	}
 	
 	public void AddRobocodeMethods(Object DocAST){
@@ -455,6 +465,10 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 					List<TypeNode> returnParams = subprogram.getReturnTypes();
 					for (TypeNode param : returnParams)
 						type.add(param.getType().intern());
+					if (type.size() == 1) {
+						node.setNodeType(type.get(0));
+						return type.get(0);
+					}
 					node.setNodeType(type);
 					return type;
 				}
@@ -523,7 +537,6 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		return VOID;
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public Object visit(GeneralIdentNode node) {
 		List<BaseIdentNode> idents = node.getIdents();

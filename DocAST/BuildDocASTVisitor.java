@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 import java.util.List;
 
+import org.antlr.v4.runtime.tree.ParseTree;
+
 public class BuildDocASTVisitor extends RoboDocBaseVisitor<Object> {
 	public Object visit(RoboDocParser.ProgContext context) {
 		return visit(context.dcls());
@@ -10,26 +12,33 @@ public class BuildDocASTVisitor extends RoboDocBaseVisitor<Object> {
 		List<Method> methods = new ArrayList<Method>();
 		List<RoboDocParser.MethodContext> methodCtx = context.method();
 		for (RoboDocParser.MethodContext method : methodCtx){
-			methods.add((Method) visit(method));
+			methods.add((Method) visit((RoboDocParser.MethodContext) method));
 		}
 		
-		return methods;
+		Library lib = new Library(methods);
+		
+		return lib;
 	}
 	
 	public Object visit(RoboDocParser.MethodContext context) {
-		List<MethodParam> params = new ArrayList<MethodParam>();
-		List<RoboDocParser.ParamsContext> arguments = context.params();
-		for (RoboDocParser.ParamsContext arg : arguments) {
-			params.add((MethodParam) visit(arg));
-		}
+		List<MethodParam> params;
+		if (context.params() == null)
+			params = new ArrayList<MethodParam>();
+		else
+			params = (List<MethodParam>) visit(context.params());
 		
 		return new Method(context.type().getText().intern(),
-							context.Ident().getText(),
-							params,
-							context.description().getText());
+				context.Ident().getText(),
+				params,
+				context.description().Text().getText());
 	}
 	
 	public Object visit(RoboDocParser.ParamsContext context) {
-		return new MethodParam(context.type().toString().intern(), context.Ident().toString());
+		int paramCount = context.type().size();
+		List<MethodParam> params = new ArrayList<MethodParam>();
+		for (int i = 0; i < paramCount; ++i)
+			params.add(new MethodParam(context.type().get(i).getText().intern(), context.Ident().get(i).getText()));
+
+		return params;
 	}
 }

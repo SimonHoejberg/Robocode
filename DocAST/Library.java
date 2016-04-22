@@ -5,8 +5,7 @@ public class Library {
 	private String name;
 	private List<Method> methods;
 	
-	public Library(String name, List<Method> methods) {
-		this.name = name;
+	public Library(List<Method> methods) {
 		this.methods = methods;
 	}
 	
