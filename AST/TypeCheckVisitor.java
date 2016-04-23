@@ -29,7 +29,8 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		errors = new ArrayList<TypeCheckError>();
 		libImporter = new LibraryImporter();
 		try {
-			libImporter.importLibraries(symbolTable, "Robot");			
+			libImporter.importLibraries(symbolTable, "lib/Robot");
+			libImporter.importLibraries(symbolTable, "lib/Math");
 		}
 		catch (IOException ex) {
 			System.out.println("Import failed! " + ex.getMessage());

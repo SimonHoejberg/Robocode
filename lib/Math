@@ -1,0 +1,6 @@
+ int getRandomNumber()
+ 	"Gets a random number between 0 and 1000"
+ int getRandomNumberBetween(int min, int max)
+ 	"Gets a random number between min and max"
+ double Pow(double number, double pow)
+ 	"Returns the value of the power of number"
