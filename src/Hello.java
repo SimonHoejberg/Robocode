@@ -20,6 +20,7 @@ public class Hello
         ProgramNode ast = (ProgramNode) new BuildASTVisitor().visitProg(cst);
         new PrettyPrintVisitor().visit(ast);
         TypeCheckVisitor vis = new TypeCheckVisitor();
+        vis.addFuncDcls(ast);
         vis.visit(ast);
         
         List<TypeCheckError> errors = vis.getErrorList(); 

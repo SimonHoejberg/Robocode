@@ -8,11 +8,11 @@ import symbolTable.*;
 import symbolTable.STSubprogramEntry.SubprogramType;
 
 public class TypeCheckVisitor extends ASTVisitor<Object> {
-	SymbolTable symbolTable;
-	List<TypeCheckError> errors;
+	private SymbolTable symbolTable, funcDcls;
+	private List<TypeCheckError> errors;
 	private STStructDefEntry currentStructDef;
 	private STSubprogramEntry currentFuncDcl;
-	private String currentFuncDclName;
+	private String currentStructDefName, currentFuncDclName;
 	final Object 	NUM = "num".intern(),
 					TEXT = "text".intern(),
 					BOOL = "bool".intern(),
@@ -26,11 +26,16 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	
 	public TypeCheckVisitor() {
 		symbolTable = new SymbolTable();
+		funcDcls = new SymbolTable();
 		errors = new ArrayList<TypeCheckError>();
 		libImporter = new LibraryImporter();
 		try {
-			libImporter.importLibraries(symbolTable, "lib/Robot");
-			libImporter.importLibraries(symbolTable, "lib/Math");
+
+			libImporter.importLibraries(symbolTable, "Math", true);
+			libImporter.importLibraries(symbolTable, "Color", true);
+			libImporter.importLibraries(symbolTable, "Robot", false);
+			libImporter.importLibraries(symbolTable, "ScannedRobotEvent", true);
+			libImporter.importLibraries(symbolTable, "HitRobotEvent", true);
 		}
 		catch (IOException ex) {
 			System.out.println("Import failed! " + ex.getMessage());
@@ -180,7 +185,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			Object type;
 			if (entry instanceof STStructEntry) {
 				type = ((STStructEntry) entry).getType();
-				currentStructDef = (STStructDefEntry) symbolTable.retrieveSymbol((String) type);	// FIXME Exception handling? Shouldn't be required
+				//currentStructDef = (STStructDefEntry) symbolTable.retrieveSymbol((String) type);	// FIXME Exception handling? Shouldn't be required
 				node.setNodeType(type);
 				return type;
 			}
@@ -192,17 +197,24 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 					String str = type.toString();
 					type = str.substring(0,str.length()-2).intern();
 				}
-				if (type == NUM || type == TEXT || type == BOOL || type == NUM_ARRAY || type == TEXT_ARRAY || type == BOOL_ARRAY) {	
+				if (type == NUM || type == TEXT || type == BOOL || type == NUM_ARRAY || type == TEXT_ARRAY || type == BOOL_ARRAY || ((String) type).endsWith("[]")) {	
 					node.setNodeType(type);
 					return type;
 				}
 				else {
 					currentStructDef = (STStructDefEntry) symbolTable.retrieveSymbol((String) type);	// FIXME Exception handling? Shouldn't be required
+					currentStructDefName = (String) type;
 					node.setNodeType(type);															// FIXME Maybe add [] to type since technically it's an array?
 					return type;
 				}
 			}
-			else if (entry instanceof STStructDefEntry || entry instanceof STSubprogramEntry) {
+			else if (entry instanceof STStructDefEntry) {
+				currentStructDef = (STStructDefEntry) entry;	// FIXME shouldn't be possible to reference user defined containers
+				currentStructDefName = (String) node.getIdent();
+				node.setNodeType(currentStructDefName.intern());
+				return node.getNodeType();
+			}
+			else if (entry instanceof STSubprogramEntry) {
 				// FIXME Error
 				return VOID;
 			}
@@ -323,7 +335,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	public Object visit(EqualityExprNode node) {
 		Object leftType = visit(node.getLeftChild());
 		Object rightType = visit(node.getRightChild());
-		if(leftType == NUM && rightType == NUM || leftType == TEXT && rightType == TEXT ){
+		if((leftType == NUM && rightType == NUM) || (leftType == TEXT && rightType == TEXT) || (leftType == BOOL && rightType == BOOL)){
 			node.setNodeType(BOOL);
 			return BOOL;
 		}
@@ -416,8 +428,18 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	public Object visit(FuncCallNode node) {
 		List<Object> type = new ArrayList<Object>();
 		try {
-			// TODO class method calls
-			SymbolTableEntry entry = symbolTable.retrieveSymbol(node.getIdent());
+			SymbolTableEntry entry;
+			if (currentStructDef != null)
+				entry = currentStructDef.getVariables().retrieveSymbol(node.getIdent());
+			else {
+				try {
+					entry = symbolTable.retrieveSymbol(node.getIdent());
+				}
+				catch (Exception ex) {
+					entry = funcDcls.retrieveSymbol(node.getIdent());
+				}
+			}
+				
 			if (entry instanceof STSubprogramEntry) {
 				STSubprogramEntry subprogram = (STSubprogramEntry) entry;
 				List<ExpressionNode> arguments = node.getArguments();
@@ -437,7 +459,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 					List<TypeNode> returnParams = subprogram.getReturnTypes();
 					for (TypeNode param : returnParams)
 						type.add(param.getType().intern());
-					if (type.size() == 1) {
+					if (type.size() == 1) {					
 						node.setNodeType(type.get(0));
 						return type.get(0);
 					}
@@ -473,7 +495,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		}
 		catch (Exception ex) {
 			if (currentStructDef != null)
-				errors.add(new TypeCheckError(node, "The function " + node.getIdent() + " is undefined for the type " + currentStructDef));	// TODO this is not relevant yet
+				errors.add(new TypeCheckError(node, "The function " + node.getIdent() + " is undefined for the type " + currentStructDefName));	// TODO this is not relevant yet
 			else
 				errors.add(new TypeCheckError(node, "The function " + node.getIdent() + " is undefined"));
 			return VOID;
@@ -518,7 +540,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			
 			if (ident instanceof FuncCallNode){
 				Object temp = visit((FuncCallNode) ident);
-				type = temp;
+				type = temp;				
 			}
 			else
 				type = visit(ident);
@@ -529,10 +551,17 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			// Set currentStruct to null before returning
 			
 			if (i+1 < idents.size()) {
-				if (type == NUM || type == BOOL || type == TEXT || type == VOID) {
+				if (type == NUM || type == BOOL || type == TEXT || type == NUM_ARRAY || type == BOOL_ARRAY || type == TEXT_ARRAY || type == VOID || ((String) type).endsWith("[]")) {		// FIXME primitive type of struct array? nah m8
 					currentStructDef = null;
 					errors.add(new TypeCheckError(ident, "The primitive type " + type + " of " + ident.getIdent() + " does not have a field " + idents.get(i+1).getIdent()));
 					return VOID;
+				}
+				try {
+					currentStructDef = (STStructDefEntry) symbolTable.retrieveSymbol((String) ident.getNodeType());
+					currentStructDefName = (String) ident.getNodeType();
+				}
+				catch (Exception ex) {
+					throw new RuntimeException("The type " + ident.getNodeType() + " could not be resolved");
 				}
 			} 
 			else {
@@ -881,4 +910,24 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		return VOID;
 	}
 
+	public void addFuncDcls(ProgramNode node) {
+		List<DeclarationNode> declarations = node.getDeclarations();
+		for(int i = 0; i < declarations.size(); ++i) {
+			DeclarationNode dcl = declarations.get(i);
+			if (dcl instanceof FuncDeclarationNode) {
+				FuncDeclarationNode func = (FuncDeclarationNode) dcl;
+				
+				boolean local;
+				local = funcDcls.declaredLocally(func.getIdent());
+						
+				if (local)
+					continue;
+				
+				funcDcls.enterSymbol(func.getIdent(),
+									 new STSubprogramEntry(STSubprogramEntry.SubprogramType.func,
+											 			   func.getReturnTypes(),
+											 			   func.getParamList()));
+			}
+		}
+	}
 }

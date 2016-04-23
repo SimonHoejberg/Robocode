@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,9 +9,11 @@ import org.antlr.v4.runtime.CommonTokenStream;
 
 import nodes.TypeNode;
 import nodes.VarNode;
+import symbolTable.STStructDefEntry;
 import symbolTable.STSubprogramEntry;
 import symbolTable.SymbolTable;
 import symbolTable.STSubprogramEntry.SubprogramType;
+import symbolTable.STTypeEntry;
 
 public class LibraryImporter {
 
@@ -25,14 +28,27 @@ public class LibraryImporter {
 	
 	}
 	
-	public void importLibraries(SymbolTable symbolTable, String libname) throws IOException {		
-		ANTLRInputStream docInput = new ANTLRInputStream(new FileReader(libname));
+	public void importLibraries(SymbolTable st, String libname, boolean isObject) throws IOException {		
+		ANTLRInputStream docInput = new ANTLRInputStream(new FileReader("lib/" + libname));
 		RoboDocLexer docLexer = new RoboDocLexer(docInput);
     	CommonTokenStream docTokens = new CommonTokenStream(docLexer);
     	RoboDocParser docParser = new RoboDocParser(docTokens);
     	RoboDocParser.ProgContext docCst = docParser.prog();
     	Library lib = (Library) new BuildDocASTVisitor().visit(docCst);
-	
+    	
+    	SymbolTable symbolTable;
+    	if (isObject) {
+    		symbolTable = new SymbolTable();
+    		st.enterSymbol(libname, new STStructDefEntry(symbolTable));
+    		if (libname.equals("Color")) {	// FIXME Might be better to add this functionality to the doc parser
+    			symbolTable.enterSymbol("r", new STTypeEntry("num".intern()));
+    			symbolTable.enterSymbol("g", new STTypeEntry("num".intern()));
+    			symbolTable.enterSymbol("b", new STTypeEntry("num".intern()));
+    		}
+    	}
+    	else
+    		symbolTable = st;
+    	
     	List<Method> methods = lib.getMethods();
     	for (Method method : methods) {
     		boolean local;

@@ -6,7 +6,7 @@ container simon{
 	num victor := 1
  	num emil[2]
  	rage mad
- 	num hej[]
+ 	num hej[5]
 }
 
 robot initialization(){
@@ -17,10 +17,11 @@ robot initialization(){
 	dude[1].victor := 2
 	dude[0].mad.yes := false
 	dude[1].emil[0] := 2
-	setBodyColor(Color.gray)
-	setGunColor(Color.lightGray)
-	setRadarColor(Color.red)
-	setBulletColor(Color.black)
+	
+	setBodyColor(Color.gray())
+	setGunColor(Color.lightGray())
+	setRadarColor(Color.red())
+	setBulletColor(Color.black())
 }
 
 func num[], bool arrayAndBool() {
@@ -86,7 +87,7 @@ robot behavior(){
 
 event onScannedRobot(ScannedRobotEvent e){
 	if (moving){
-		CleverFire(e)
+		CleverFire(e.getDistance())
 	}else{
 		moving := true
 		if (e.getHeading() - getHeading() >=0){
@@ -166,7 +167,7 @@ event onHitRobot(HitRobotEvent e){
 	
 	// Determine a shot that won't kill the robot...
 	// We want to ram him instead for bonus points
-	
+	e.huamwfj()
 	if (e.getEnergy() > 16){
 		fire(3)
 	}else if (e.getEnergy() > 10){
