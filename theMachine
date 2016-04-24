@@ -153,7 +153,46 @@ func void CleverFire(num distance){
 	}
 }
 
+event onBattleEnd(BattleEndedEvent e){
 
+}
+
+event onBulletHitBullet(BulletHitBulletEvent e){
+
+}
+
+event onBulletMissed(BulletMissedEvent e){
+
+}
+
+event onBulletHit(BulletHitEvent e){
+
+}
+
+event onDeath(DeathEvent e){
+
+}
+event onHitByBullet(HitByBulletEvent e){
+
+}
+event onHitWall(HitWallEvent e){
+
+}
+
+event onRobotDeath(RobotDeathEvent e){
+
+}
+
+event onRoundEnded(RoundEndedEvent e){
+
+}
+
+event onStatus(StatusEvent e){
+
+}
+event onWin(WinEvent e){
+
+}
 
 event onHitRobot(HitRobotEvent e){
 	if (e.getBearing() >= 0){
