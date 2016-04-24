@@ -1,0 +1,2 @@
+Bullet	getBullet() 
+"Returns the bullet that missed."

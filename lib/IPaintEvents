@@ -1,0 +1,2 @@
+void	onPaint(Graphics2D g) 
+"This method is called every time the robot is painted."

@@ -1,0 +1,2 @@
+ RobotStatus	getStatus() 
+"Returns the RobotStatus at the time defined by Robot.getTime()."

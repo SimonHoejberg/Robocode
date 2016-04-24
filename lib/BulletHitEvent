@@ -1,0 +1,12 @@
+ Bullet	getBullet() 
+"Returns the bullet of yours that hit the robot."
+ double	getEnergy() 
+"Returns the remaining energy of the robot your bullet has hit (after the damage done by your bullet)."
+ double	getLife() 
+"Deprecated. Use getEnergy() instead."
+ String	getName() 
+"Returns the name of the robot your bullet hit."
+ double	getRobotLife() 
+"Deprecated. Use getEnergy() instead."
+ String	getRobotName() 
+"Deprecated. Use getName() instead."

@@ -1,0 +1,4 @@
+String	getName() 
+"Returns the name of the robot that died."
+ String	getRobotName() 
+"Deprecated. Use getName() instead."

@@ -1,0 +1,18 @@
+ double	getBearing() 
+"Returns the bearing to the bullet, relative to your robot's heading, in degrees (-180 < getBearing() <= 180)."
+ double	getBearingRadians() 
+"Returns the bearing to the bullet, relative to your robot's heading, in radians (-Math.PI < getBearingRadians() <= Math.PI)."
+ Bullet	getBullet() 
+"Returns the bullet that hit your robot."
+ double	getHeading() 
+"Returns the heading of the bullet when it hit you, in degrees (0 <= getHeading() < 360)."
+ double	getHeadingDegrees() 
+"Deprecated. Use getHeading() instead."
+ double	getHeadingRadians() 
+"Returns the heading of the bullet when it hit you, in radians (0 <= getHeadingRadians() < 2 * PI)."
+ String	getName() 
+"Returns the name of the robot that fired the bullet."
+ double	getPower() 
+"Returns the power of this bullet."
+ double	getVelocity() 
+"Returns the velocity of this bullet."

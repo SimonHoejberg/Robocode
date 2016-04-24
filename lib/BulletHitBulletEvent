@@ -1,0 +1,4 @@
+Bullet	getBullet() 
+"Returns your bullet that hit another bullet."
+ Bullet	getHitBullet() 
+"Returns the bullet that was hit by your bullet."

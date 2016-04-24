@@ -40,6 +40,8 @@ robocode : 'Color'		#ColorType
 		| 'BulletHitBulletEvent' #BulletHitBulletEventType
 		| 'BulletHitEvent' #BulletHitEventType
 		| 'BattleEndedEvent' #BattleEndedEventType
+		| 'BattleResults' #BattleResultsType
+		| 'RobotStatus' #RobotStatusType
 		;
 
 description : Text;

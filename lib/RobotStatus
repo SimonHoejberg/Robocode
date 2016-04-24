@@ -1,0 +1,46 @@
+ double	getDistanceRemaining() 
+"Returns the distance remaining in the robot's current move measured in pixels."
+ double	getEnergy() 
+"Returns the robot's current energy."
+ double	getGunHeading() 
+"Returns the direction that the robot's gun is facing, in degrees."
+ double	getGunHeadingRadians() 
+"Returns the direction that the robot's gun is facing, in radians."
+ double	getGunHeat() 
+"Returns the current heat of the gun."
+ double	getGunTurnRemaining() 
+"Returns the angle remaining in the gun's turn, in degrees."
+ double	getGunTurnRemainingRadians() 
+"Returns the angle remaining in the gun's turn, in radians."
+ double	getHeading() 
+"Returns the direction that the robot's body is facing, in degrees."
+ double	getHeadingRadians() 
+"Returns the direction that the robot's body is facing, in radians."
+ int	getNumRounds() 
+"Returns the number of rounds in the current battle."
+ int	getNumSentries() 
+"Returns how many sentry robots that are left in the current round."
+ int	getOthers() 
+"Returns how many opponents that are left in the current round."
+ double	getRadarHeading() 
+"Returns the direction that the robot's radar is facing, in degrees."
+ double	getRadarHeadingRadians() 
+"Returns the direction that the robot's radar is facing, in radians."
+ double	getRadarTurnRemaining() 
+"Returns the angle remaining in the radar's turn, in degrees."
+ double	getRadarTurnRemainingRadians() 
+"Returns the angle remaining in the radar's turn, in radians."
+ int	getRoundNum() 
+"Returns the current round number (0 to getNumRounds() - 1) of the battle."
+ long	getTime() 
+"Returns the game time of the round, where the time is equal to the current turn in the round."
+ double	getTurnRemaining() 
+"Returns the angle remaining in the robots's turn, in degrees."
+ double	getTurnRemainingRadians() 
+"Returns the angle remaining in the robots's turn, in radians."
+ double	getVelocity() 
+"Returns the velocity of the robot measured in pixels/turn."
+ double	getX() 
+"Returns the X position of the robot. (0,0) is at the bottom left of the battlefield."
+ double	getY() 
+"Returns the Y position of the robot. (0,0) is at the bottom left of the battlefield."

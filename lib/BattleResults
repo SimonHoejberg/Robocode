@@ -1,0 +1,30 @@
+ int	compareTo(BattleResults o) 
+""
+ boolean	equals(BattleResults obj) 
+""
+ int	getBulletDamage() 
+"Returns the bullet damage score of this robot in the battle."
+ int	getBulletDamageBonus() 
+"Returns the bullet damage bonus of this robot in the battle."
+ int	getFirsts() 
+"Returns the number of rounds this robot placed first in the battle."
+ int	getLastSurvivorBonus() 
+"Returns the last survivor score of this robot in the battle."
+ int	getRamDamage() 
+"Returns the ram damage score of this robot in the battle."
+ int	getRamDamageBonus() 
+"Returns the ram damage bonus of this robot in the battle."
+ int	getRank() 
+"Returns the rank of this robot in the battle results."
+ int	getScore() 
+"Returns the total score of this robot in the battle."
+ int	getSeconds() 
+"Returns the number of rounds this robot placed second in the battle."
+ int	getSurvival() 
+"Returns the survival score of this robot in the battle."
+ String	getTeamLeaderName() 
+"Returns the name of the team leader in the team or the name of the robot if the robot is not participating in a team."
+ int	getThirds() 
+"Returns the number of rounds this robot placed third in the battle."
+ int	hashCode() 
+""

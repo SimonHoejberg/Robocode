@@ -1,0 +1,22 @@
+void	onKeyPressed(KeyEvent event) 
+"This method is called when a key has been pressed."
+ void	onKeyReleased(KeyEvent event) 
+"This method is called when a key has been released."
+ void	onKeyTyped(KeyEvent event) 
+"This method is called when a key has been typed (pressed and released)."
+ void	onMouseClicked(MouseEvent event) 
+"This method is called when a mouse button has been clicked (pressed and released)."
+ void	onMouseDragged(MouseEvent event) 
+"This method is called when a mouse button has been pressed and then dragged."
+ void	onMouseEntered(MouseEvent event) 
+"This method is called when the mouse has entered the battle view."
+ void	onMouseExited(MouseEvent event) 
+"This method is called when the mouse has exited the battle view."
+ void	onMouseMoved(MouseEvent event) 
+"This method is called when the mouse has been moved."
+ void	onMousePressed(MouseEvent event) 
+"This method is called when a mouse button has been pressed."
+ void	onMouseReleased(MouseEvent event) 
+"This method is called when a mouse button has been released."
+ void	onMouseWheelMoved(MouseWheelEvent event) 
+"This method is called when the mouse wheel has been rotated."

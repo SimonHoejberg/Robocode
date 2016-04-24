@@ -36,6 +36,22 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			libImporter.importLibraries(symbolTable, "Robot", false);
 			libImporter.importLibraries(symbolTable, "ScannedRobotEvent", true);
 			libImporter.importLibraries(symbolTable, "HitRobotEvent", true);
+			libImporter.importLibraries(symbolTable, "BattleEndedEvent", true);
+			libImporter.importLibraries(symbolTable, "BattleResults", true);
+			libImporter.importLibraries(symbolTable, "BulletHitBulletEvent", true);
+			libImporter.importLibraries(symbolTable, "BulletHitEvent", true);
+			libImporter.importLibraries(symbolTable, "BulletMissedEvent", true);
+			libImporter.importLibraries(symbolTable, "DeathEvent", true);
+			libImporter.importLibraries(symbolTable, "HitByBulletEvent", true);
+			libImporter.importLibraries(symbolTable, "HitWallEvent", true);
+			libImporter.importLibraries(symbolTable, "IInteractiveEvents", true);
+			libImporter.importLibraries(symbolTable, "IPaintEvents", true);
+			libImporter.importLibraries(symbolTable, "RobotDeathEvent", true);
+			libImporter.importLibraries(symbolTable, "RobotStatus", true);
+			libImporter.importLibraries(symbolTable, "RoundEndedEvent", true);
+			libImporter.importLibraries(symbolTable, "StatusEvent", true);
+			libImporter.importLibraries(symbolTable, "WinEvent", true);
+			
 		}
 		catch (IOException ex) {
 			System.out.println("Import failed! " + ex.getMessage());

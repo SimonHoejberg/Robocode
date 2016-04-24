@@ -1,0 +1,2 @@
+int	getPriority() 
+"Returns the priority of this event."

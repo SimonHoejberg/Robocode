@@ -1,0 +1,6 @@
+ int	getPriority() 
+"Returns the priority of this event."
+ BattleResults	getResults() 
+"Returns the battle results."
+ boolean	isAborted() 
+"Checks if this battle was aborted."
