@@ -204,7 +204,7 @@ event onHitRobot(HitRobotEvent e){
 	turnRight(e.getBearing())
 	
 	fire(3)
-	
+	turnRight(e.getBearing()) := 2
 	// Determine a shot that won't kill the robot...
 	// We want to ram him instead for bonus points
 	e.huamwfj()
