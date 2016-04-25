@@ -82,23 +82,23 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 				{
 					type = new TypeNode(((HelloParser.GeneralTypeContext) child).start.getLine(),
 										((HelloParser.GeneralTypeContext) child).start.getCharPositionInLine(),
-										child.getText());
+										TypeConvert(child.getText()));
 					
 				}
 				else if (child.getChild(0) instanceof HelloParser.StructTypeContext) {
 					type = new TypeNode(((HelloParser.GeneralTypeContext) child).start.getLine(),
 							((HelloParser.GeneralTypeContext) child).start.getCharPositionInLine(),
-							((HelloParser.StructTypeContext) child.getChild(0)).Ident().getText());
+							TypeConvert(((HelloParser.StructTypeContext) child.getChild(0)).Ident().getText()));
 				}
 				else if (child.getChild(0) instanceof HelloParser.ArrayTypeContext) {
 					type = new TypeNode(((HelloParser.GeneralTypeContext) child).start.getLine(),
 										((HelloParser.GeneralTypeContext) child).start.getCharPositionInLine(),
-										((HelloParser.ArrayTypeContext) child.getChild(0)).type().getText() + "[]");
+										TypeConvert(((HelloParser.ArrayTypeContext) child.getChild(0)).type().getText()) + "[]");
 				}
 				else if (child.getChild(0) instanceof HelloParser.StructArrayTypeContext) {
 					type = new TypeNode(((HelloParser.GeneralTypeContext) child).start.getLine(),
 										((HelloParser.GeneralTypeContext) child).start.getCharPositionInLine(),
-										((HelloParser.StructArrayTypeContext) child.getChild(0)).Ident().getText() + "[]");
+										TypeConvert(((HelloParser.StructArrayTypeContext) child.getChild(0)).Ident().getText()) + "[]");
 				}
 				else
 					throw new NotImplementedException();
@@ -118,24 +118,24 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 			if (child.generalType().getRuleContext() instanceof HelloParser.TypeGeneralTypeContext)
 				param = new VarNode(child.start.getLine(),
 									child.start.getCharPositionInLine(),
-									child.generalType().getChild(0).getText(),
+									TypeConvert(child.generalType().getChild(0).getText()),
 									child.Ident().getText());
 			else {
 				HelloParser.ComplexTypeContext ct = ((HelloParser.ComplexTypeContext) child.generalType().getChild(0));
 				if (ct.getRuleContext() instanceof HelloParser.StructTypeContext)
 					param = new VarNode(child.start.getLine(),
 										child.start.getCharPositionInLine(),
-										((HelloParser.StructTypeContext) ct).Ident().getText(),
+										TypeConvert(((HelloParser.StructTypeContext) ct).Ident().getText()),
 										child.Ident().getText());
 				else if (ct.getRuleContext() instanceof HelloParser.ArrayTypeContext)
 					param = new VarNode(child.start.getLine(),
 										child.start.getCharPositionInLine(),
-										((HelloParser.ArrayTypeContext) ct).type().getText() + "[]",
+										TypeConvert(((HelloParser.ArrayTypeContext) ct).type().getText()) + "[]",
 										child.Ident().getText());
 				else if (ct.getRuleContext() instanceof HelloParser.StructArrayTypeContext)
 					param = new VarNode(child.start.getLine(),
 										child.start.getCharPositionInLine(),
-										((HelloParser.StructArrayTypeContext) ct).Ident().getText() + "[]",
+										TypeConvert(((HelloParser.StructArrayTypeContext) ct).Ident().getText()) + "[]",
 										child.Ident().getText());
 				else
 					throw new NotImplementedException();
@@ -156,7 +156,7 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	public AbstractNode visitVar(HelloParser.VarContext context){
 		return new VarNode(context.start.getLine(),
 				   		   context.start.getCharPositionInLine(),
-				           context.type().getText(),
+				   		TypeConvert(context.type().getText()),
 				           context.Ident().getText());
 	}
 	
@@ -194,7 +194,7 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	public AbstractNode visitBasicArrayDcl(HelloParser.BasicArrayDclContext context) {
 		return new ArrayDeclarationNode(context.start.getLine(),
 										context.start.getCharPositionInLine(),
-										context.type().getText(), context.Ident().getText(), (ExpressionNode) visit(context.expr()));
+										TypeConvert(context.type().getText()), context.Ident().getText(), (ExpressionNode) visit(context.expr()));
 	}
 	
 	public AbstractNode visitStructArrayDcl(HelloParser.StructArrayDclContext context) {
@@ -206,7 +206,7 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	public AbstractNode visitBasicSizelessDcl(HelloParser.BasicSizelessDclContext context) {
 		return new ArrayDeclarationNode(context.start.getLine(),
 										context.start.getCharPositionInLine(),
-										context.type().getText(), context.Ident().getText(), null);
+										TypeConvert(context.type().getText()), context.Ident().getText(), null);
 	}
 	
 	public AbstractNode visitStructSizelessDcl(HelloParser.StructSizelessDclContext context) {
@@ -582,6 +582,17 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	
     private static <T> Collection<T> nullSafe(Collection<T> c) {
         return (c == null) ? Collections.<T>emptyList() : c;
+    }
+    
+    private String TypeConvert(String type){
+    	switch (type) {
+		case "boolean":
+			return "bool";
+		case "number":
+			return "num";
+		default:
+			return type;
+		}
     }
    
     private <T1, T2> List<T2> CreateList(Collection<T1> list,Class<T2> type){
