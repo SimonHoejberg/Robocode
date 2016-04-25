@@ -10,6 +10,7 @@ import symbolTable.STSubprogramEntry.SubprogramType;
 public class TypeCheckVisitor extends ASTVisitor<Object> {
 	private SymbolTable symbolTable, funcDcls;
 	private List<TypeCheckError> errors;
+	private List<TypeCheckWarning> warnings;
 	private STStructDefEntry currentStructDef;
 	private STSubprogramEntry currentFuncDcl;
 	private boolean identHasFuncCall;
@@ -29,6 +30,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		symbolTable = new SymbolTable();
 		funcDcls = new SymbolTable();
 		errors = new ArrayList<TypeCheckError>();
+		warnings = new ArrayList<TypeCheckWarning>();
 		libImporter = new LibraryImporter();
 		try {
 
