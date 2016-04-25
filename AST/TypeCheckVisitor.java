@@ -8,9 +8,11 @@ import symbolTable.*;
 import symbolTable.STSubprogramEntry.SubprogramType;
 
 public class TypeCheckVisitor extends ASTVisitor<Object> {
+	private boolean hasRoboName, hasInit, hasBehave = false;
 	private SymbolTable symbolTable, funcDcls;
-	private List<TypeCheckError> errors;
-	private List<TypeCheckWarning> warnings;
+	private List<Object> problems;
+	private int errors = 0;
+	private int warnings = 0;
 	private STStructDefEntry currentStructDef;
 	private STSubprogramEntry currentFuncDcl;
 	private boolean identHasFuncCall;
@@ -29,8 +31,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	public TypeCheckVisitor() {
 		symbolTable = new SymbolTable();
 		funcDcls = new SymbolTable();
-		errors = new ArrayList<TypeCheckError>();
-		warnings = new ArrayList<TypeCheckWarning>();
+		problems = new ArrayList<Object>();
 		libImporter = new LibraryImporter();
 		try {
 
@@ -61,8 +62,24 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		}
 	}
 	
-	public List<TypeCheckError> getErrorList(){
+	public List<Object> getProblems(){
+		return problems;
+	}
+	
+	public int getNumberOfErrors(){
 		return errors;
+	}
+	public int getNumberOfWarnings(){
+		return warnings;
+	}
+	
+	private void addError(AbstractNode node, String msg){
+		errors++;
+		problems.add(new TypeCheckError(node, msg));
+	}
+	private void addWarning(AbstractNode node, String msg){
+		warnings++;
+		problems.add(new TypeCheckWarning(node, msg));
 	}
 	
 	@Override
@@ -73,8 +90,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			node.setNodeType(NUM);
 			return NUM;
 		}
-		
-		errors.add(new TypeCheckError(node, "The operator '" + node.getType().toString().trim() + "' is undefined for the argument type(s) " + leftType + ", " + rightType));
+		addError(node,"The operator '" + node.getType().toString().trim() + "' is undefined for the argument type(s) " + leftType + ", " + rightType);
 		return NUM;
 	}
 
@@ -93,7 +109,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		}
 		
 		if (local) {
-			errors.add(new TypeCheckError(node, "Duplicate local variable " + node.getIdent()));
+			addError(node,"Duplicate local variable " + node.getIdent());
 			return varType;
 		}
 		
@@ -113,8 +129,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			node.setNodeType(varType);
 			return varType;
 		}
-				
-		errors.add(new TypeCheckError(node, "Array size must be of type num"));
+		addError(node,"Array size must be of type num");
 		return varType;
 	}
 
@@ -125,7 +140,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		List<Object> lhs = new ArrayList<Object>();
 		List<AbstractNode> input = node.getVariables();
 		boolean hasVarDcl = false;
-		int errorCount = errors.size();
+		int errorCount = errors;
 		String dcl = "";
 		Object bs;
 		for(AbstractNode n : input){
@@ -136,7 +151,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				else
 					lhs.add(bs);
 				if (identHasFuncCall) {
-					errors.add(new TypeCheckError(n, "Cannot reference function in left-hand side of assignment"));
+					addError(n,"Cannot reference function in left-hand side of assignment");
 					identHasFuncCall = false;
 				}
 			}	
@@ -162,17 +177,17 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		}
 		
 		// If there are any errors in the left-hand side, do not check if types match
-		if (errorCount != errors.size())
+		if (errorCount != errors)
 			return VOID;
 		
 		for(Object l : lhs)
 			if(l != NUM && !node.getType().equals(AssignmentType.basic)){
-				errors.add(new TypeCheckError(node, "Can not use the operator '"+node.getType().toString().trim()+"' on non-num types"));
+				addError(node, "Can not use the operator '"+node.getType().toString().trim()+"' on non-num types");
 				break;
 			}
 				
 		if(hasVarDcl && !node.getType().equals(AssignmentType.basic))
-			errors.add(new TypeCheckError(node, "Can not use the operator '"+node.getType().toString().trim()+"' when declaring variables "+ dcl.substring(0, dcl.length()-2)));
+			addError(node, "Can not use the operator '"+node.getType().toString().trim()+"' when declaring variables "+ dcl.substring(0, dcl.length()-2));
 		
 		
 		List<Object> rhs = new ArrayList<Object>();
@@ -189,12 +204,12 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				if (lhs.get(i) == rhs.get(i))
 					continue;
 				else {
-					errors.add(new TypeCheckError(node, "Cannot assign variable of type " + lhs.get(i) + " a value of type " + rhs.get(i)));
+					addError(node, "Cannot assign variable of type " + lhs.get(i) + " a value of type " + rhs.get(i));
 					return VOID;
 				}
 			}
 		} else {
-			errors.add(new TypeCheckError(node, "Lefthand side is of size "+ lhsSize +" and righthand side of size "+ rhsSize));
+			addError(node, "Lefthand side is of size "+ lhsSize +" and righthand side of size "+ rhsSize);
 		}
 		node.setNodeType(VOID);
 		return VOID;
@@ -242,7 +257,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 					node.setNodeType(currentStructDefName.intern());
 					return node.getNodeType();
 				}			
-				errors.add(new TypeCheckError(node, node.getIdent() + " cannot be resolved"));
+				addError(node, node.getIdent() + " cannot be resolved");
 				return VOID;
 			}
 			else if (entry instanceof STSubprogramEntry) {
@@ -259,7 +274,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			}
 		}
 		catch (Exception ex) {
-			errors.add(new TypeCheckError(node, node.getIdent() + " cannot be resolved"));
+			addError(node, node.getIdent() + " cannot be resolved");
 			return VOID;
 		}
 	}
@@ -283,7 +298,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		local = symbolTable.declaredLocally(node.getIdent());
 				
 		if (local) {
-			errors.add(new TypeCheckError(node, "Duplicate local variable " + node.getIdent()));
+			addError(node, "Duplicate local variable " + node.getIdent());
 			return VOID;
 		}
 		
@@ -306,7 +321,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		}
 		
 		if (!defExists) {
-			errors.add(new TypeCheckError(node, node.getType() + " cannot be resolved to a type"));
+			addError(node, node.getType() + " cannot be resolved to a type");
 			return VOID;
 		}
 		
@@ -327,7 +342,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		local = symbolTable.declaredLocally(node.getTypeName());
 				
 		if (local) {
-			errors.add(new TypeCheckError(node, "Duplicate struct definition " + node.getTypeName()));
+			addError(node, "Duplicate struct definition " + node.getTypeName());
 			return VOID;
 		}
 		
@@ -370,7 +385,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			node.setNodeType(BOOL);
 			return BOOL;
 		}
-		errors.add(new TypeCheckError(node, "The operator '" + node.getType().toString().trim() + "' is undefined for the argument type(s) " + leftType + ", " + rightType));
+		addError(node, "The operator '" + node.getType().toString().trim() + "' is undefined for the argument type(s) " + leftType + ", " + rightType);
 		return BOOL;
 	}
 
@@ -381,7 +396,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		local = symbolTable.declaredLocally(node.getIdent());
 				
 		if (local) {
-			errors.add(new TypeCheckError(node, "Duplicate event " + node.getIdent()));
+			addError(node, "Duplicate event " + node.getIdent());
 			return VOID;
 		}
 		
@@ -436,7 +451,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 		Object exprType = visit((ExpressionNode) node.predicate);
 		if (exprType != BOOL)
-			errors.add(new TypeCheckError(node, "Type mismatch: cannot convert from " + exprType + " to boolean"));
+			addError(node, "Type mismatch: cannot convert from " + exprType + " to boolean");
 		else
 			node.setNodeType(VOID);
 		
@@ -484,7 +499,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 						if (visit(arguments.get(i)) == params.get(i).getType().intern())
 							continue;
 						
-						errors.add(new TypeCheckError(arguments.get(i), "Type mismatch: cannot convert from " + arguments.get(i).getNodeType() + " to " + params.get(i).getType()));
+						addError(arguments.get(i), "Type mismatch: cannot convert from " + arguments.get(i).getNodeType() + " to " + params.get(i).getType());
 						return VOID;
 					}
 					List<TypeNode> returnParams = subprogram.getReturnTypes();
@@ -513,22 +528,22 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 							paramString += ", ";
 					}
 					if (argSize == 0)
-						errors.add(new TypeCheckError(node, "No arguments passed, expected " + paramString));
+						addError(node, "No arguments passed, expected " + paramString);
 					else
-						errors.add(new TypeCheckError(node, "Invalid argument(s) " + argString + ", expected " + paramString));
+						addError(node, "Invalid argument(s) " + argString + ", expected " + paramString);
 					return VOID;
 				}
 			}
 			else {
-				errors.add(new TypeCheckError(node, "The function " + node.getIdent() + " is undefined"));
+				addError(node, "The function " + node.getIdent() + " is undefined");
 				return VOID;
 			}
 		}
 		catch (Exception ex) {
 			if (currentStructDef != null)
-				errors.add(new TypeCheckError(node, "The function " + node.getIdent() + " is undefined for the type " + currentStructDefName));	// TODO this is not relevant yet
+				addError(node, "The function " + node.getIdent() + " is undefined for the type " + currentStructDefName);	// TODO this is not relevant yet
 			else
-				errors.add(new TypeCheckError(node, "The function " + node.getIdent() + " is undefined"));
+				addError(node, "The function " + node.getIdent() + " is undefined");
 			return VOID;
 		}
 	}
@@ -539,7 +554,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		local = symbolTable.declaredLocally(node.getIdent());
 				
 		if (local) {
-			errors.add(new TypeCheckError(node, "Duplicate function " + node.getIdent()));
+			addError(node, "Duplicate function " + node.getIdent());
 			return VOID;
 		}
 		
@@ -578,7 +593,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			else
 				type = visit(ident);
 			
-			System.out.println(idents.get(i).getIdent() + ", " + idents.get(i).getNodeType());
+			//System.out.println(idents.get(i).getIdent() + ", " + idents.get(i).getNodeType());
 			// TODO "The primitive type " + type + " of " + ident + " does not have a field " + ident2;
 			// "Cannot invoke " + methodName + " on the primitive type " + type;
 			
@@ -587,7 +602,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			if (i+1 < idents.size()) {
 				if (type == NUM || type == BOOL || type == TEXT || type == NUM_ARRAY || type == BOOL_ARRAY || type == TEXT_ARRAY || ((String) type).endsWith("[]")) {		// FIXME primitive type of struct array? nah m8
 					currentStructDef = null;
-					errors.add(new TypeCheckError(ident, "The primitive type " + type + " of " + ident.getIdent() + " does not have a field " + idents.get(i+1).getIdent()));
+					addError(ident, "The primitive type " + type + " of " + ident.getIdent() + " does not have a field " + idents.get(i+1).getIdent());
 					return VOID;
 				}
 				else if (type == VOID) {
@@ -616,7 +631,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		
 		Object exprType = visit(node.getExpression());
 		if (exprType != BOOL)
-			errors.add(new TypeCheckError(node, "Type mismatch: cannot convert from " + exprType + " to boolean"));
+			addError(node, "Type mismatch: cannot convert from " + exprType + " to boolean");
 		else
 			node.setNodeType(VOID);
 		
@@ -660,7 +675,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			node.setNodeType(BOOL);
 			return BOOL;
 		}
-		errors.add(new TypeCheckError(node, "The operator '&' is undefined for the argument type(s) " + leftType + ", " + rightType));
+		addError(node, "The operator '&' is undefined for the argument type(s) " + leftType + ", " + rightType);
 		return BOOL;
 	}
 
@@ -672,7 +687,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			node.setNodeType(BOOL);
 			return BOOL;
 		}
-		errors.add(new TypeCheckError(node, "The operator '|' is undefined for the argument type(s) " + leftType + ", " + rightType));
+		addError(node, "The operator '|' is undefined for the argument type(s) " + leftType + ", " + rightType);
 		return BOOL;
 	}
 
@@ -685,7 +700,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			return NUM;
 		}
 		
-		errors.add(new TypeCheckError(node, "The operator '" + node.getType().toString().trim() + "' is undefined for the argument type(s) " + leftType + ", " + rightType));
+		addError(node, "The operator '" + node.getType().toString().trim() + "' is undefined for the argument type(s) " + leftType + ", " + rightType);
 		return NUM;
 	}
 
@@ -732,6 +747,18 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		for(int i = 0; i < declarations.size(); ++i)
 		    visit(declarations.get(i));
 		
+		if(!hasRoboName){
+			errors++;
+			problems.add(0, new TypeCheckError(node, "Missing Roboname"));
+		}
+		if(!hasBehave){
+			warnings++;
+			problems.add(0, new TypeCheckWarning(node, "Missing Robot behavior"));
+		}
+		if(!hasInit){
+			warnings++;
+			problems.add(0, new TypeCheckWarning(node, "Missing Robot initialization"));
+		}
 		node.setNodeType(VOID);
 		return VOID;
 	}
@@ -744,7 +771,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			node.setNodeType(BOOL);
 			return BOOL;
 		}
-		errors.add(new TypeCheckError(node, "The operator '" + node.getType().toString().trim() + "' is undefined for the argument type(s) " + leftType + ", " + rightType));
+		addError(node, "The operator '" + node.getType().toString().trim() + "' is undefined for the argument type(s) " + leftType + ", " + rightType);
 		return BOOL;
 	}
 	
@@ -769,7 +796,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				if (current == returnParams.get(i).getType().intern())
 					continue;
 				else {
-					errors.add(new TypeCheckError(returnTypes.get(i), "Type mismatch: cannot convert from " + current + " to " + returnParams.get(i).getType()));
+					addError(returnTypes.get(i), "Type mismatch: cannot convert from " + current + " to " + returnParams.get(i).getType());
 					return VOID;
 				}
 			}
@@ -791,7 +818,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			if (j+1 < returnParamsSize)
 				paramString += ", ";
 		}
-		errors.add(new TypeCheckError(node, "Method "+ currentFuncDclName + " returns too "+ word +" arguments(" + returnTypeSize + "). Expected " + paramString));
+		addError(node, "Method "+ currentFuncDclName + " returns too "+ word +" arguments(" + returnTypeSize + "). Expected " + paramString);
 	
 	}
 	
@@ -800,16 +827,30 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	public Object visit(RobotDeclarationNode node) {
 		switch (node.getType()) {
 			case initialization:
+				if(hasInit){
+					addError(node, "Duplicate declaration of initialization");
+				}
+				hasInit = true;
 				for (int i = 0; i < node.getStatements().size(); ++i)
 					visit(node.getStatements().get(i));
 				node.setNodeType(VOID);
 				return VOID;
 			case behavior:
+				if(hasBehave){
+					addError(node, "Duplicate declaration of beharvior");
+				}
+				hasBehave = true;
 				symbolTable.openScope();
 				for (int i = 0; i < node.getStatements().size(); ++i)
 					visit(node.getStatements().get(i));
 				symbolTable.closeScope();
+				node.setNodeType(VOID);
+				return VOID;
 			case name:
+				if(hasRoboName){
+					addError(node, "Duplicate declaration of roboname");
+				}
+				hasRoboName = true;
 				node.setNodeType(VOID);
 				return VOID;
 			default:
@@ -859,14 +900,14 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			if (child == NUM)
 				node.setNodeType(NUM);
 			else
-				errors.add(new TypeCheckError(node, "The operator '-' is undefined for the argument type(s) " + child));
+				addError(node, "The operator '-' is undefined for the argument type(s) " + child);
 			return NUM;
 		}
 		else if (node.getType() == UnaryExprNode.UnaryType.not) {
 			if (child == BOOL)
 				node.setNodeType(BOOL);
 			else
-				errors.add(new TypeCheckError(node, "The operator '!' is undefined for the argument type(s) " + child));
+				addError(node, "The operator '!' is undefined for the argument type(s) " + child);
 			return BOOL;
 		}
 		
@@ -902,7 +943,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				}
 			
 				if (local) {
-					errors.add(new TypeCheckError(node, "Duplicate local variable " + var.getIdent()));
+					addError(node, "Duplicate local variable " + var.getIdent());
 					return VOID;
 				}
 				
@@ -916,11 +957,11 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				if (varType == rhsType.get(i))	// TODO support multiple return
 					continue;
 				
-				errors.add(new TypeCheckError(node, "Cannot assign variable of type " + varType + " a value of type " + rhsType.get(i)));
+				addError(node, "Cannot assign variable of type " + varType + " a value of type " + rhsType.get(i));
 				return VOID;
 			}
 		} else {
-			errors.add(new TypeCheckError(node, "Lefthand side is of size "+ inputSize +" and righthand side of size "+ rhsSize));
+			addError(node, "Lefthand side is of size "+ inputSize +" and righthand side of size "+ rhsSize);
 		}
 		node.setNodeType(VOID);
 		return VOID;
@@ -937,7 +978,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		List<ExpressionNode> input = node.getExpressions();
 		Object exprType = visit(input.get(0));
 		if (exprType != BOOL)
-			errors.add(new TypeCheckError(node, "Type mismatch: cannot convert from " + exprType + " to boolean"));
+			addError(node, "Type mismatch: cannot convert from " + exprType + " to boolean");
 		else
 			node.setNodeType(VOID);
 		

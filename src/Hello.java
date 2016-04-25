@@ -23,11 +23,28 @@ public class Hello
         vis.addFuncDcls(ast);
         vis.visit(ast);
         
-        List<TypeCheckError> errors = vis.getErrorList(); 
-        System.out.println(errors.size()+" Errors");
-        for(TypeCheckError error : errors)
-        	System.out.println(error.node.getLineNumber() +":" +error.node.getColumnNumber() + "\tError:\t" + error.msg);
-        
+        List<Object> problems = vis.getProblems(); 
+        int errors = vis.getNumberOfErrors();
+        int warnings = vis.getNumberOfWarnings();
+        if(errors!=0 && warnings !=0)
+        	System.out.println(errors +" Errors, " + warnings +" Warnings");
+        else if(errors !=0 )
+        	System.out.println(errors +" Errors");
+        else if(warnings !=0)
+        	System.out.println(warnings +" Warnings");
+        TypeCheckError TError = null;
+        TypeCheckWarning TWarn = null;
+        if(errors!=0 || warnings !=0)
+        	for(Object error : problems){
+        		if(error instanceof TypeCheckError){
+        			TError = (TypeCheckError) error;
+        			System.out.println(TError.node.getLineNumber() +":" +TError.node.getColumnNumber() + "\tError:\t\t"+ TError.msg);
+        		}
+        		else if(error instanceof TypeCheckWarning){
+        			TWarn = (TypeCheckWarning) error;
+        			System.out.println(TWarn.node.getLineNumber() +":" +TWarn.node.getColumnNumber() + "\tWarning:\t"+ TWarn.msg);
+        		}
+        	}
         //ParseTree tree = parser.prog(); // begin parsing at rule 'r'
         //System.out.println(tree.toStringTree(parser)); // print LISP-style tree
     }

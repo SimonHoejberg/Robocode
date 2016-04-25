@@ -69,7 +69,7 @@ func num doStuff(){
 	num heee, text lol, bool yep := test(2)
 	return (dude[1].victor + 1)/5
 }
-
+/*
 robot behavior(){
 	simon.victor := 0
 	//num janus, victor := 7, 4
@@ -87,7 +87,7 @@ robot behavior(){
 		turnGunRight(1440 * turnDirection)
 	}
 }
-
+*/
 event onScannedRobot(ScannedRobotEvent e){
 	if (moving){
 		CleverFire(e.getDistance())
