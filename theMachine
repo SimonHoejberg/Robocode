@@ -71,7 +71,9 @@ func num doStuff(){
 }
 
 robot behavior(){
-	simon.victor := 7
+	simon.victor := 0
+	//num janus, victor := 7, 4
+	Color.red() := 7
 	if (moving){
 		if (remainingDistance > 0){
 			ahead(remainingDistance)

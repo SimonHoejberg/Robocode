@@ -12,6 +12,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	private List<TypeCheckError> errors;
 	private STStructDefEntry currentStructDef;
 	private STSubprogramEntry currentFuncDcl;
+	private boolean identHasFuncCall;
 	private String currentStructDefName, currentFuncDclName;
 	final Object 	NUM = "num".intern(),
 					TEXT = "text".intern(),
@@ -122,15 +123,20 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		List<Object> lhs = new ArrayList<Object>();
 		List<AbstractNode> input = node.getVariables();
 		boolean hasVarDcl = false;
+		int errorCount = errors.size();
 		String dcl = "";
 		Object bs;
 		for(AbstractNode n : input){
 			if(n instanceof GeneralIdentNode){
-					bs = visit((GeneralIdentNode)n); 
-					if(bs instanceof List<?>)
-						lhs.addAll((List<Object>)bs);
-					else
-						lhs.add(bs);
+				bs = visit((GeneralIdentNode)n); 
+				if(bs instanceof List<?>)
+					lhs.addAll((List<Object>)bs);
+				else
+					lhs.add(bs);
+				if (identHasFuncCall) {
+					errors.add(new TypeCheckError(n, "Cannot reference function in left-hand side of assignment"));
+					identHasFuncCall = false;
+				}
 			}	
 			else if(n instanceof VarNode){
 				lhs.add(visit((VarNode)n));
@@ -152,6 +158,11 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				hasVarDcl = true;
 			}
 		}
+		
+		// If there are any errors in the left-hand side, do not check if types match
+		if (errorCount != errors.size())
+			return VOID;
+		
 		for(Object l : lhs)
 			if(l != NUM && !node.getType().equals(AssignmentType.basic)){
 				errors.add(new TypeCheckError(node, "Can not use the operator '"+node.getType().toString().trim()+"' on non-num types"));
@@ -229,7 +240,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 					node.setNodeType(currentStructDefName.intern());
 					return node.getNodeType();
 				}			
-				errors.add(new TypeCheckError(node, node.getIdent() + " cannot be resolved")); //FIXME Errors
+				errors.add(new TypeCheckError(node, node.getIdent() + " cannot be resolved"));
 				return VOID;
 			}
 			else if (entry instanceof STSubprogramEntry) {
@@ -553,25 +564,32 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	public Object visit(GeneralIdentNode node) {
 		List<BaseIdentNode> idents = node.getIdents();
 		Object type;
+		identHasFuncCall = false;
 		for (int i = 0; i < idents.size(); ++i) {
 			BaseIdentNode ident = idents.get(i);
 			
 			if (ident instanceof FuncCallNode){
 				Object temp = visit((FuncCallNode) ident);
-				type = temp;				
+				type = temp;
+				identHasFuncCall = true;
 			}
 			else
 				type = visit(ident);
 			
+			System.out.println(idents.get(i).getIdent() + ", " + idents.get(i).getNodeType());
 			// TODO "The primitive type " + type + " of " + ident + " does not have a field " + ident2;
 			// "Cannot invoke " + methodName + " on the primitive type " + type;
 			
 			// Set currentStruct to null before returning
 			
 			if (i+1 < idents.size()) {
-				if (type == NUM || type == BOOL || type == TEXT || type == NUM_ARRAY || type == BOOL_ARRAY || type == TEXT_ARRAY || type == VOID || ((String) type).endsWith("[]")) {		// FIXME primitive type of struct array? nah m8
+				if (type == NUM || type == BOOL || type == TEXT || type == NUM_ARRAY || type == BOOL_ARRAY || type == TEXT_ARRAY || ((String) type).endsWith("[]")) {		// FIXME primitive type of struct array? nah m8
 					currentStructDef = null;
 					errors.add(new TypeCheckError(ident, "The primitive type " + type + " of " + ident.getIdent() + " does not have a field " + idents.get(i+1).getIdent()));
+					return VOID;
+				}
+				else if (type == VOID) {
+					currentStructDef = null;
 					return VOID;
 				}
 				try {
