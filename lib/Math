@@ -4,3 +4,5 @@
  	"Gets a random number between min and max"
  double Pow(double number, double pow)
  	"Returns the value of the power of number"
+ double Sqrt(double number)
+ 	"Returns the square root of the number"
