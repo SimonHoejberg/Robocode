@@ -39,7 +39,7 @@ public class LibraryImporter {
     	SymbolTable symbolTable;
     	if (isObject) {
     		symbolTable = new SymbolTable();
-    		st.enterSymbol(libname, new STStructDefEntry(symbolTable));
+    		st.enterSymbol(libname, new STStructDefEntry(true, symbolTable));
     		if (libname.equals("Color")) {	// FIXME Might be better to add this functionality to the doc parser
     			symbolTable.enterSymbol("r", new STTypeEntry("num".intern()));
     			symbolTable.enterSymbol("g", new STTypeEntry("num".intern()));

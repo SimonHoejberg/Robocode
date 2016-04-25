@@ -71,6 +71,7 @@ func num doStuff(){
 }
 
 robot behavior(){
+	simon.victor := 7
 	if (moving){
 		if (remainingDistance > 0){
 			ahead(remainingDistance)

@@ -201,13 +201,11 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			Object type;
 			if (entry instanceof STStructEntry) {
 				type = ((STStructEntry) entry).getType();
-				//currentStructDef = (STStructDefEntry) symbolTable.retrieveSymbol((String) type);	// FIXME Exception handling? Shouldn't be required
 				node.setNodeType(type);
 				return type;
 			}
 			else if (entry instanceof STArrayEntry) {
 				STArrayEntry arrayEntry = (STArrayEntry) entry;
-				//System.out.println(((STArrayEntry) entry).getType());
 				type = arrayEntry.getType();
 				if (node.getIndex() != null) {
 					String str = type.toString();
@@ -225,10 +223,14 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				}
 			}
 			else if (entry instanceof STStructDefEntry) {
-				currentStructDef = (STStructDefEntry) entry;	// FIXME shouldn't be possible to reference user defined containers
-				currentStructDefName = (String) node.getIdent();
-				node.setNodeType(currentStructDefName.intern());
-				return node.getNodeType();
+				if (((STStructDefEntry) entry).getIsClass()) {
+					currentStructDef = (STStructDefEntry) entry;
+					currentStructDefName = (String) node.getIdent();
+					node.setNodeType(currentStructDefName.intern());
+					return node.getNodeType();
+				}			
+				errors.add(new TypeCheckError(node, node.getIdent() + " cannot be resolved")); //FIXME Errors
+				return VOID;
 			}
 			else if (entry instanceof STSubprogramEntry) {
 				// FIXME Error
@@ -244,7 +246,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			}
 		}
 		catch (Exception ex) {
-			errors.add(new TypeCheckError(node, node.getIdent() + " cannot be resolved")); //FIXME Errors
+			errors.add(new TypeCheckError(node, node.getIdent() + " cannot be resolved"));
 			return VOID;
 		}
 	}
@@ -317,7 +319,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		}
 		
 		// Add variable to symbol table
-		STStructDefEntry def = new STStructDefEntry(new SymbolTable());
+		STStructDefEntry def = new STStructDefEntry(false, new SymbolTable());
 		currentStructDef = def;
 		List<DeclarationNode> input = node.getDeclarations();
 		for(DeclarationNode d : input)
