@@ -1,23 +1,23 @@
 import java.io.BufferedOutputStream;
-import java.io.FileWriter;
 import static java.nio.file.StandardOpenOption.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
 import exceptions.NotImplementedException;
 import nodes.*;
+import nodes.RobotDeclarationNode.RobotDeclarationType;
 
 public class JavaCGVisitor extends ASTVisitor<String> {
 	private int indentationLevel;
 	private final String LANG_NAME = "BTR";
 	private String imports, header, dcls;
+	private String extClassHead;
 	private String roboname;
 	private boolean initializingRobot;
-	private boolean usesColors, usesMath;
+	private boolean usesColors, usesMath, usesArrays;
 	
 	public JavaCGVisitor() {
 		indentationLevel = 0;
@@ -75,7 +75,29 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 	@Override
 	public String visit(DataStructDefinitionNode node) {
-		// TODO Auto-generated method stub
+		String typeName = node.getTypeName();
+		String contents;
+		
+		// FIXME import list if arrays are used
+		
+		contents = "public class " + typeName + "() {";
+		
+		List<Object> dcls = node.getDeclarations();
+		for (Object dcl : dcls) {
+			contents += "    ";
+			//contents += visit(node.getDeclarations().get(i));
+		}
+		
+		contents += "}";
+		
+		try (OutputStream out = new BufferedOutputStream(
+				 Files.newOutputStream(Paths.get((typeName + ".java")), CREATE, TRUNCATE_EXISTING))) {
+			out.write(contents.getBytes());
+		}
+		catch (IOException ex) {
+			System.out.println("Failed to write target file \"" + roboname + ".java");
+		}
+		
 		return null;
 	}
 
@@ -306,16 +328,24 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 	@Override
 	public String visit(ProgramNode node) {
-		// Fetch roboname
+		// Fetch robot declarations
+		RobotDeclarationNode init = null;
+		RobotDeclarationNode behavior = null;
+		
 		List<DeclarationNode> declarations = node.getDeclarations();
 		for(DeclarationNode dcl : declarations)
 			if (dcl instanceof RobotDeclarationNode) {
 				RobotDeclarationNode robodcl = (RobotDeclarationNode) dcl;
-				if (robodcl.getType() == RobotDeclarationNode.RobotDeclarationType.name) {
+				RobotDeclarationType type = robodcl.getType();
+				if (type == RobotDeclarationType.name) {
 					roboname = robodcl.getName();
 					roboname = roboname.substring(1, roboname.length()-1);
 					break;
 				}
+				else if (type == RobotDeclarationType.initialization)
+					init = robodcl;
+				else if (type == RobotDeclarationType.behavior)
+					behavior = robodcl;
 			}
 		try (OutputStream out = new BufferedOutputStream(
 			 Files.newOutputStream(Paths.get((roboname + ".java")), CREATE, TRUNCATE_EXISTING))) {
@@ -344,12 +374,8 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			
 			indentationLevel++;
 			
-			for(DeclarationNode dcl : declarations)
-				if (dcl instanceof RobotDeclarationNode) {
-					RobotDeclarationNode robodcl = (RobotDeclarationNode) dcl;
-					if (robodcl.getType() == RobotDeclarationNode.RobotDeclarationType.initialization)
-						dcls += visit(robodcl);
-				}
+			if (init != null)
+				dcls += visit(init);
 			
 			dcls += getIndentation() + "// Robot main loop\n";
 			dcls += getIndentation() + "while(true) {\n";
@@ -357,12 +383,8 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			indentationLevel++;
 			
 			// Robot behavior
-			for(DeclarationNode dcl : declarations)
-				if (dcl instanceof RobotDeclarationNode) {
-					RobotDeclarationNode robodcl = (RobotDeclarationNode) dcl;
-					if (robodcl.getType() == RobotDeclarationNode.RobotDeclarationType.behavior)
-						dcls += visit(robodcl);
-				}
+			if (behavior != null)
+				dcls += visit(behavior);
 			
 			indentationLevel--;
 			
@@ -478,9 +500,8 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		String exprRes = visit(node.getExpression());
 		
 		List<VarNode> input = node.getVariable();
-		int size = input.size();
-		for(int i = 0; i < size; ++i) {
-			res += visit(input.get(i));
+		for(VarNode var : input) {
+			res += visit(var);
 			res += " = ";
 			res += exprRes;
 			res += ";";
@@ -511,7 +532,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			case "bool":
 				return "boolean";
 			default:
-				throw new NotImplementedException();
+				return input;
 		}
 	}
 }

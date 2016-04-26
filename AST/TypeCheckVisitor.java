@@ -18,7 +18,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	private STSubprogramEntry currentFuncDcl;
 	private boolean identHasFuncCall;
 	private boolean inIfForOrWhile = false;
-	private String currentStructDefName, currentFuncDclName;
+	private String currentStructRefName, currentFuncDclName;
 	final Object 	NUM = "num".intern(),
 					TEXT = "text".intern(),
 					BOOL = "bool".intern(),
@@ -118,10 +118,10 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		}
 		
 		// Add variable to symbol table
-		if(currentStructRef == null)
+		if(currentStructDef == null)
 			symbolTable.enterSymbol(node.getIdent(), new STArrayEntry(varType));		// new STArrayEntry(((String) varType + "[]").intern())
 		else	
-			currentStructRef.getVariables().enterSymbol(node.getIdent(), new STArrayEntry(varType)); 	// new STArrayEntry(((String) varType + "[]").intern())
+			currentStructDef.getVariables().enterSymbol(node.getIdent(), new STArrayEntry(varType)); 	// new STArrayEntry(((String) varType + "[]").intern())
 		
 		if (node.getSize() != null) {
 			Object sizeType = visit(node.getSize());
@@ -253,7 +253,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				}
 				else {
 					currentStructRef = (STStructDefEntry) symbolTable.retrieveSymbol((String) type);	// FIXME Exception handling? Shouldn't be required
-					currentStructDefName = (String) type;
+					currentStructRefName = (String) type;
 					node.setNodeType(type);															// FIXME Maybe add [] to type since technically it's an array?
 					return type;
 				}
@@ -261,8 +261,8 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			else if (entry instanceof STStructDefEntry) {
 				if (((STStructDefEntry) entry).getIsClass()) {
 					currentStructRef = (STStructDefEntry) entry;
-					currentStructDefName = (String) node.getIdent();
-					node.setNodeType(currentStructDefName.intern());
+					currentStructRefName = (String) node.getIdent();
+					node.setNodeType(currentStructRefName.intern());
 					return node.getNodeType();
 				}			
 				addError(node, node.getIdent() + " cannot be resolved");
@@ -334,10 +334,10 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		}
 		
 		// Add variable to symbol table
-		if(currentStructRef == null)
+		if(currentStructDef == null)
 			symbolTable.enterSymbol(node.getIdent(), new STStructEntry(node.getType().intern()));
 		else
-			currentStructRef.getVariables().enterSymbol(node.getIdent(), new STStructEntry(node.getType().intern()));
+			currentStructDef.getVariables().enterSymbol(node.getIdent(), new STStructEntry(node.getType().intern()));
 		node.setNodeType(node.getType().intern());
 		return node.getType().intern();
 	}
@@ -556,7 +556,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		}
 		catch (Exception ex) {
 			if (currentStructRef != null)
-				addError(node, "The function " + node.getIdent() + " is undefined for the type " + currentStructDefName);	// TODO this is not relevant yet
+				addError(node, "The function " + node.getIdent() + " is undefined for the type " + currentStructRefName);	// TODO this is not relevant yet
 			else
 				addError(node, "The function " + node.getIdent() + " is undefined");
 			return VOID;
@@ -612,7 +612,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			// TODO "The primitive type " + type + " of " + ident + " does not have a field " + ident2;
 			// "Cannot invoke " + methodName + " on the primitive type " + type;
 			
-			// Set currentStruct to null before returning
+			// Set currentStructRef to null before returning
 			
 			if (i+1 < idents.size()) {
 				if (type == NUM || type == BOOL || type == TEXT || type == NUM_ARRAY || type == BOOL_ARRAY || type == TEXT_ARRAY || ((String) type).endsWith("[]")) {		// FIXME primitive type of struct array? nah m8
@@ -626,7 +626,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				}
 				try {
 					currentStructRef = (STStructDefEntry) symbolTable.retrieveSymbol((String) ident.getNodeType());
-					currentStructDefName = (String) ident.getNodeType();
+					currentStructRefName = (String) ident.getNodeType();
 				}
 				catch (Exception ex) {
 					throw new RuntimeException("The type " + ident.getNodeType() + " could not be resolved");
@@ -979,10 +979,10 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				Object varType = var.getType().intern();
 				
 				// Add variable to symbol table
-				if(currentStructRef == null)
+				if(currentStructDef == null)
 					symbolTable.enterSymbol(var.getIdent(), new STTypeEntry(varType));
 				else
-					currentStructRef.getVariables().enterSymbol(var.getIdent(), new STTypeEntry(varType));
+					currentStructDef.getVariables().enterSymbol(var.getIdent(), new STTypeEntry(varType));
 				if (varType == rhsType.get(i))	// TODO support multiple return
 					continue;
 				
