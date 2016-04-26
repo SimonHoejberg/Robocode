@@ -3,9 +3,9 @@ import java.util.List;
 
 public class DataStructDefinitionNode extends DeclarationNode {
 	private String typeName;
-    private List<DeclarationNode> declarations; // varDcl, dataStructDcl, arrayDcl
+    private List<Object> declarations; // varDcl, dataStructDcl, arrayDcl
     
-    public DataStructDefinitionNode(int lineNumber, int colNumber, String typeName, List<DeclarationNode> declarations) {
+    public DataStructDefinitionNode(int lineNumber, int colNumber, String typeName, List<Object> declarations) {
     	super(lineNumber, colNumber);
     	this.typeName = typeName;
 		this.declarations = declarations;
@@ -15,7 +15,7 @@ public class DataStructDefinitionNode extends DeclarationNode {
     	return typeName;
     }
     
-    public List<DeclarationNode> getDeclarations() {
+    public List<Object> getDeclarations() {
     	return declarations;
     }
 }

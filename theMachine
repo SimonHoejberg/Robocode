@@ -2,11 +2,16 @@ roboname := "TheMachine"
 
 container rage {bool yes := true}
 
+func num, num getM(){
+	return 2,3
+}
+
 container simon{
 	num victor := 1
  	num emil[2]
  	rage mad
  	num hej[5]
+ 	num b, num a := getM()
 }
 
 robot initialization(){

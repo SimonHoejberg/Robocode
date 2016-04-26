@@ -12,7 +12,7 @@ behaviorBlock : 'robot' 'behavior' '(' ')'  block;
 
 block : '{' stmts '}' ;
 
-dataStructDef : 'container' Ident '{' (varDcl | dataStructDcl | arrayDcl )+ '}' ;
+dataStructDef : 'container' Ident '{' (varDcl | dataStructDcl | arrayDcl | assign)+ '}' ;
 
 dataStructDcl : Ident Ident;
 

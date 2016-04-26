@@ -171,11 +171,10 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	
 	public AbstractNode visitDataStructDef(HelloParser.DataStructDefContext context) {
 		String typeName = context.Ident().getText();
-		List<DeclarationNode> declarations = new ArrayList<DeclarationNode>();
+		List<Object> declarations = new ArrayList<Object>();
 		for(ParseTree o : context.children){
 			if(o instanceof ParserRuleContext){
-				DeclarationNode declaration = (DeclarationNode) visit(o);
-				declarations.add(declaration);
+				declarations.add(visit(o));
 			}
 		}
 		

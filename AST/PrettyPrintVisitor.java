@@ -99,7 +99,11 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 		
 		for (int i = 0; i < node.getDeclarations().size(); ++i) {
 			addIndentation();
-			visit(node.getDeclarations().get(i));
+			Object n = node.getDeclarations().get(i);
+			if(n instanceof DeclarationNode)
+				visit((DeclarationNode)n);
+			else
+				visit((StatementNode)n);
 		}
 		
 		indentationLevel--;
