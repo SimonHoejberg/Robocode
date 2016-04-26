@@ -71,12 +71,15 @@ func num doStuff(){
 	text t := ""
 	bool f := false
 	hej,t,f := test(7)
+	num jaeh, num yunus, num helmut := test3()
 	num heee, text lol, bool yep := test(2)
 	return (dude[1].victor + 1)/5
 }
 
 robot behavior(){
+	//simon.victor := 0
 	//num janus, victor := 7, 4
+	//Color.red() := 7
 	if (moving){
 		if (remainingDistance > 0){
 			ahead(remainingDistance)
@@ -227,6 +230,8 @@ event onHitRobot(HitRobotEvent e){
 	turnRight(e.getBearing())
 	
 	fire(3)
+	
+	//turnRight(e.getBearing()) := 2
 	// Determine a shot that won't kill the robot...
 	// We want to ram him instead for bonus points
 	if (e.getEnergy() > 16){
