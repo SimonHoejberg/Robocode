@@ -85,4 +85,17 @@ public class SymbolTable implements SymbolTableInterface {
 			return false;
 		}		
 	}
+	
+	public boolean declaredOneAbove(String ident) {
+		// Retrieve symbol
+		try {
+			SymbolTableEntry entry = retrieveSymbol(ident);
+			
+			// If symbol is in current scope, return true
+			return entry.getScope() == (currentScope-1);
+		}
+		catch (Exception ex) {
+			return false;
+		}		
+	}
 }

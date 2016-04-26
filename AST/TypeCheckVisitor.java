@@ -1,6 +1,8 @@
 import java.io.IOException;
 import java.util.*;
 
+import com.sun.org.apache.xalan.internal.xsltc.compiler.sym;
+
 import exceptions.*;
 import nodes.*;
 import nodes.AssignmentNode.AssignmentType;
@@ -16,6 +18,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	private STStructDefEntry currentStructDef;
 	private STSubprogramEntry currentFuncDcl;
 	private boolean identHasFuncCall;
+	private boolean inIfForOrWhile = false;
 	private String currentStructDefName, currentFuncDclName;
 	final Object 	NUM = "num".intern(),
 					TEXT = "text".intern(),
@@ -462,11 +465,14 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			visit((AssignmentNode) update);
 		else
 			throw new NotImplementedException();
-		
+		inIfForOrWhile = true;
+		symbolTable.openScope();
 		List<StatementNode> stms = node.getStatements();
 		for(StatementNode stm : stms){
 			visit(stm);
 		}
+		symbolTable.closeScope();
+		inIfForOrWhile = false;
 		return VOID;
 	}
 	
@@ -628,27 +634,32 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	@Override
 	public Object visit(IfNode node) {
-		
+		inIfForOrWhile = true;
 		Object exprType = visit(node.getExpression());
 		if (exprType != BOOL)
 			addError(node, "Type mismatch: cannot convert from " + exprType + " to boolean");
 		else
 			node.setNodeType(VOID);
-		
+		symbolTable.openScope();
 		List<StatementNode> stmts = node.getIfBlockStatements();
 		for (StatementNode stmt : stmts)
 			visit(stmt);
-		
+		symbolTable.closeScope();
 		switch (node.getClass().getName()) {
 			case "nodes.IfNode":
+				inIfForOrWhile = false;
 				return VOID;
 			case "nodes.IfElseNode":
+				symbolTable.openScope();
 				stmts = ((IfElseNode) node).getElseBlockStatements();
 				for (StatementNode stmt : stmts)
 					visit(stmt);
+				symbolTable.closeScope();
+				inIfForOrWhile = false;
 				return VOID;
 			case "nodes.ElseIfNode":
 				visit(((ElseIfNode) node).getNext());
+				inIfForOrWhile = false;
 				return VOID;
 			default:
 				throw new NotImplementedException();
@@ -657,12 +668,11 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	@Override
 	public Object visit(IterationNode node) {
-		Object nodeType = node.getNodeType();
-		if(nodeType instanceof ForNode){
-			visit((ForNode)nodeType);
+		if(node instanceof ForNode){
+			visit((ForNode)node);
 		}
-		else if(nodeType instanceof WhileNode){
-			visit((WhileNode)nodeType);
+		else if(node instanceof WhileNode){
+			visit((WhileNode)node);
 		}
 		return VOID;
 	}
@@ -935,14 +945,23 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				VarNode var = input.get(i);
 				// Check if the symbol has already been defined in this scope
 				boolean local;
+				boolean above = false;
 				try {
 					local = symbolTable.declaredLocally(var.getIdent());
 				}
 				catch (Exception ex) {
 					local = false;
 				}
+				if(inIfForOrWhile){
+					try {
+						above = symbolTable.declaredOneAbove(var.getIdent());
+					}
+					catch (Exception ex) {
+						above = false;
+					}
+				}
 			
-				if (local) {
+				if (local || above) {
 					addError(node, "Duplicate local variable " + var.getIdent());
 					return VOID;
 				}
@@ -970,22 +989,51 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	@Override
 	public Object visit(VarNode node) {
-		return node.getType().intern();
+		boolean local;
+		boolean above = false;
+		try {
+			local = symbolTable.declaredLocally(node.getIdent());
+		}
+		catch (Exception ex) {
+			local = false;
+		}
+		if(inIfForOrWhile){
+			try {
+				above = symbolTable.declaredOneAbove(node.getIdent());
+			}
+			catch (Exception ex) {
+				above = false;
+			}
+		}
+	
+		if (local || above) {
+			addError(node, "Duplicate local variable " + node.getIdent());
+			return VOID;
+		}
+		
+		Object varType = node.getType().intern();
+		
+		symbolTable.enterSymbol(node.getIdent(), new STTypeEntry(varType));
+		return varType;
 	}
 	
 	@Override
 	public Object visit(WhileNode node) {
+		
 		List<ExpressionNode> input = node.getExpressions();
 		Object exprType = visit(input.get(0));
 		if (exprType != BOOL)
 			addError(node, "Type mismatch: cannot convert from " + exprType + " to boolean");
 		else
 			node.setNodeType(VOID);
-		
+		inIfForOrWhile = true;
+		symbolTable.openScope();
 		List<StatementNode> stms = node.getStatements();
 		for(StatementNode stm : stms){
 			visit(stm);
 		}
+		symbolTable.closeScope();
+		inIfForOrWhile = false;
 		return VOID;
 	}
 

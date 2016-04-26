@@ -11,6 +11,9 @@ container simon{
 
 robot initialization(){
 	num turnDirection := 1
+	if(true){
+		turnDirection := 2	
+	}
 	bool moving := false
 	num remainingDistance := 0
 	simon dude[2]
@@ -25,6 +28,7 @@ robot initialization(){
 }
 
 func num[], bool arrayAndBool() {
+	turnDirection :=2
 	num out[3]
 	out[0] := 1
 	out[1] := 2
@@ -53,6 +57,7 @@ func num, simon,bool test2(){
 
 func simon getTheSimon(){
 	num hej, simon s, bool yes := test2()
+	hej := 2
 	return dude[1]
 }
 
@@ -69,11 +74,9 @@ func num doStuff(){
 	num heee, text lol, bool yep := test(2)
 	return (dude[1].victor + 1)/5
 }
-/*
+
 robot behavior(){
-	simon.victor := 0
 	//num janus, victor := 7, 4
-	Color.red() := 7
 	if (moving){
 		if (remainingDistance > 0){
 			ahead(remainingDistance)
@@ -87,7 +90,7 @@ robot behavior(){
 		turnGunRight(1440 * turnDirection)
 	}
 }
-*/
+
 event onScannedRobot(ScannedRobotEvent e){
 	if (moving){
 		CleverFire(e.getDistance())
@@ -115,6 +118,10 @@ event onScannedRobot(ScannedRobotEvent e){
 	}
 }
 
+func num, num a(){
+	return 2,3
+}
+
 func void CleverFire(num distance){
 	if (distance < 50){
 		fire(3)
@@ -123,36 +130,42 @@ func void CleverFire(num distance){
 	}else if (distance < 200){
 		fire(1)
 	}
-	
+
 	for(num i := 0, i < 5, i +:= 1){
-		dostuff()
+		doStuff()
+		num test := 2
+	}
+	if(true){
+		num test, num a := a()
 	}
 	
 	num h := 0
 	for(h:=0, h < 5, h +:= 1){
-		dostuff()
+		doStuff()
+		num test := 3
 	}
-	
+
 	num j:= 0
 	for(j=h, j < 5, j +:= 1){
-		dostuff()
+		doStuff()
 	}
 	
 	for(num k := 0, k < 5, k!=6){
-		dostuff()
+		doStuff()
 	}
 	
 	num g := 0
 	for(g:=0, g < 5, g!=6){
-		dostuff()
+		doStuff()
 	}
 	
 	num l:= 0
 	for(l=h, l < 5, l!=6){
-		dostuff()
+		doStuff()
 	}
 	while(1=1){
-		dostuff()
+		doStuff()
+		num test := 5
 	}
 }
 
@@ -206,10 +219,8 @@ event onHitRobot(HitRobotEvent e){
 	turnRight(e.getBearing())
 	
 	fire(3)
-	turnRight(e.getBearing()) := 2
 	// Determine a shot that won't kill the robot...
 	// We want to ram him instead for bonus points
-	e.huamwfj()
 	if (e.getEnergy() > 16){
 		fire(3)
 	}else if (e.getEnergy() > 10){
