@@ -634,12 +634,13 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	@Override
 	public Object visit(IfNode node) {
-		inIfForOrWhile = true;
+		
 		Object exprType = visit(node.getExpression());
 		if (exprType != BOOL)
 			addError(node, "Type mismatch: cannot convert from " + exprType + " to boolean");
 		else
 			node.setNodeType(VOID);
+		inIfForOrWhile = true;
 		symbolTable.openScope();
 		List<StatementNode> stmts = node.getIfBlockStatements();
 		for (StatementNode stmt : stmts)
