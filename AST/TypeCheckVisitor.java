@@ -1,8 +1,6 @@
 import java.io.IOException;
 import java.util.*;
 
-import com.sun.org.apache.xalan.internal.xsltc.compiler.sym;
-
 import exceptions.*;
 import nodes.*;
 import nodes.AssignmentNode.AssignmentType;
@@ -80,6 +78,8 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		errors++;
 		problems.add(new TypeCheckError(node, msg));
 	}
+	
+	@SuppressWarnings("unused")
 	private void addWarning(AbstractNode node, String msg){
 		warnings++;
 		problems.add(new TypeCheckWarning(node, msg));
