@@ -506,8 +506,12 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 	@Override
 	public Void visit(VarDeclarationNode node) {
 		List<VarNode> input = node.getVariable();
-		for(VarNode i : input)
-			visit(i);
+		int size = input.size();
+		for(int i = 0; i < size; ++i) {
+			visit(input.get(i));
+			if(i != size-1)
+				System.out.print(", ");
+		}
 		System.out.print(" := ");
 		visit(node.getExpression());
 		return null;

@@ -19,13 +19,13 @@ public class Hello
         HelloParser.ProgContext cst = parser.prog();
         ProgramNode ast = (ProgramNode) new BuildASTVisitor().visitProg(cst);
         new PrettyPrintVisitor().visit(ast);
-        TypeCheckVisitor vis = new TypeCheckVisitor();
-        vis.addFuncDcls(ast);
-        vis.visit(ast);
+        TypeCheckVisitor typeCheckVis = new TypeCheckVisitor();
+        typeCheckVis.addFuncDcls(ast);
+        typeCheckVis.visit(ast);
         
-        List<Object> problems = vis.getProblems(); 
-        int errors = vis.getNumberOfErrors();
-        int warnings = vis.getNumberOfWarnings();
+        List<Object> problems = typeCheckVis.getProblems(); 
+        int errors = typeCheckVis.getNumberOfErrors();
+        int warnings = typeCheckVis.getNumberOfWarnings();
         if(errors!=0 && warnings !=0)
         	System.out.println(errors +" Errors, " + warnings +" Warnings");
         else if(errors !=0 )
@@ -45,6 +45,12 @@ public class Hello
         			System.out.println(TWarn.node.getLineNumber() +":" +TWarn.node.getColumnNumber() + "\tWarning:\t"+ TWarn.msg);
         		}
         	}
+        
+        if (errors == 0) {
+        	JavaCGVisitor javaCGVis = new JavaCGVisitor();
+        	javaCGVis.visit(ast);
+        }
+        
         //ParseTree tree = parser.prog(); // begin parsing at rule 'r'
         //System.out.println(tree.toStringTree(parser)); // print LISP-style tree
     }
