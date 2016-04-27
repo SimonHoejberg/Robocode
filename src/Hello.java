@@ -8,7 +8,7 @@ public class Hello
 {
     public static void main( String[] args) throws Exception
     {        
-        ANTLRInputStream input = new ANTLRInputStream(new FileReader("theMachine"));
+        ANTLRInputStream input = new ANTLRInputStream(new FileReader("theMachine.btr"));
 
         HelloLexer lexer = new HelloLexer(input);
 

@@ -1,5 +1,5 @@
 import java.io.BufferedOutputStream;
-
+import java.io.File;
 import static java.nio.file.StandardOpenOption.*;
 
 import java.io.IOException;
@@ -14,11 +14,10 @@ import nodes.RobotDeclarationNode.RobotDeclarationType;
 
 public class JavaCGVisitor extends ASTVisitor<String> {
 	private int indentationLevel;
-	private final String LANG_NAME = "BTR";
+	private final String LANG_NAME = "BTR", STRUCT_INDENTATION = "    ";
 	private String imports, header, dcls;
-	private String extClassHead;
 	private String roboname;
-	private boolean initializingRobot;
+	private boolean initializingRobot, creatingStructClass;
 	private boolean usesColors, usesMath, usesArrays;
 	
 	public JavaCGVisitor() {
@@ -78,27 +77,36 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	@Override
 	public String visit(DataStructDefinitionNode node) {
 		String typeName = node.getTypeName();
-		String contents;
+		String structHeader, contents;
 		
 		// FIXME import list if arrays are used
 		
-		contents = "public class " + typeName + "() {";
+		structHeader = "public class " + typeName + "() {\n";
 		
+		creatingStructClass = true;
+		
+		contents = "";
 		List<Object> dcls = node.getDeclarations();
 		for (Object dcl : dcls) {
-			contents += "    ";
-			//contents += visit(node.getDeclarations().get(i));
+			contents += STRUCT_INDENTATION;
+			if (dcl instanceof DeclarationNode)
+				contents += visit((DeclarationNode) dcl);
+			else if (dcl instanceof AssignmentNode)
+				contents += visit((AssignmentNode) dcl);
 		}
 		
 		contents += "}";
 		
 		try (OutputStream out = new BufferedOutputStream(
-				 Files.newOutputStream(Paths.get((typeName + ".java")), CREATE, TRUNCATE_EXISTING))) {
+				 Files.newOutputStream(Paths.get((roboname + "/" + typeName + ".java")), CREATE, TRUNCATE_EXISTING))) {
+			out.write(structHeader.getBytes());
 			out.write(contents.getBytes());
 		}
 		catch (IOException ex) {
-			System.out.println("Failed to write target file \"" + roboname + ".java");
+			System.out.println("Failed to write file \"" + roboname + "/" + typeName + ".java\"");
 		}
+		
+		creatingStructClass = false;
 		
 		return null;
 	}
@@ -355,11 +363,34 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				else if (type == RobotDeclarationType.behavior)
 					behavior = robodcl;
 			}
+		
+		// Create directory for output files
+		File dir = new File(roboname);
+
+		// if the directory does not exist, create it
+		if (!dir.exists()) {
+		    System.out.println("Creating directory " + roboname + ".");
+		    boolean result = false;
+
+		    try{
+		        dir.mkdir();
+		        result = true;
+		    } 
+		    catch(SecurityException se){
+		        //handle it
+		    }        
+		    if(result) {    
+		        System.out.println("Directory successfully created.");  
+		    }
+		}
+		
+		// Start creation of file class
 		try (OutputStream out = new BufferedOutputStream(
-			 Files.newOutputStream(Paths.get((roboname + ".java")), CREATE, TRUNCATE_EXISTING))) {
+			 Files.newOutputStream(Paths.get((roboname+"/"+roboname + ".java")), CREATE, TRUNCATE_EXISTING))) {
 			
 			// Flags for use in code generation
 			initializingRobot = false;
+			creatingStructClass = false;
 			usesColors = false;
 			usesMath = false;
 			
@@ -481,7 +512,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			res += visit((ReturnNode) node);
 		else
 			throw new NotImplementedException();
-		res += "\n";
+		res += ";\n";
 		return res;
 	}
 
@@ -508,11 +539,17 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		String exprRes = visit(node.getExpression());
 		
 		List<VarNode> input = node.getVariable();
-		for(VarNode var : input) {
+		int inputSize = input.size();
+		for (int i = 0; i < inputSize; ++i) {
+			VarNode var = input.get(i);
 			res += visit(var);
 			res += " = ";
 			res += exprRes;
 			res += ";";
+			if (i < inputSize-1) {
+				res += "\n";
+				res += creatingStructClass ? STRUCT_INDENTATION : getIndentation();
+			}
 		}
 		return res;
 	}
@@ -520,8 +557,12 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	@Override
 	public String visit(VarNode node) {
 		String res = convertType(node.getType()) + " " + node.getIdent();
-		if (initializingRobot)
-			header += "    " + res + ";\n";
+		if (creatingStructClass)
+			return "public " + res;
+		else if (initializingRobot) {
+			header += "    private" + res + ";\n";
+			return node.getIdent();
+		}
 		return res;
 	}
 
