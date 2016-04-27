@@ -1,5 +1,7 @@
 import java.io.BufferedOutputStream;
+
 import static java.nio.file.StandardOpenOption.*;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -161,8 +163,34 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 	@Override
 	public String visit(ForNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		String res = "for(";
+		Object assign = node.assign;
+		
+		if (assign instanceof ExpressionNode)
+			res+=visit((ExpressionNode) assign);
+		else if (assign instanceof VarDeclarationNode)
+			res+=visit((VarDeclarationNode) assign);
+		else if (assign instanceof AssignmentNode)
+			res+=visit((AssignmentNode) assign);
+		else
+			throw new NotImplementedException();
+
+		res+=" ; "+ visit((ExpressionNode) node.predicate);
+		Object update = node.update;
+		if (update instanceof ExpressionNode)
+			res+=visit((ExpressionNode) update);
+		else if (update instanceof AssignmentNode)
+			res+=visit((AssignmentNode) update);
+		else
+			throw new NotImplementedException();
+		res+="){\n";
+		indentationLevel++;
+		List<StatementNode> stms = node.getStatements();
+		for(StatementNode stm : stms)
+			res+=visit(stm);
+		indentationLevel--;
+		res+=getIndentation() + "}";
+		return res;
 	}
 
 	@Override
@@ -173,8 +201,24 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 	@Override
 	public String visit(FuncDeclarationNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		String res = "";
+		if(node.getReturnTypes().size()!= 1)
+			res = getIndentation()+ "public Object " +node.getIdent() +"(";
+		else
+			res = getIndentation()+ "public "+ convertType(node.getReturnTypes().get(0).getType())+ " " +node.getIdent() +"(";
+		List<VarNode> params = node.getParamList();
+		for(VarNode param : params){
+			res+=convertType(param.getType())+" " +param.getIdent()+", ";
+		}
+		res.substring(0, 2);
+		res+="){\n";
+		indentationLevel++;
+		List<StatementNode> stms = node.getStatements();
+		for(StatementNode stm : stms )
+			res += visit(stm);
+		indentationLevel--;
+		res+= getIndentation()+"}\n";
+		return res;
 	}
 
 	@Override
@@ -188,13 +232,11 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		String res;
 		res = "if (";
 		res += visit(node.getExpression());
-		res += ") {";
-		
+		res += "){\n";
+		List<StatementNode> stms = node.getIfBlockStatements();
 		indentationLevel++;
-		
-		for (int i = 0; i < node.getIfBlockStatements().size(); ++i)
-			res += visit(node.getIfBlockStatements().get(i));
-		
+		for(StatementNode stm : stms)
+			res += visit(stm);		
 		indentationLevel--;
 		
 		res += getIndentation() + "}";
@@ -205,12 +247,10 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			case "nodes.IfElseNode":
 				res += "\n";
 				res += getIndentation() + "else {";
-				
+				List<StatementNode> elseStms = ((IfElseNode) node).getElseBlockStatements();
 				indentationLevel++;
-				
-				for (int i = 0; i < ((IfElseNode) node).getElseBlockStatements().size(); ++i)
-					res += visit(((IfElseNode) node).getElseBlockStatements().get(i));
-				
+				for(StatementNode stm : elseStms)
+					res += visit(stm);
 				indentationLevel--;
 				
 				res += getIndentation() + "}";
@@ -231,47 +271,15 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	@Override
 	public String visit(IterationNode node) {
 		String res = "";
-		switch (node.getClass().getName()) {
-			case "nodes.WhileNode":	
-				res += "while (";
-				res += visit(node.getExpressions().get(0));
-				res += ") {";	
-				break;
-			case "nodes.ForNode":
-				res += "for (";
-				if(((ForNode)node).assign instanceof AssignmentNode){
-					res += visit((AssignmentNode)((ForNode)node).assign);
-				}
-				else if(((ForNode)node).assign instanceof VarDeclarationNode){
-					res += visit((VarDeclarationNode)((ForNode)node).assign);
-				}
-				else if(((ForNode)node).assign instanceof ExpressionNode){
-					res += visit((ExpressionNode)((ForNode)node).assign);
-				}
-				res += "; ";
-				res += visit((ExpressionNode)((ForNode)node).predicate);
-				res += "; ";
-				if(((ForNode)node).update instanceof AssignmentNode){
-					res += visit((AssignmentNode)((ForNode)node).update);
-				}
-				else if(((ForNode)node).update instanceof ExpressionNode){
-					res += visit((ExpressionNode)((ForNode)node).update);
-				}
-				res += ") {";	
-				break;
-			default:
-				throw new NotImplementedException();
+		if(node instanceof WhileNode){
+			res = visit((WhileNode)node);
 		}
-			
-		indentationLevel++;
-		
-		for (int i = 0; i < node.getStatements().size(); ++i)
-			res += visit(node.getStatements().get(i));
-			
-		indentationLevel--;
-		
-		res += getIndentation() + "}";
-		
+		else if(node instanceof ForNode){
+			res = visit((ForNode)node);
+		}
+		else{
+			throw new NotImplementedException();
+		}
 		return res;
 	}
 
@@ -519,8 +527,15 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 	@Override
 	public String visit(WhileNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		String res = "while("+visit(node.getExpressions().get(0))+"){\n";
+		List<StatementNode> input = node.getStatements();
+		indentationLevel++;
+		for(StatementNode stm : input){
+			res += visit(stm);
+		}
+		indentationLevel--;
+		res+= getIndentation() + "}";
+		return res;
 	}
 	
 	private String convertType(String input) {
@@ -533,6 +548,39 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				return "boolean";
 			default:
 				return input;
+		}
+	}
+	
+	private String getEventMethodName(String input){
+		switch (input) {
+		case "BulletHitEvent":
+			return "double";
+		case "BulletHitBulletEvent":
+			return "double";
+		case "BulletMissedEvent":
+			return "double";
+		case "DeathEvent":
+			return "double";
+		case "HitByBulletEvent":
+			return "double";
+		case "HitRobotEvent":
+			return "double";
+		case "HitWallEvent":
+			return "double";
+		case "RobotDeathEvent":
+			return "double";
+		case "ScannedRobotEvent":
+			return "double";
+		case "StatusEvent":
+			return "double";
+		case "WinEvent":
+			return "double";
+		case "BattleEndedEvent":
+			return "String";
+		case "RoundEndedEvent":
+			return "boolean";
+		default:
+			throw new NotImplementedException();
 		}
 	}
 }
