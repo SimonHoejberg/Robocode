@@ -141,8 +141,49 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 	@Override
 	public String visit(EventDeclarationNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		String res = "";
+		if(dcls.contains(getEventMethodName(node.getParam().getType())+"("+node.getParam().getType())){
+			String temp = AddEventMethod(node);
+			int event = dcls.indexOf(getEventMethodName(node.getParam().getType()), 0);
+			int lastP = dcls.indexOf('{',event);
+			String first = dcls.substring(0, lastP+1);
+			indentationLevel++;
+			String payload =getIndentation()+getEventName(node)+"("+node.getParam().getIdent()+");";
+			indentationLevel--;
+			String end = dcls.substring(lastP+1);
+			dcls= first+"\n"+payload+end+"\n";
+			res = temp;
+		}
+		else{
+			res+=getIndentation()+"@Override\n";
+			res+=getIndentation()+"public void "+getEventMethodName(node.getParam().getType())+"("+node.getParam().getType()+" "+node.getParam().getIdent()+"){\n";
+			indentationLevel++;
+			res+=getIndentation()+getEventName(node)+"("+node.getParam().getIdent()+");\n";
+			indentationLevel--;
+			res+=getIndentation()+"}\n";
+			res+=AddEventMethod(node);
+		}
+		return res;
+	}
+	
+	private String getEventName(EventDeclarationNode node){
+		if(getEventMethodName(node.getParam().getType()).equals(node.getIdent())){
+			return node.getIdent().substring(2);
+		}
+		else{
+			return node.getIdent();
+		}
+	}
+	
+	private String AddEventMethod(EventDeclarationNode node){
+		String res = getIndentation()+"private void " + getEventName(node) +"("+node.getParam().getType()+ " " +node.getParam().getIdent()+"){\n";
+		List<StatementNode> stms = node.getStatements();
+		indentationLevel++; 
+		for(StatementNode stm : stms)
+			res+=visit(stm);
+		indentationLevel--;
+		res+=getIndentation()+"}\n";
+		return res;
 	}
 
 	@Override
@@ -433,9 +474,12 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			
 			dcls += getIndentation() + "}\n\n";
 			
+			String temp;
 			// Declarations
-			for(DeclarationNode dcl : declarations)
-			    dcls += visit(dcl);
+			for(DeclarationNode dcl : declarations){
+			    temp = visit(dcl);
+			    dcls += temp;
+			}
 			
 			indentationLevel--;
 			
@@ -595,31 +639,31 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	private String getEventMethodName(String input){
 		switch (input) {
 		case "BulletHitEvent":
-			return "double";
+			return "onBulletHit";
 		case "BulletHitBulletEvent":
-			return "double";
+			return "onBulletHitBullet";
 		case "BulletMissedEvent":
-			return "double";
+			return "onBulletMissed";
 		case "DeathEvent":
-			return "double";
+			return "onDeath";
 		case "HitByBulletEvent":
-			return "double";
+			return "onHitByBullet";
 		case "HitRobotEvent":
-			return "double";
+			return "onHitRobot";
 		case "HitWallEvent":
-			return "double";
+			return "onHitWall";
 		case "RobotDeathEvent":
-			return "double";
+			return "onRobotDeath";
 		case "ScannedRobotEvent":
-			return "double";
+			return "onScannedRobot";
 		case "StatusEvent":
-			return "double";
+			return "onStatus";
 		case "WinEvent":
-			return "double";
+			return "onWin";
 		case "BattleEndedEvent":
-			return "String";
+			return "onBattleEnded";
 		case "RoundEndedEvent":
-			return "boolean";
+			return "onRoundEnded";
 		default:
 			throw new NotImplementedException();
 		}
