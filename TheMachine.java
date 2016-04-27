@@ -71,7 +71,35 @@ null
         null
     }
 
-null
+    @Override
+    public void onScannedRobot(ScannedRobotEvent e){
+        ScannedRobot(e);
+    }
+    private void ScannedRobot(ScannedRobotEvent e){
+        if (null){
+            null
+        }
+        else {            null
+            if (null - null >= 0.0){
+                null
+            }
+            else {                null
+            }
+            double difference = null - null;
+            if (null > 180.0){
+                null
+            }
+            else {                null
+            }
+            null
+            null
+            if (null > 200.0){
+                null
+            }
+            null
+        }
+    }
+
     public Object a(){
         null
     }
@@ -123,16 +151,116 @@ null
         }
     }
 
-null
-null
-null
-null
-null
-null
-null
-null
-null
-null
-null
-null
+    @Override
+    public void onBattleEnded(BattleEndedEvent e){
+        onBattleEnd(e);
+    }
+    private void onBattleEnd(BattleEndedEvent e){
+    }
+
+    @Override
+    public void onBulletHitBullet(BulletHitBulletEvent e){
+        BulletHitBullet(e);
+    }
+    private void BulletHitBullet(BulletHitBulletEvent e){
+    }
+
+    @Override
+    public void onBulletMissed(BulletMissedEvent e){
+        BulletMissed(e);
+    }
+    private void BulletMissed(BulletMissedEvent e){
+    }
+
+    @Override
+    public void onBulletHit(BulletHitEvent e){
+        BulletHit(e);
+    }
+    private void BulletHit(BulletHitEvent e){
+    }
+
+    @Override
+    public void onDeath(DeathEvent e){
+        Death(e);
+    }
+    private void Death(DeathEvent e){
+    }
+
+    @Override
+    public void onHitByBullet(HitByBulletEvent e){
+        HitByBullet(e);
+    }
+    private void HitByBullet(HitByBulletEvent e){
+    }
+
+    @Override
+    public void onHitWall(HitWallEvent e){
+        HitWall(e);
+    }
+    private void HitWall(HitWallEvent e){
+    }
+
+    @Override
+    public void onRobotDeath(RobotDeathEvent e){
+        RobotDeath(e);
+    }
+    private void RobotDeath(RobotDeathEvent e){
+    }
+
+    @Override
+    public void onRoundEnded(RoundEndedEvent e){
+        RoundEnded(e);
+    }
+    private void RoundEnded(RoundEndedEvent e){
+    }
+
+    @Override
+    public void onStatus(StatusEvent e){
+        Status(e);
+    }
+    private void Status(StatusEvent e){
+    }
+
+    @Override
+    public void onWin(WinEvent e){
+        oWin(e);
+        Win(e);
+    }
+    private void Win(WinEvent e){
+    }
+
+
+    private void oWin(WinEvent e){
+    }
+
+    @Override
+    public void onHitRobot(HitRobotEvent e){
+        HitRobot(e);
+    }
+    private void HitRobot(HitRobotEvent e){
+        if (null >= 0.0){
+            null
+        }
+        else {            null
+        }
+        null
+        null
+        if (null > 16.0){
+            null
+        }
+        else if (null > 10.0){
+            null
+        }
+        else if (null > 4.0){
+            null
+        }
+        else if (null > 2.0){
+            null
+        }
+        else if (null > 0.4){
+            null
+        }
+        null
+    }
+
 }
