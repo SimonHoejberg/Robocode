@@ -332,7 +332,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	@Override
 	public String visit(FuncDeclarationNode node) {
 		String res = "";
-		if(node.getReturnTypes().size()!= 1)
+		if(node.getReturnTypes().size()!= 1 && node.getReturnTypes().size() != 0)
 			res = getIndentation()+ "public Object " +node.getIdent() +"(";
 		else
 			res = getIndentation()+ "public "+ convertType(node.getReturnTypes().get(0).getType())+ " " +node.getIdent() +"(";
@@ -340,7 +340,9 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		for(VarNode param : params){
 			res+=convertType(param.getType())+" " +param.getIdent()+", ";
 		}
-		res = res.substring(0, res.length()-2);
+		if(node.getParamList().size()!=0){
+			res = res.substring(0, res.length()-2);
+		}
 		res+="){\n";
 		indentationLevel++;
 		List<StatementNode> stms = node.getStatements();
