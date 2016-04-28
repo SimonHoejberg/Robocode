@@ -344,10 +344,10 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		if(node.getReturnTypes().size()!= 1 && node.getReturnTypes().size() != 0)
 			res = getIndentation()+ "public Object " +node.getIdent() +"(";
 		else
-			res = getIndentation()+ "public "+ convertType(visit(node.getReturnTypes().get(0)))+ " " +node.getIdent() +"(";
+			res = getIndentation()+ "public " + convertType(visit(node.getReturnTypes().get(0)))+ " " +node.getIdent() +"(";
 		List<VarNode> params = node.getParamList();
 		for(VarNode param : params){
-			res+=convertType(param.getType())+" " +param.getIdent()+", ";
+			res+=convertType(param.getType())+ " " +param.getIdent()+", ";
 		}
 		if(node.getParamList().size()!=0){
 			res = res.substring(0, res.length()-2);
