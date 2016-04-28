@@ -1,0 +1,4 @@
+ void print(String text) 
+ 	"Prints the text to the termial of robocode"
+ void printLine(String text)
+ 	"Prints the text on a line to the termial of robocode"

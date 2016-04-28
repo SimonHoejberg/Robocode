@@ -38,6 +38,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		try {
 
 			libImporter.importLibraries(symbolTable, "Math", true);
+			libImporter.importLibraries(symbolTable, "Output", false);
 			libImporter.importLibraries(symbolTable, "Color", true);
 			libImporter.importLibraries(symbolTable, "Robot", false);
 			libImporter.importLibraries(symbolTable, "ScannedRobotEvent", true);
