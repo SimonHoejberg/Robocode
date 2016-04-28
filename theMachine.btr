@@ -226,6 +226,10 @@ event onWin(WinEvent e){
 
 }
 
+event Win(WinEvent e){
+
+}
+
 event onHitRobot(HitRobotEvent e){
 	if (e.getBearing() >= 0){
 		turnDirection := 1

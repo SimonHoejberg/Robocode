@@ -224,33 +224,43 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	@Override
 	public String visit(EventDeclarationNode node) {
 		String res = "";
-		if(dcls.contains(getEventMethodName(node.getParam().getType())+"("+node.getParam().getType())){
+		/*if(dcls.contains("public void "+getEventMethodName(node.getParam().getType())+"("+node.getParam().getType())){
 			String temp = AddEventMethod(node);
-			int event = dcls.indexOf(getEventMethodName(node.getParam().getType()), 0);
-			int lastP = dcls.indexOf('{',event);
-			String first = dcls.substring(0, lastP+1);
+			int event = dcls.indexOf("public void "+getEventMethodName(node.getParam().getType())+"("+node.getParam().getType(), 0);
+			int firstP = dcls.indexOf('{',event);
+			int lastP = dcls.indexOf('}',firstP);
+			int last = firstP;
+			while(true){
+				int tempPlace = dcls.indexOf(';',last+1);
+				if(tempPlace != -1 && tempPlace <= lastP){
+					last = tempPlace;
+				}
+				else
+					break;
+			}
+			String firstString = dcls.substring(0, last+1);
 			indentationLevel++;
-			String payload =getIndentation()+getEventName(node)+"("+node.getParam().getIdent()+");";
+			String payloadString =getIndentation()+getEventName(node)+"("+node.getParam().getIdent()+");";
 			indentationLevel--;
-			String end = dcls.substring(lastP+1);
-			dcls= first+"\n"+payload+end+"\n";
+			String endStrng = dcls.substring(last+1);
+			dcls= firstString+"\n"+payloadString+endStrng+"\n";
 			res = temp;
 		}
 		else{
-			res+=getIndentation()+"@Override\n";
+			*/res+=getIndentation()+"@Override\n";
 			res+=getIndentation()+"public void "+getEventMethodName(node.getParam().getType())+"("+node.getParam().getType()+" "+node.getParam().getIdent()+"){\n";
 			indentationLevel++;
 			res+=getIndentation()+getEventName(node)+"("+node.getParam().getIdent()+");\n";
 			indentationLevel--;
 			res+=getIndentation()+"}\n";
 			res+=AddEventMethod(node);
-		}
+		//}
 		return res;
 	}
 	
 	private String getEventName(EventDeclarationNode node){
 		if(getEventMethodName(node.getParam().getType()).equals(node.getIdent())){
-			return node.getIdent().substring(2);
+			return "_"+node.getIdent();
 		}
 		else{
 			return node.getIdent();
@@ -258,14 +268,14 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	}
 	
 	private String AddEventMethod(EventDeclarationNode node){
-		String res = getIndentation()+"private void " + getEventName(node) +"("+node.getParam().getType()+ " " +node.getParam().getIdent()+"){\n";
+		String rest = getIndentation()+"private void " + getEventName(node) +"("+node.getParam().getType()+ " " +node.getParam().getIdent()+"){\n";
 		List<StatementNode> stms = node.getStatements();
 		indentationLevel++; 
 		for(StatementNode stm : stms)
-			res+=visit(stm);
+			rest+=visit(stm);
 		indentationLevel--;
-		res+=getIndentation()+"}\n";
-		return res;
+		rest+=getIndentation()+"}\n";
+		return rest;
 	}
 
 	@Override
