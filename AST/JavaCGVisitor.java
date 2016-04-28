@@ -386,7 +386,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				break;
 			case "nodes.IfElseNode":
 				res += "\n";
-				res += getIndentation() + "else {";
+				res += getIndentation() + "else {\n";
 				List<StatementNode> elseStms = ((IfElseNode) node).getElseBlockStatements();
 				indentationLevel++;
 				for(StatementNode stm : elseStms)
