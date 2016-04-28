@@ -286,20 +286,20 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		Object assign = node.assign;
 		
 		if (assign instanceof ExpressionNode)
-			res+=visit((ExpressionNode) assign);
+			res+=visit((ExpressionNode) assign)+"; ";
 		else if (assign instanceof VarDeclarationNode)
-			res+=visit((VarDeclarationNode) assign);
+			res+=visit((VarDeclarationNode) assign).replace(";", "; ");
 		else if (assign instanceof AssignmentNode)
-			res+=visit((AssignmentNode) assign);
+			res+=visit((AssignmentNode) assign).replace(";", "; ");
 		else
 			throw new NotImplementedException();
 
-		res+=" ; "+ visit((ExpressionNode) node.predicate);
+		res+=visit((ExpressionNode) node.predicate)+"; ";
 		Object update = node.update;
 		if (update instanceof ExpressionNode)
 			res+=visit((ExpressionNode) update);
 		else if (update instanceof AssignmentNode)
-			res+=visit((AssignmentNode) update);
+			res+=visit((AssignmentNode) update).replace(";","");
 		else
 			throw new NotImplementedException();
 		res+="){\n";
