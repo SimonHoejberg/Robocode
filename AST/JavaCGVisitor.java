@@ -24,6 +24,8 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	
 	private Hashtable<String, String> structConstructors;
 	
+	// FIXME Operators need to behave like they should, 2.0 == 2.0 could return false, for (int i = 0; i < 2.0; ++i) would have unpredictable behavior
+	
 	public JavaCGVisitor() {
 		indentationLevel = 0;
 	}
@@ -45,10 +47,10 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 	@Override
 	public String visit(ArrayDeclarationNode node) {
-		String res = convertType("ArrayList<" + node.getType())+ "> " + node.getIdent();
-		
 		String ident = node.getIdent();
 		String type = node.getType();
+		
+		String res = "ArrayList<" + convertType(type)+ "> " + ident;
 		
 		ExpressionNode size = node.getSize();
 		boolean sizeless = size == null;
@@ -59,7 +61,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		if (creatingStructClass) {
 			structHeader += STRUCT_INDENTATION + "public " + res + ";\n";
 			constructorParams += res + ", ";
-			return ident;
+			return "this." + ident + " = " + ident + ";";
 		}
 		else if (initializingRobot) {
 			header += "    private " + res + ";\n";
@@ -89,7 +91,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			if (current instanceof VarNode)
 				res += visit((VarNode) current);
 			else if (current instanceof ArrayDeclarationNode)
-				res += res += visit((ArrayDeclarationNode) current);
+				res += visit((ArrayDeclarationNode) current);
 			else if (current instanceof DataStructDeclarationNode)
 				res += visit((DataStructDeclarationNode) current);
 			else if (current instanceof GeneralIdentNode)
@@ -109,9 +111,15 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	
 	@Override
 	public String visit(BaseIdentNode node) {
+		String res;
 		if (node instanceof FuncCallNode)
-			return visit((FuncCallNode) node);
-		return node.getIdent();
+			res = visit((FuncCallNode) node);
+		else
+			res = node.getIdent();
+		ExpressionNode index = node.getIndex();
+		if (node.getIndex() != null)
+			res += "[" + castIndex(index) + "]";
+		return res;
 	}
 
 	@Override
@@ -168,7 +176,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		
 		creatingStructClass = false;
 		
-		return null;
+		return "";
 	}
 
 	@Override
@@ -186,8 +194,9 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			res = visit((DataStructDefinitionNode) node);
 		else if (node instanceof DataStructDeclarationNode)
 			res = visit((DataStructDeclarationNode) node);
-		else if (node instanceof ArrayDeclarationNode)
+		else if (node instanceof ArrayDeclarationNode) {
 			res = visit((ArrayDeclarationNode) node);
+		}
 		else
 			throw new NotImplementedException();
 		res += "\n";
@@ -325,7 +334,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				res += ", ";
 		}
 		res += ")";
-		//FIXME index
+		
 		return res;
 	}
 
@@ -335,7 +344,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		if(node.getReturnTypes().size()!= 1 && node.getReturnTypes().size() != 0)
 			res = getIndentation()+ "public Object " +node.getIdent() +"(";
 		else
-			res = getIndentation()+ "public "+ convertType(node.getReturnTypes().get(0).getType())+ " " +node.getIdent() +"(";
+			res = getIndentation()+ "public "+ convertType(visit(node.getReturnTypes().get(0)))+ " " +node.getIdent() +"(";
 		List<VarNode> params = node.getParamList();
 		for(VarNode param : params){
 			res+=convertType(param.getType())+" " +param.getIdent()+", ";
@@ -599,11 +608,28 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				+ node.getType().toString()
 				+ visit(node.getRightChild());
 	}
-
+	
 	@Override
+	@SuppressWarnings("unchecked")
 	public String visit(ReturnNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		List<ExpressionNode> returnExprs = node.getExpressions();
+		int returnSize = returnExprs.size();
+		
+		if (returnSize == 1) {
+			return "return " + visit(node.getExpressions().get(0)) + ";";
+		}
+		else {
+			String res = "List<Object> _returnVals = new ArrayList<Object>();\n";
+			
+			// FIXME Object copying
+			for (ExpressionNode expr : returnExprs)
+				res += getIndentation() + "_returnsVals.add(" + visit(expr) + ");\n";
+			
+			res += getIndentation() + "return _returnVals;";
+			
+			return res;
+		}
 	}
 
 	@Override
@@ -660,13 +686,12 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 	@Override
 	public String visit(TypeNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		return node.getType();
 	}
 
 	@Override
 	public String visit(UnaryExprNode node) {
-		return "-" + visit(node.getChild());
+		return node.getType().toString() + visit(node.getChild());
 	}
 
 	@Override
@@ -738,6 +763,12 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				return "String";
 			case "bool":
 				return "boolean";
+			case "num[]":
+				return "ArrayList<double>";
+			case "text[]":
+				return "ArrayList<String>";
+			case "bool[]":
+				return "ArrayList<boolean>";
 			default:
 				return input;
 		}
@@ -754,6 +785,13 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			default:
 				return "new " + input + "()"; //FIXME structConstructors.get(input);
 		}
+	}
+	
+	private String castIndex(ExpressionNode index) {
+		if (index instanceof NumLiteralNode) // FIXME An index of 1.5 should probably issue an error rather than being cast to 1
+			return 	Integer.toString(((int) Double.parseDouble((visit(index)))));
+		else 
+			return "(int) (" + visit(index) + ")";
 	}
 	
 	private String getEventMethodName(String input){

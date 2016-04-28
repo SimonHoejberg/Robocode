@@ -813,8 +813,9 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			for (int i = 0; i < returnTypeSize; ++i) {
 				Object current = visit(returnTypes.get(i));
 
-				if (current == returnParams.get(i).getType().intern())
+				if (current == returnParams.get(i).getType().intern()) {
 					continue;
+				}
 				else {
 					addError(returnTypes.get(i), "Type mismatch: cannot convert from " + current + " to " + returnParams.get(i).getType());
 					return VOID;
