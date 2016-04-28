@@ -71,7 +71,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				indentationLevel--;
 			}
 		}
-		return res;
+		return res+";";
 	}
 
 	@Override
@@ -104,7 +104,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			}
 		}
 		
-		return res;
+		return res+";";
 	}
 	
 	@Override
@@ -121,7 +121,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 	@Override
 	public String visit(CallStatementNode node) {
-		return visit(node.getIdent());
+		return visit(node.getIdent())+";";
 	}
 
 	@Override
@@ -202,7 +202,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	@Override
 	public String visit(EventDeclarationNode node) {
 		String res = "";
-		/*if(dcls.contains("public void "+getEventMethodName(node.getParam().getType())+"("+node.getParam().getType())){
+		if(dcls.contains("public void "+getEventMethodName(node.getParam().getType())+"("+node.getParam().getType())){
 			String temp = AddEventMethod(node);
 			int event = dcls.indexOf("public void "+getEventMethodName(node.getParam().getType())+"("+node.getParam().getType(), 0);
 			int firstP = dcls.indexOf('{',event);
@@ -221,18 +221,18 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			String payloadString =getIndentation()+getEventName(node)+"("+node.getParam().getIdent()+");";
 			indentationLevel--;
 			String endStrng = dcls.substring(last+1);
-			dcls= firstString+"\n"+payloadString+endStrng+"\n";
+			dcls= firstString+"\n"+payloadString+endStrng;
 			res = temp;
 		}
 		else{
-			*/res+=getIndentation()+"@Override\n";
+			res+=getIndentation()+"@Override\n";
 			res+=getIndentation()+"public void "+getEventMethodName(node.getParam().getType())+"("+node.getParam().getType()+" "+node.getParam().getIdent()+"){\n";
 			indentationLevel++;
 			res+=getIndentation()+getEventName(node)+"("+node.getParam().getIdent()+");\n";
 			indentationLevel--;
-			res+=getIndentation()+"}\n";
+			res+=getIndentation()+"}\n\n";
 			res+=AddEventMethod(node);
-		//}
+		}
 		return res;
 	}
 	
@@ -340,7 +340,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		for(VarNode param : params){
 			res+=convertType(param.getType())+" " +param.getIdent()+", ";
 		}
-		res.substring(0, 2);
+		res = res.substring(0, res.length()-2);
 		res+="){\n";
 		indentationLevel++;
 		List<StatementNode> stms = node.getStatements();
@@ -646,9 +646,10 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			res += visit((ReturnNode) node);
 		else
 			throw new NotImplementedException();
-		res += ";\n";
+		res+="\n";
 		return res;
 	}
+	
 
 	@Override
 	public String visit(TextLiteralNode node) {
@@ -696,7 +697,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				}
 			}
 		}
-		return res;
+		return res+";";
 	}
 
 	@Override
