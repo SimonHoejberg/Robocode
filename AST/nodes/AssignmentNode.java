@@ -27,6 +27,25 @@ public class AssignmentNode extends StatementNode {
     				throw new NotImplementedException();
     		}
     	}
+    	
+    	public String toJavaSyntax() {
+    		switch (this) {
+			case basic:
+				return " = ";
+			case add:
+				return " += ";
+			case sub:
+				return " -= ";
+			case mult:
+				return " *= ";
+			case div:
+				return " /= ";
+			case mod:
+				return " %= ";
+			default:
+				throw new NotImplementedException();
+		}
+    	}
 
     }
 

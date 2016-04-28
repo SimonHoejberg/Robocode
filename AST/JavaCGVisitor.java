@@ -52,7 +52,9 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		
 		ExpressionNode size = node.getSize();
 		boolean sizeless = size == null;
-		String exprRes = visit(size);
+		String exprRes = "";
+		if (!sizeless)
+			exprRes = visit(size);
 		
 		if (creatingStructClass) {
 			structHeader += STRUCT_INDENTATION + "public " + res + ";\n";
@@ -76,6 +78,30 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	public String visit(AssignmentNode node) {
 		String res = "";
 		String exprRes = visit(node.getExpression());
+		
+		
+		List<AbstractNode> input = node.getVariables();
+		int inputSize = input.size();
+		
+		for (int i = 0; i < inputSize; ++i) {
+			AbstractNode current = input.get(i);
+			if (current instanceof VarNode)
+				res += visit((VarNode) current);
+			else if (current instanceof ArrayDeclarationNode)
+				res += visit((ArrayDeclarationNode) current);
+			else if (current instanceof DataStructDeclarationNode)
+				res += visit((DataStructDeclarationNode) current);
+			else if (current instanceof GeneralIdentNode)
+				res += visit((GeneralIdentNode) current);
+			else 
+				throw new NotImplementedException();
+			res += node.getType().toJavaSyntax();
+			res += exprRes;
+			if (i < inputSize-1) {
+				res += ";\n";
+				res += getIndentation();
+			}
+		}
 		
 		switch (node.getType()) {
 			case basic:
@@ -102,36 +128,6 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		
 		return res;
 	}
-	
-//	String res = "";
-//	String exprRes = visit(node.getExpression());
-//	
-//	List<VarNode> input = node.getVariable();
-//	int inputSize = input.size();
-//	for (int i = 0; i < inputSize; ++i) {
-//		VarNode var = input.get(i);
-//		if (creatingStructClass) {
-//			String ident = visit(var);
-//			res += "this.";
-//			res += ident;
-//			res += " = ";
-//			res += ident;
-//			if (i < inputSize-1) {
-//				res += ";\n";
-//				res += STRUCT_INDENTATION + STRUCT_INDENTATION;			
-//			}
-//		}
-//		else {
-//			res += visit(var);
-//			res += " = ";
-//			res += exprRes;
-//			if (i < inputSize-1) {
-//				res += ";\n";
-//				res += getIndentation();
-//			}
-//		}
-//	}
-//	return res;
 	
 	@Override
 	public String visit(BaseIdentNode node) {
