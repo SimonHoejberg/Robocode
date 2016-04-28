@@ -84,46 +84,24 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		int inputSize = input.size();
 		
 		for (int i = 0; i < inputSize; ++i) {
+			
 			AbstractNode current = input.get(i);
 			if (current instanceof VarNode)
 				res += visit((VarNode) current);
 			else if (current instanceof ArrayDeclarationNode)
-				res += visit((ArrayDeclarationNode) current);
+				res += res += visit((ArrayDeclarationNode) current);
 			else if (current instanceof DataStructDeclarationNode)
 				res += visit((DataStructDeclarationNode) current);
 			else if (current instanceof GeneralIdentNode)
 				res += visit((GeneralIdentNode) current);
 			else 
 				throw new NotImplementedException();
-			res += node.getType().toJavaSyntax();
-			res += exprRes;
+			res += node.getType().toString();
+			res += exprRes;		// FIXME support for multiple return
 			if (i < inputSize-1) {
 				res += ";\n";
 				res += getIndentation();
 			}
-		}
-		
-		switch (node.getType()) {
-			case basic:
-				
-				break;
-			case add:
-				
-				break;
-			case sub:
-				
-				break;
-			case mult:
-				
-				break;
-			case div:
-				
-				break;
-			case mod:
-				
-				break;
-			default:
-				throw new NotImplementedException();
 		}
 		
 		return res;
@@ -131,8 +109,9 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	
 	@Override
 	public String visit(BaseIdentNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		if (node instanceof FuncCallNode)
+			return visit((FuncCallNode) node);
+		return node.getIdent();
 	}
 
 	@Override
@@ -142,8 +121,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 	@Override
 	public String visit(CallStatementNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		return visit(node.getIdent());
 	}
 
 	@Override
@@ -336,8 +314,19 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 	@Override
 	public String visit(FuncCallNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		String res = node.getIdent();
+		res += "(";
+		List<ExpressionNode> args = node.getArguments();
+		int argsSize = args.size();
+		for (int i = 0; i < argsSize; ++i) {
+			ExpressionNode arg = args.get(i);
+			res += visit(arg);
+			if (i < argsSize-1)
+				res += ", ";
+		}
+		res += ")";
+		//FIXME index
+		return res;
 	}
 
 	@Override
@@ -364,8 +353,18 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 	@Override
 	public String visit(GeneralIdentNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		String res = "";
+		
+		List<BaseIdentNode> idents = node.getIdents();
+		int identsSize = idents.size();
+		for (int i = 0; i < identsSize; ++i) {
+			BaseIdentNode ident = idents.get(i);
+			res += visit(ident);
+			if (i < identsSize-1)
+				res += ".";
+		}
+		
+		return res;
 	}
 
 	@Override
@@ -664,8 +663,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 	@Override
 	public String visit(UnaryExprNode node) {
-		return 	dcls += "-"
-				+ visit(node.getChild());
+		return "-" + visit(node.getChild());
 	}
 
 	@Override
