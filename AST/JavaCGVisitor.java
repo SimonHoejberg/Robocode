@@ -54,7 +54,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		String type = node.getType();
 		
 		String res = "";
-		String dcl = "ArrayList<" + convertType(type)+ "> " + ident;
+		String dcl = "ArrayList<" + convertTypeForList(type)+ "> " + ident;
 		
 		ExpressionNode size = node.getSize();
 		boolean sizeless = size == null;
@@ -67,9 +67,9 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			
 			// Add default array for constructor if not part of assignment
 			if (!assigning) {
-				header += "    private ArrayList<" + convertType(type)+ "> _" + ident + ";\n";
+				header += "    private ArrayList<" + convertTypeForList(type)+ "> _" + ident + ";\n";
 				if (!sizeless) {
-					dcls += getIndentation() + "_" + ident + " = new ArrayList<" + convertType(type) + ">();\n";
+					dcls += getIndentation() + "_" + ident + " = new ArrayList<" + convertTypeForList(type) + ">();\n";
 					dcls += getIndentation() + "for (int _i = 0; _i < " + exprRes + "; ++_i)\n"; // _i is used since it is not a valid variable name in the language, thus no conflicts can occur
 					indentationLevel++;
 					dcls += getIndentation() + "_" + ident + ".add(" + getDefaultOfType(type) + ");\n";
@@ -85,10 +85,10 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		}
 		else if (initializingRobot) {
 			header += "    private " + dcl + ";\n";
-			res = ident + " = new ArrayList<" + convertType(type) + ">();\n";
+			res = ident + " = new ArrayList<" + convertTypeForList(type) + ">();\n";
 		}
 		else {
-			res = dcl + " = new ArrayList<" + convertType(type) + ">();\n";
+			res = dcl + " = new ArrayList<" + convertTypeForList(type) + ">();\n";
 		}
 		
 		if (assigning) {
@@ -120,7 +120,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		
 		if (inputSize > 1 && !creatingStructClass) {
 			if (!outputListSetInScope) {
-				res = "List<Object> ";
+				res = "java.util.List<Object> ";
 				outputListSetInScope = true;
 			}
 			res += "_output = " + exprRes + ";\n" + STRUCT_INDENTATION + STRUCT_INDENTATION;
@@ -166,7 +166,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		if (creatingStructClass) {
 			defaultInstantiation += exprRes;
 			if (inputSize > 1) {
-				constructorParams += "List<Object> " + listName + ", ";
+				constructorParams += "java.util.List<Object> " + listName + ", ";
 				currentListParam++;
 			}
 		}
@@ -752,7 +752,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			return "return " + visit(node.getExpressions().get(0)) + ";";
 		}
 		else {
-			String res = "List<Object> _returnVals = new ArrayList<Object>();\n";
+			String res = "java.util.List<Object> _returnVals = new ArrayList<Object>();\n";
 			
 			// FIXME Object copying
 			for (ExpressionNode expr : returnExprs)
@@ -838,7 +838,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		
 		if (inputSize > 1 && !creatingStructClass) {
 			if (!outputListSetInScope) {
-				res = "List<Object> ";
+				res = "java.util.List<Object> ";
 				outputListSetInScope = true;
 			}
 			res += "_output = " + exprRes + ";\n" + STRUCT_INDENTATION + STRUCT_INDENTATION;
@@ -899,7 +899,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		if (creatingStructClass) {
 			defaultInstantiation += exprRes;
 			if (inputSize > 1) {
-				constructorParams += "List<Object> " + listName + ", ";
+				constructorParams += "java.util.List<Object> " + listName + ", ";
 				currentListParam++;
 			}
 		}
@@ -948,6 +948,19 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				return "ArrayList<String>";
 			case "bool[]":
 				return "ArrayList<Boolean>";
+			default:
+				return input;
+		}
+	}
+	
+	private String convertTypeForList(String input) {
+		switch (input) {
+			case "num":
+				return "Double";
+			case "text":
+				return "String";
+			case "bool":
+				return "Boolean";
 			default:
 				return input;
 		}
