@@ -15,6 +15,17 @@ public class EqualityExprNode extends ExpressionNode {
         			throw new NotImplementedException();
         	}
         }
+        
+        public String toJavaSyntax() {
+        	switch (this) {
+        		case equal:
+        			return " == ";
+        		case notEqual:
+        			return " != ";
+        		default:
+        			throw new NotImplementedException();
+        	}
+        }
    }
 
    private EqualityType type;

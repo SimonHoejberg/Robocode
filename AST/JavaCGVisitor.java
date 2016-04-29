@@ -358,7 +358,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 	@Override
 	public String visit(EqualityExprNode node) {
-		return visit(node.getLeftChild()) + node.getType().toString() + visit(node.getRightChild());
+		return visit(node.getLeftChild()) + node.getType().toJavaSyntax() + visit(node.getRightChild());
 	}
 
 	@Override
@@ -946,7 +946,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				res += visit(var);
 				res += " = ";
 				if (inputSize > 1)
-					res += "(" + convertType(var.getType()) + ") _output.get(" + i + ")";
+					res += "(" + convertTypeForList(var.getType()) + ") _output.get(" + i + ")";
 				else
 					res += exprRes;
 				if (i < inputSize-1) {
