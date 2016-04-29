@@ -720,7 +720,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			usesColors = false;
 			usesMath = false;
 			
-			robopackage = "package " + roboname +"Package;\n\n";
+			robopackage = "package " + roboname.toLowerCase() +"package;\n\n";
 			
 			// Class declaration
 			header = "/**\n * " + roboname + " - a robot created with " + LANG_NAME + "\n */\n";
