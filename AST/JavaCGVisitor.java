@@ -155,7 +155,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				res += node.getType().toJavaSyntax();
 			
 			if (inputSize > 1) {
-				String type = convertType((String) current.getNodeType());
+				String type = convertTypeForList((String) current.getNodeType());
 				res += "(" + type + ") " + listName + ".get(" + i + ")";
 			}
 			else if (useSetter) {
@@ -919,7 +919,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 					if (currentInputSize > 1) {
 						res += ident;
 						res += " = ";
-						res += "(" + convertType(var.getType()) + ") ";
+						res += "(" + convertTypeForList(var.getType()) + ") ";
 						res += listName;
 						res += ".get(" + i + ")";
 					}
@@ -927,7 +927,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				else if (inputSize > 1) {
 					res += ident;
 					res += " = ";
-					res += "(" + convertType(var.getType()) + ") ";
+					res += "(" + convertTypeForList(var.getType()) + ") ";
 					res += listName;
 					res += ".get(" + i + ")";
 				}
