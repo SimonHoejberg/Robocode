@@ -623,6 +623,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				}
 				else if (type == VOID) {
 					currentStructRef = null;
+					node.setNodeType(VOID);
 					return VOID;
 				}
 				try {
@@ -1026,6 +1027,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		Object varType = node.getType().intern();
 		
 		symbolTable.enterSymbol(node.getIdent(), new STTypeEntry(varType));
+		node.setNodeType(varType);
 		return varType;
 	}
 	
