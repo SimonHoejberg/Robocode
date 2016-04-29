@@ -66,10 +66,10 @@ ifStmt : 'if' '(' expr ')' block									# ifThenStmt
 		;
 
 iterStmt : 'while' '(' expr ')' block												# whileStmt
-		| 'for' '(' assign ',' second=expr ',' third=expr ')' block					# forStmt
-		| 'for' '(' first=expr ',' second=expr ',' third=expr ')' block				# forStmt
+		| 'for' '(' assign ',' second=expr ',' third=callStmt ')' block					# forStmt
+		| 'for' '(' first=callStmt ',' second=expr ',' third=callStmt ')' block				# forStmt
 		| 'for' '(' assign ',' second=expr ',' assign ')' block						# forStmt
-		| 'for' '(' first=expr ',' second=expr ',' assign ')' block					# forStmt
+		| 'for' '(' first=callStmt ',' second=expr ',' assign ')' block					# forStmt
 		;
 
 returnStmt 	: 'return' expr	(',' expr)*	# retValStmt

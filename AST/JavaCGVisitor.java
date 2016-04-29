@@ -449,8 +449,8 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		String res = "for(";
 		Object assign = node.assign;
 		
-		if (assign instanceof ExpressionNode)
-			res+=visit((ExpressionNode) assign)+"; ";
+		if (assign instanceof CallStatementNode)
+			res+=visit((CallStatementNode) assign);
 		else if (assign instanceof VarDeclarationNode)
 			res+=visit((VarDeclarationNode) assign).replace(";", "; ");
 		else if (assign instanceof AssignmentNode)
@@ -460,8 +460,8 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 		res+=visit((ExpressionNode) node.predicate)+"; ";
 		Object update = node.update;
-		if (update instanceof ExpressionNode)
-			res+=visit((ExpressionNode) update);
+		if (update instanceof CallStatementNode)
+			res+=visit((CallStatementNode) update);
 		else if (update instanceof AssignmentNode)
 			res+=visit((AssignmentNode) update).replace(";","");
 		else
@@ -498,7 +498,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	public String visit(FuncDeclarationNode node) {
 		String res = "";
 		if(node.getReturnTypes().size()!= 1 && node.getReturnTypes().size() != 0)
-			res = getIndentation()+ "public Object " +node.getIdent() +"(";
+			res = getIndentation()+ "public java.util.List<Object> " +node.getIdent() +"(";
 		else
 			res = getIndentation()+ "public " + convertType(visit(node.getReturnTypes().get(0)))+ " " +node.getIdent() +"(";
 		List<VarNode> params = node.getParamList();

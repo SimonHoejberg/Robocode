@@ -453,8 +453,8 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	public Object visit(ForNode node) {
 		Object assign = node.assign;
 		
-		if (assign instanceof ExpressionNode)
-			visit((ExpressionNode) assign);
+		if (assign instanceof CallStatementNode)
+			visit((CallStatementNode) assign);
 		else if (assign instanceof VarDeclarationNode)
 			visit((VarDeclarationNode) assign);
 		else if (assign instanceof AssignmentNode)
@@ -469,8 +469,8 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			node.setNodeType(VOID);
 		
 		Object update = node.update;
-		if (update instanceof ExpressionNode)
-			visit((ExpressionNode) update);
+		if (update instanceof CallStatementNode)
+			visit((CallStatementNode) update);
 		else if (update instanceof AssignmentNode)
 			visit((AssignmentNode) update);
 		else

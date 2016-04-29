@@ -1,26 +1,26 @@
- Color black
+ Color black()
  	"Returns a Color container representing the color black."
- Color blue
+ Color blue()
  	"Returns a Color container representing the color blue."
- Color cyan
+ Color cyan()
  	"Returns a Color container representing the color cyan."
- Color darkGray
+ Color darkGray()
  	"Returns a Color container representing the color dark gray."
- Color gray
+ Color gray()
  	"Returns a Color container representing the color gray."
- Color green
+ Color green()
  	"Returns a Color container representing the color green."
- Color lightGray
+ Color lightGray()
  	"Returns a Color container representing the color light gray."
- Color magenta
+ Color magenta()
  	"Returns a Color container representing the color magenta."
- Color orange
+ Color orange()
  	"Returns a Color container representing the color orange."
- Color pink
+ Color pink()
  	"Returns a Color container representing the color pink."
- Color red
+ Color red()
  	"Returns a Color container representing the color red."
- Color white
+ Color white()
  	"Returns a Color container representing the color white."
- Color yellow
+ Color yellow()
  	"Returns a Color container representing the color yellow."

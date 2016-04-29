@@ -4,7 +4,7 @@ prog : dcls;
 
 dcls : (method)*;
 
-method : type Ident ('(')? params? (')')? description;
+method : type Ident '(' params? ')' description;
 
 params : type Ident (',' type Ident)* ;
 

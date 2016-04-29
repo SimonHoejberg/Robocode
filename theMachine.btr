@@ -154,24 +154,24 @@ func void CleverFire(num distance){
 	}
 
 	num j:= 0
-	for(j=h, j < 5, j +:= 1){
+	for(j:=h, j < 5, j +:= 1){
 		doStuff()
 	}
 	
-	for(num k := 0, k < 5, k!=6){
+	for(num k := 0, k < 5, k+:=6){
 		doStuff()
 	}
 	
 	num g := 0
-	for(g:=0, g < 5, g!=6){
+	for(g:=0, g < 5, g+:=6){
 		doStuff()
 	}
 	
 	num l:= 0
-	for(l=h, l < 5, l!=6){
+	for(l:=h, l < 5, l+:=6){
 		doStuff()
 	}
-	for(doStuff(), l<5,l!=6){
+	for(doStuff(), l<5,l+:=6){
 	
 	}
 	

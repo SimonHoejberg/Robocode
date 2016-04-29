@@ -303,8 +303,8 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 				else if(((ForNode)node).assign instanceof VarDeclarationNode){
 					visit((VarDeclarationNode)((ForNode)node).assign);
 				}
-				else if(((ForNode)node).assign instanceof ExpressionNode){
-					visit((ExpressionNode)((ForNode)node).assign);
+				else if(((ForNode)node).assign instanceof CallStatementNode){
+					visit((CallStatementNode)((ForNode)node).assign);
 				}
 				System.out.print("; ");
 				visit((ExpressionNode)((ForNode)node).predicate);
@@ -312,8 +312,8 @@ public class PrettyPrintVisitor extends ASTVisitor<Void> {
 				if(((ForNode)node).update instanceof AssignmentNode){
 					visit((AssignmentNode)((ForNode)node).update);
 				}
-				else if(((ForNode)node).update instanceof ExpressionNode){
-					visit((ExpressionNode)((ForNode)node).update);
+				else if(((ForNode)node).update instanceof CallStatementNode){
+					visit((CallStatementNode)((ForNode)node).update);
 				}
 				System.out.println(") {");	
 				break;
