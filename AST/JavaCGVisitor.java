@@ -771,6 +771,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			return res;
 		}
 	}
+	
 
 	@Override
 	public String visit(RobotDeclarationNode node) {
