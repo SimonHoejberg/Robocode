@@ -313,6 +313,8 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		constructorParams = constructorParams.substring(0, constructorParams.length()-2);
 		defaultInstantiation += ")";
 		
+		System.out.println(typeName + " with constructor: " + defaultInstantiation);
+		
 		structInstantiations.put(typeName, defaultInstantiation);
 		
 		try (OutputStream out = new BufferedOutputStream(
@@ -477,6 +479,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	@Override
 	public String visit(FuncCallNode node) {
 		String res = node.getIdent();
+		
 		res += "(";
 		List<ExpressionNode> args = node.getArguments();
 		int argsSize = args.size();
@@ -524,6 +527,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		String res = "";
 		lastBaseIdent = false;
 		lastIdentIsArrayEntry = false;
+		boolean prevWasColor = false;
 		
 		List<BaseIdentNode> idents = node.getIdents();
 		int identsSize = idents.size();
@@ -531,7 +535,12 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			if (i == identsSize-1)
 				lastBaseIdent = true;
 			BaseIdentNode ident = idents.get(i);
-			res += visit(ident);
+			String identRes = visit(ident);
+			if (identRes.equals("Color")) // FIXME temp solution
+				prevWasColor = true;
+			else if (prevWasColor && identRes.endsWith("()"))
+				identRes = identRes.substring(0, identRes.length()-2);
+			res += identRes;
 			if (i < identsSize-1)
 				res += ".";
 		}
