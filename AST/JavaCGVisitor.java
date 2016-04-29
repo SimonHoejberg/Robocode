@@ -22,7 +22,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	private String structHeader, constructorParams, defaultInstantiation;
 	private String roboname;
 	private boolean initializingRobot, creatingStructClass, assigning;
-	private boolean iSetInScope, outputListSetInScope;
+	private boolean outputListSetInScope;
 	private boolean usesColors, usesMath, usesArrays;
 	
 	private Hashtable<String, String> structInstantiations;
@@ -65,18 +65,14 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		if (creatingStructClass) {
 			structHeader += STRUCT_INDENTATION + "public " + dcl + ";\n";
 			
-			// Add default array for constructor
-			header += "    private ArrayList<" + convertType(type)+ "> _" + ident + ";\n";
+			// Add default array for constructor if not part of assignment
 			if (!assigning) {
+				header += "    private ArrayList<" + convertType(type)+ "> _" + ident + ";\n";
 				if (!sizeless) {
-					header += getIndentation() + "for (";
-					if (!iSetInScope) {
-						header += "int ";
-						iSetInScope = true;
-					}
-					header += "_i = 0; _i < " + exprRes + "; ++_i)\n"; // _i is used since it is not a valid variable name in the language, thus no conflicts can occur
+					dcls += getIndentation() + "_" + ident + " = new ArrayList<" + convertType(type) + ">();\n";
+					dcls += getIndentation() + "for (int _i = 0; _i < " + exprRes + "; ++_i)\n"; // _i is used since it is not a valid variable name in the language, thus no conflicts can occur
 					indentationLevel++;
-					header += getIndentation() + "_" + ident + ".add(" + getDefaultOfType(type) + ");\n";
+					dcls += getIndentation() + "_" + ident + ".add(" + getDefaultOfType(type) + ");\n";
 					indentationLevel--;
 				}
 			}
@@ -102,12 +98,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		}
 		else {
 			if (!sizeless) {
-				res += getIndentation() + "for (";
-				if (!iSetInScope) {
-					res += "int ";
-					iSetInScope = true;
-				}
-				res += "_i = 0; _i < " + exprRes + "; ++_i)\n"; // _i is used since it is not a valid variable name in the language, thus no conflicts can occur
+				res += getIndentation() + "for (int _i = 0; _i < " + exprRes + "; ++_i)\n"; // _i is used since it is not a valid variable name in the language, thus no conflicts can occur
 				indentationLevel++;
 				res += getIndentation() + ident + ".add(" + getDefaultOfType(type) + ")";
 				indentationLevel--;
@@ -195,7 +186,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			res = node.getIdent();
 		ExpressionNode index = node.getIndex();
 		if (node.getIndex() != null)
-			res += "[" + castIndex(index) + "]";
+			res += ".get(" + castIndex(index) + ")";
 		return res;
 	}
 
@@ -252,7 +243,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		
 		// FIXME import list if arrays are used
 		
-		structHeader = "public class " + typeName + "() {\n";
+		structHeader = "public class " + typeName + " {\n";
 		
 		creatingStructClass = true;
 		currentListParam = 1;
@@ -358,8 +349,6 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			res+=getIndentation()+"}\n\n";
 			res+=AddEventMethod(node);
 		}
-		
-		iSetInScope = false;
 		outputListSetInScope = false;
 		
 		return res;
@@ -481,7 +470,6 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		indentationLevel--;
 		res+= getIndentation()+"}\n";
 		
-		iSetInScope = false;
 		outputListSetInScope = false;
 		
 		return res;
@@ -541,7 +529,6 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				throw new NotImplementedException();
 		}
 		
-		iSetInScope = false;
 		outputListSetInScope = false;
 		
 		return res;
@@ -560,7 +547,6 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			throw new NotImplementedException();
 		}
 		
-		iSetInScope = false;
 		outputListSetInScope = false;
 		
 		return res;
@@ -672,7 +658,6 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			structInstantiations = new Hashtable<String, String>();
 			assigning = false;
 			
-			iSetInScope = false;
 			outputListSetInScope = false;
 			
 			usesColors = false;
@@ -688,10 +673,6 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			
 			indentationLevel++;
 			
-			// Struct definitions
-			for (DataStructDefinitionNode def : defs)
-				visit(def);
-			
 			// Robot initialization
 			dcls = "\n";
 			dcls += getIndentation() + "/**\n";
@@ -699,7 +680,12 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			dcls += getIndentation() + "*/\n";
 			dcls += getIndentation() + "public void run() {\n";
 			
+			
 			indentationLevel++;
+			
+			// Struct definitions
+			for (DataStructDefinitionNode def : defs)
+				visit(def);	// Array initializations will be added to robot initialization
 			
 			if (init != null)
 				dcls += visit(init);
@@ -735,6 +721,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			// Imports
 			imports = "import robocode.*;\n";		// FIXME need proper path
 			imports += "import java.awt.*;\n";
+			imports += "import java.util.*;\n";
 			imports += "\n";
 			
 			out.write(imports.getBytes());
@@ -795,7 +782,6 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				throw new NotImplementedException();
 		}
 		
-		iSetInScope = false;
 		outputListSetInScope = false;
 		
 		return res;
