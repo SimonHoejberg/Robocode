@@ -21,6 +21,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	private String imports, header, dcls;
 	private String structHeader, constructorParams, defaultInstantiation;
 	private String roboname;
+	private String robopackage;
 	private boolean initializingRobot, creatingStructClass, assigning;
 	private boolean outputListSetInScope;
 	private boolean usesColors, usesMath, usesArrays;
@@ -243,7 +244,12 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		
 		// FIXME import list if arrays are used
 		
-		structHeader = "public class " + typeName + " {\n";
+		structHeader = robopackage;
+		
+		structHeader += "import java.util.*;\n";
+		structHeader += "\n";
+		
+		structHeader += "public class " + typeName + " {\n";
 		
 		creatingStructClass = true;
 		currentListParam = 1;
@@ -663,8 +669,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			usesColors = false;
 			usesMath = false;
 			
-			// FIXME package?
-			
+			robopackage = "package " + roboname +"Package;\n\n";
 			
 			// Class declaration
 			header = "/**\n * " + roboname + " - a robot created with " + LANG_NAME + "\n */\n";
@@ -718,8 +723,11 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			
 			dcls += "}";
 			
+			// Package
+			imports = robopackage;
+			
 			// Imports
-			imports = "import robocode.*;\n";		// FIXME need proper path
+			imports += "import robocode.*;\n";
 			imports += "import java.awt.*;\n";
 			imports += "import java.util.*;\n";
 			imports += "\n";
