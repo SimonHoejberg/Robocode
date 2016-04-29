@@ -769,7 +769,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			
 			// FIXME Object copying
 			for (ExpressionNode expr : returnExprs)
-				res += getIndentation() + "_returnsVals.add(" + visit(expr) + ");\n";
+				res += getIndentation() + "_returnVals.add(" + visit(expr) + ");\n";
 			
 			res += getIndentation() + "return _returnVals;";
 			
