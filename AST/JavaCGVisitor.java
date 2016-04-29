@@ -957,11 +957,11 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			case "bool":
 				return "boolean";
 			case "num[]":
-				return "ArrayList<double>";
+				return "ArrayList<Double>";
 			case "text[]":
 				return "ArrayList<String>";
 			case "bool[]":
-				return "ArrayList<boolean>";
+				return "ArrayList<Boolean>";
 			default:
 				return input;
 		}
