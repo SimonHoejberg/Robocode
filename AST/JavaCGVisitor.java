@@ -25,6 +25,8 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	private String robopackage;
 	private boolean initializingRobot, creatingStructClass, assigning;
 	private boolean outputListSetInScope;
+	private boolean lastBaseIdent, lastIdentIsArrayEntry;
+	private String lastIdentIndex;
 	private boolean usesColors, usesMath, usesArrays;
 	
 	private Hashtable<String, String> structInstantiations;
@@ -113,6 +115,9 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	public String visit(AssignmentNode node) {
 		String res = "";
 		String exprRes = visit(node.getExpression());
+		String generalIdent = "";
+		
+		boolean useSetter = false;
 		
 		assigning = true;
 		
@@ -135,22 +140,48 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			AbstractNode current = input.get(i);
 			if (current instanceof VarNode)
 				res += visit((VarNode) current);
-			else if (current instanceof ArrayDeclarationNode) {
+			else if (current instanceof ArrayDeclarationNode)
 				res += visit((ArrayDeclarationNode) current);
-			}
-			else if (current instanceof DataStructDeclarationNode) {
+			else if (current instanceof DataStructDeclarationNode)
 				res += visit((DataStructDeclarationNode) current);
+			else if (current instanceof GeneralIdentNode) {
+				generalIdent = visit((GeneralIdentNode) current);
+				res += generalIdent;
+				useSetter = lastIdentIsArrayEntry;
 			}
-			else if (current instanceof GeneralIdentNode)
-				res += visit((GeneralIdentNode) current);
 			else 
 				throw new NotImplementedException();
-			res += node.getType().toJavaSyntax();
+			if (!useSetter)
+				res += node.getType().toJavaSyntax();
 			
 			if (inputSize > 1) {
 				String type = convertType((String) current.getNodeType());
 				res += "(" + type + ") " + listName + ".get(" + i + ")";
 			}
+			else if (useSetter) {
+				switch(node.getType()) {
+					case basic:
+						res += ".set(" + lastIdentIndex + ", " + exprRes + ")";
+						break;
+					case add:
+						res += ".set(" + lastIdentIndex + ", " + generalIdent + ".get(" + lastIdentIndex + ")" + " + " + exprRes + ")";
+						break;
+					case sub:
+						res += ".set(" + lastIdentIndex + ", " + generalIdent + ".get(" + lastIdentIndex + ")" + " - " + exprRes + ")";
+						break;
+					case mult:
+						res += ".set(" + lastIdentIndex + ", " + generalIdent + ".get(" + lastIdentIndex + ")" + " * " + exprRes + ")";
+						break;
+					case div:
+						res += ".set(" + lastIdentIndex + ", " + generalIdent + ".get(" + lastIdentIndex + ")" + " / " + exprRes + ")";
+						break;
+					case mod:
+						res += ".set(" + lastIdentIndex + ", " + generalIdent + ".get(" + lastIdentIndex + ")" + " % " + exprRes + ")";
+						break;
+					default:
+						throw new NotImplementedException();
+				}
+			}	
 			else
 				res += exprRes;
 			
@@ -187,8 +218,14 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		else
 			res = node.getIdent();
 		ExpressionNode index = node.getIndex();
-		if (node.getIndex() != null)
-			res += ".get(" + castIndex(index) + ")";
+		if (node.getIndex() != null) {
+			if (lastBaseIdent) {
+				lastIdentIsArrayEntry = true;
+				lastIdentIndex = castIndex(index);
+			}
+			else
+				res += ".get(" + castIndex(index) + ")";
+		}
 		return res;
 	}
 
@@ -485,10 +522,14 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	@Override
 	public String visit(GeneralIdentNode node) {
 		String res = "";
+		lastBaseIdent = false;
+		lastIdentIsArrayEntry = false;
 		
 		List<BaseIdentNode> idents = node.getIdents();
 		int identsSize = idents.size();
 		for (int i = 0; i < identsSize; ++i) {
+			if (i == identsSize-1)
+				lastBaseIdent = true;
 			BaseIdentNode ident = idents.get(i);
 			res += visit(ident);
 			if (i < identsSize-1)
