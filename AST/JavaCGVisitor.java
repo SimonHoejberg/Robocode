@@ -79,8 +79,8 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 					dcls += getIndentation() + "_" + ident + ".add(" + getDefaultOfType(type) + ");\n";
 					indentationLevel--;
 				}
+				defaultInstantiation += "_" + ident;
 			}
-			defaultInstantiation += "_" + ident;
 			
 			if (!assigning) {
 				constructorParams += dcl + ", ";
@@ -219,7 +219,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			res = node.getIdent();
 		ExpressionNode index = node.getIndex();
 		if (node.getIndex() != null) {
-			if (lastBaseIdent) {
+			if (lastBaseIdent && assigning) {
 				lastIdentIsArrayEntry = true;
 				lastIdentIndex = castIndex(index);
 			}
@@ -499,7 +499,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		if(node.getReturnTypes().size()!= 1 && node.getReturnTypes().size() != 0)
 			res = getIndentation()+ "public java.util.List<Object> " +node.getIdent() +"(";
 		else
-			res = getIndentation()+ "public " + convertType(visit(node.getReturnTypes().get(0)))+ " " +node.getIdent() +"(";
+			res = getIndentation()+ "public " + convertTypeForList(visit(node.getReturnTypes().get(0)))+ " " +node.getIdent() +"(";
 		List<VarNode> params = node.getParamList();
 
 		for(VarNode param : params) {
@@ -813,9 +813,10 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			String res = "java.util.List<Object> _returnVals = new ArrayList<Object>();\n";
 			
 			// FIXME Object copying
-			for (ExpressionNode expr : returnExprs)
+			for (ExpressionNode expr : returnExprs) {
 				res += getIndentation() + "_returnVals.add(" + visit(expr) + ");\n";
-			
+			}
+				
 			res += getIndentation() + "return _returnVals;";
 			
 			return res;
@@ -1001,12 +1002,6 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				return "String";
 			case "bool":
 				return "Boolean";
-			case "num[]":
-				return "ArrayList<Double>";
-			case "text[]":
-				return "ArrayList<String>";
-			case "bool[]":
-				return "ArrayList<Boolean>";
 			default:
 				return input;
 		}
@@ -1020,6 +1015,12 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				return "String";
 			case "bool":
 				return "Boolean";
+			case "num[]":
+				return "ArrayList<Double>";
+			case "text[]":
+				return "ArrayList<String>";
+			case "bool[]":
+				return "ArrayList<Boolean>";
 			default:
 				return input;
 		}
