@@ -313,7 +313,6 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		constructorParams = constructorParams.substring(0, constructorParams.length()-2);
 		defaultInstantiation += ")";
 		
-		System.out.println(typeName + " with constructor: " + defaultInstantiation);
 		
 		structInstantiations.put(typeName, defaultInstantiation);
 		
