@@ -996,11 +996,11 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	private String convertType(String input) {
 		switch (input) {
 			case "num":
-				return "double";
+				return "Double";
 			case "text":
 				return "String";
 			case "bool":
-				return "boolean";
+				return "Boolean";
 			case "num[]":
 				return "ArrayList<Double>";
 			case "text[]":
