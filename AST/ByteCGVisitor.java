@@ -1,8 +1,24 @@
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+
 import nodes.*;
+import nodes.RobotDeclarationNode.RobotDeclarationType;
 
 
 public class ByteCGVisitor extends ASTVisitor<String>{
-
+	private String code;
+	private String roboname;
+	
 	@Override
 	public String visit(AdditiveExprNode node) {
 		// TODO Auto-generated method stub
@@ -149,7 +165,38 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 
 	@Override
 	public String visit(ProgramNode node) {
-		// TODO Auto-generated method stub
+		
+		// Create directory for output files
+		File dir = new File(roboname);
+
+		// if the directory does not exist, create it
+		if (!dir.exists()) {
+		    System.out.println("Creating directory " + roboname + ".");
+		    boolean result = false;
+
+		    try{
+		        dir.mkdir();
+		        result = true;
+		    } 
+		    catch(SecurityException se){
+		        //handle it
+		    }        
+		    if(result) {    
+		        System.out.println("Directory successfully created.");  
+		    }
+		}
+		
+		// Start creation of file class
+		try (OutputStream out = new BufferedOutputStream(
+			 Files.newOutputStream(Paths.get((roboname+"/"+roboname + ".j")), CREATE, TRUNCATE_EXISTING))) {
+			
+			
+			out.write(code.getBytes());
+		}
+		catch (IOException ex) {
+			System.out.println("Failed to write target file \"" + roboname + ".j");
+		}
+		
 		return null;
 	}
 
