@@ -301,6 +301,7 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 			header =".class "+roboname+"pk"+"/"+roboname+"\n";
 			header +=".super robocode/Robot\n";
 			header +="\n";
+			code +="\n";
 			code +=".method public run()V\n";
 			
 			if (init != null)
@@ -326,23 +327,23 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 			out.write(code.getBytes());
 			out.flush();
 			out.close();
-//			Process ps = Runtime.getRuntime().exec("java -jar jasmin.jar "+roboname+"pk/"+roboname+".j");
-//			try {
-//				ps.waitFor();
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		    InputStream in = ps.getInputStream();
-//		    InputStream err = ps.getErrorStream();
-//
-//		    byte b[]=new byte[in.available()];
-//		    in.read(b,0,b.length);
-//		    System.out.println(new String(b));
-//
-//		    byte c[]=new byte[err.available()];
-//		    err.read(c,0,c.length);
-//		    System.out.println(new String(c));
+			Process ps = Runtime.getRuntime().exec("java -jar jasmin.jar "+roboname+"pk/"+roboname+".j");
+			try {
+				ps.waitFor();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		    InputStream in = ps.getInputStream();
+		    InputStream err = ps.getErrorStream();
+
+		    byte b[]=new byte[in.available()];
+		    in.read(b,0,b.length);
+		    System.out.println(new String(b));
+
+		    byte c[]=new byte[err.available()];
+		    err.read(c,0,c.length);
+		    System.out.println(new String(c));
 		}
 		catch (IOException ex) {
 			System.out.println("Failed to write target file \"" + roboname + ".j");
