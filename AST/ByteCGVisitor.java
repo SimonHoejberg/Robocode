@@ -22,6 +22,8 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 	private String roboname;
 	private int whileCounter = 0;
 	private String currentLabel;
+	private boolean isInit;
+	private String header = "";
 	
 	@Override
 	public String visit(AdditiveExprNode node) {
@@ -425,8 +427,11 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 
 	@Override
 	public String visit(VarDeclarationNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		String res = "";
+		for (VarNode var : node.getVariable()) {
+			res += visit(var);
+		}
+		return res;
 	}
 
 	@Override
