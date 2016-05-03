@@ -1,30 +1,9 @@
 roboname := "TheMachine"
 
-container rage {bool yes := true}
-
-func num, num getM(){
-	return 2,3
-}
-
-container simon{
-	num victor := 1
- 	num emil[2]
- 	rage mad
- 	num hej[5]
- 	num b, num a := getM()
-}
-
 robot initialization(){
 	num turnDirection := 1
-	if(true){
-		turnDirection := 2	
-	}
 	bool moving := false
 	num remainingDistance := 0
-	simon dude[2]
-	dude[1].victor := 2
-	dude[0].mad.yes := false
-	dude[1].emil[0] := 2
 	
 	setBodyColor(Color.gray())
 	setGunColor(Color.lightGray())
@@ -32,59 +11,7 @@ robot initialization(){
 	setBulletColor(Color.black())
 }
 
-func num[], bool arrayAndBool() {
-	turnDirection :=2
-	num out[3]
-	out[0] := 1
-	out[1] := 2
-	out[2] := 3
-	return out, true
-}
-
-func num, num, num test3(){
-	return 2,4,6
-}
-
-func num[] test4(){
-	return dude[1].emil
-}
-
-func num, simon,bool test2(){
-	bool epic := false
-	num janus[], epic := arrayAndBool()
-	num hej := 0
-	num hej2 := 0
-	num hej3 := 0
-	num he22[3] := test4()
-	hej, hej2, hej3 +:= test3()
-	return 2, dude[0],true
-}
-
-func simon getTheSimon(){
-	num hej, simon s, bool yes := test2()
-	hej := 2
-	return dude[1]
-}
-
-func num, text, bool test(num yea){
-	simon Simon := getTheSimon()
-	return 2*yea,"hej", true
-}
-
-func num doStuff(){
-	num hej := 0
-	text t := ""
-	bool f := false
-	hej,t,f := test(7)
-	num jaeh, num yunus, num helmut := test3()
-	num heee, text lol, bool yep := test(2)
-	return (dude[1].victor + 1)/5
-}
-
 robot behavior(){
-	//simon.victor := 0
-	//num janus, victor := 7, 4
-	//Color.red() := 7
 	if (moving){
 		if (remainingDistance > 0){
 			ahead(remainingDistance)
@@ -126,9 +53,6 @@ event onScannedRobot(ScannedRobotEvent e){
 	}
 }
 
-func num, num a(){
-	return 2,3
-}
 
 func void CleverFire(num distance){
 	if (distance < 50){
@@ -138,96 +62,6 @@ func void CleverFire(num distance){
 	}else if (distance < 200){
 		fire(1)
 	}
-
-	for(num i := 0, i < 5, i +:= 1){
-		doStuff()
-		num test := 2
-	}
-	if(true){
-		num test, num a := a()
-	}
-	
-	num h := 0
-	for(h:=0, h < 5, h +:= 1){
-		doStuff()
-		num test := 3
-	}
-
-	num j:= 0
-	for(j:=h, j < 5, j +:= 1){
-		doStuff()
-	}
-	
-	for(num k := 0, k < 5, k+:=6){
-		doStuff()
-	}
-	
-	num g := 0
-	for(g:=0, g < 5, g+:=6){
-		doStuff()
-	}
-	
-	num l:= 0
-	for(l:=h, l < 5, l+:=6){
-		doStuff()
-	}
-	for(doStuff(), l<5,l+:=6){
-	
-	}
-	
-	for(doStuff(), l<5, l+:=1){
-	
-	}
-	
-	while(1=1){
-		doStuff()
-		num test := 5
-	}
-}
-
-event onBattleEnd(BattleEndedEvent e){
-
-}
-
-event onBulletHitBullet(BulletHitBulletEvent e){
-
-}
-
-event onBulletMissed(BulletMissedEvent e){
-
-}
-
-event onBulletHit(BulletHitEvent e){
-
-}
-
-event onDeath(DeathEvent e){
-
-}
-event onHitByBullet(HitByBulletEvent e){
-
-}
-event onHitWall(HitWallEvent e){
-
-}
-
-event onRobotDeath(RobotDeathEvent e){
-
-}
-
-event onRoundEnded(RoundEndedEvent e){
-
-}
-
-event onStatus(StatusEvent e){
-
-}
-event onWin(WinEvent e){
-
-}
-
-event Win(WinEvent e){
-
 }
 
 event onHitRobot(HitRobotEvent e){

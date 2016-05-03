@@ -165,7 +165,28 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 
 	@Override
 	public String visit(ProgramNode node) {
+		// Fetch robot declarations and struct definitions
+		RobotDeclarationNode init = null;
+		RobotDeclarationNode behavior = null;
+		List<DataStructDefinitionNode> defs = new ArrayList<DataStructDefinitionNode>();
 		
+		List<DeclarationNode> declarations = node.getDeclarations();
+		for(DeclarationNode dcl : declarations) {
+			if (dcl instanceof RobotDeclarationNode) {
+				RobotDeclarationNode robodcl = (RobotDeclarationNode) dcl;
+				RobotDeclarationType type = robodcl.getType();
+				if (type == RobotDeclarationType.name) {
+					roboname = robodcl.getName();
+					roboname = roboname.substring(1, roboname.length()-1);
+				}
+				else if (type == RobotDeclarationType.initialization)
+					init = robodcl;
+				else if (type == RobotDeclarationType.behavior)
+					behavior = robodcl;
+			}
+			else if (dcl instanceof DataStructDefinitionNode)
+				defs.add((DataStructDefinitionNode) dcl);
+		}
 		// Create directory for output files
 		File dir = new File(roboname);
 
@@ -189,6 +210,12 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 		// Start creation of file class
 		try (OutputStream out = new BufferedOutputStream(
 			 Files.newOutputStream(Paths.get((roboname+"/"+roboname + ".j")), CREATE, TRUNCATE_EXISTING))) {
+			
+			
+			code =".class "+roboname+"pk"+"/"+roboname+"\n";
+			code +=".super robocode/Robot";
+			
+			
 			
 			
 			out.write(code.getBytes());

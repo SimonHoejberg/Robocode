@@ -49,7 +49,10 @@ public class Hello
         if (errors == 0) {
         	JavaCGVisitor javaCGVis = new JavaCGVisitor();
         	javaCGVis.visit(ast);
+        	ByteCGVisitor byteCGVis = new ByteCGVisitor();
+        	byteCGVis.visit(ast);
         }
+        
         
         //ParseTree tree = parser.prog(); // begin parsing at rule 'r'
         //System.out.println(tree.toStringTree(parser)); // print LISP-style tree
