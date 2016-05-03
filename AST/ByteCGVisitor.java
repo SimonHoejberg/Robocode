@@ -20,6 +20,8 @@ import nodes.RobotDeclarationNode.RobotDeclarationType;
 public class ByteCGVisitor extends ASTVisitor<String>{
 	private String code;
 	private String roboname;
+	private int whileCounter = 0;
+	private String currentLabel;
 	
 	@Override
 	public String visit(AdditiveExprNode node) {
@@ -71,8 +73,26 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 
 	@Override
 	public String visit(DeclarationNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		String res;
+		if (node instanceof RobotDeclarationNode)
+			return "";
+		else if (node instanceof EventDeclarationNode)
+			res = visit((EventDeclarationNode) node);
+		else if (node instanceof FuncDeclarationNode)
+			res = visit((FuncDeclarationNode) node);
+		else if (node instanceof VarDeclarationNode)
+			res = visit((VarDeclarationNode) node);
+		else if (node instanceof DataStructDefinitionNode)
+			return "";
+		else if (node instanceof DataStructDeclarationNode)
+			res = visit((DataStructDeclarationNode) node);
+		else if (node instanceof ArrayDeclarationNode) {
+			res = visit((ArrayDeclarationNode) node);
+		}
+		else
+			throw new NotImplementedException();
+		res += "\n";
+		return res;
 	}
 
 	@Override
@@ -107,8 +127,34 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 
 	@Override
 	public String visit(FuncDeclarationNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		String res = "";
+		if(node.getReturnTypes().size()!= 1 && node.getReturnTypes().size() != 0){
+			res = ".method public "+node.getIdent()+"(";
+			List<VarNode> params = node.getParamList();
+
+			for(VarNode param : params) {
+				res += convertType(param.getType())+";";
+			}
+			res += ")a";
+		}
+			
+		else{
+			res = ".method public "+node.getIdent()+"(";
+			List<VarNode> params = node.getParamList();
+
+
+			for(VarNode param : params) {
+				res += convertType(param.getType())+";";
+			}
+			res += ")"+convertReturnType(node.getReturnTypes().get(0).getType());
+		}
+		res += "\n";
+		
+		List<StatementNode> stms = node.getStatements();
+		for(StatementNode stm : stms )
+			res += visit(stm);
+		res += ".end method\n";		
+		return res;
 	}
 
 	@Override
@@ -354,8 +400,46 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 
 	@Override
 	public String visit(WhileNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		String res = "While#"+whileCounter+"\n";
+		currentLabel ="Done#"+whileCounter;
+		List<ExpressionNode> exprs = node.getExpressions();
+		for(ExpressionNode expr : exprs)
+			res += visit(expr);
+		List<StatementNode> stms = node.getStatements();
+		for(StatementNode stm : stms)
+			res += visit(stm);
+		res += "goto While#"+whileCounter+"\n";
+		res += currentLabel+"\n";
+		currentLabel = null;
+		return res;
+	}
+	
+	private String convertReturnType(String input) {
+		switch (input) {
+			case "num":
+				return "D";
+			case "text":
+				return "a";
+			case "bool":
+				return "Z";
+			case "void":
+				return "V";
+			default:
+				return "a";
+		}
+	}
+	
+	private String convertType(String input) {
+		switch (input) {
+			case "num":
+				return "D";
+			case "text":
+				return "Ljava/lang/String";
+			case "bool":
+				return "Z";
+			default:
+				return "Ljava/lang/Object";
+		}
 	}
 
 }
