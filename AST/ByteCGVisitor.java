@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
+import exceptions.NotImplementedException;
 import nodes.*;
 import nodes.RobotDeclarationNode.RobotDeclarationType;
 
@@ -212,33 +213,50 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 		try (OutputStream out = new BufferedOutputStream(
 			 Files.newOutputStream(Paths.get((roboname+"pk/"+roboname + ".j")), CREATE, TRUNCATE_EXISTING))) {
 			
-			
 			code =".class "+roboname+"pk"+"/"+roboname+"\n";
 			code +=".super robocode/Robot";
+			code +="\n\n\n";
+			code +=".method public run()V\n";
 			
+			if (init != null)
+				code += visit(init);
 			
+			code +="WHILE:\n";
+			// Robot behavior
+			if (behavior != null)
+				code += visit(behavior);
 			
+			code +="goto WHILE\n";
+			code +="return \n";
+			code +=".end method\n";
+			
+			String temp;
+			// Declarations
+			for(DeclarationNode dcl : declarations){
+			    temp = visit(dcl);
+			    code += temp;
+			}			
 			
 			out.write(code.getBytes());
 			out.flush();
 			out.close();
-			Process ps = Runtime.getRuntime().exec("java -jar jasmin.jar "+roboname+"pk/"+roboname+".j");
-			try {
-				ps.waitFor();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		    InputStream in = ps.getInputStream();
-		    InputStream err = ps.getErrorStream();
-
-		    byte b[]=new byte[in.available()];
-		    in.read(b,0,b.length);
-		    System.out.println(new String(b));
-
-		    byte c[]=new byte[err.available()];
-		    err.read(c,0,c.length);
-		    System.out.println(new String(c));
+//			Process ps = Runtime.getRuntime().exec("java -jar jasmin.jar "+roboname+"pk/"+roboname+".j");
+//			try {
+//				ps.waitFor();
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		    InputStream in = ps.getInputStream();
+//		    InputStream err = ps.getErrorStream();
+//
+//		    byte b[]=new byte[in.available()];
+//		    in.read(b,0,b.length);
+//		    System.out.println(new String(b));
+//
+//		    byte c[]=new byte[err.available()];
+//		    err.read(c,0,c.length);
+//		    System.out.println(new String(c));
 		}
 		catch (IOException ex) {
 			System.out.println("Failed to write target file \"" + roboname + ".j");
@@ -261,14 +279,47 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 
 	@Override
 	public String visit(RobotDeclarationNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		String res = "";
+		List<StatementNode> input = node.getStatements();
+		switch (node.getType()) {
+			case initialization:
+				for (StatementNode stm : input)
+					res += visit(stm);
+				break;
+			case behavior:
+				for (StatementNode stm : input)
+					res += visit(stm);
+				break;
+			default:
+				throw new NotImplementedException();
+		}
+		
+		return res;
 	}
 
 	@Override
 	public String visit(StatementNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		String res = "";
+		if (node instanceof VarDeclarationNode)
+			res += visit((VarDeclarationNode) node);
+		else if (node instanceof ArrayDeclarationNode)
+			res += visit((ArrayDeclarationNode) node);
+		else if (node instanceof DataStructDeclarationNode)
+			res += visit((DataStructDeclarationNode) node);
+		else if (node instanceof AssignmentNode)
+			res += visit((AssignmentNode) node);
+		else if (node instanceof IfNode)
+			res += visit((IfNode) node);
+		else if(node instanceof CallStatementNode)
+			res += visit((CallStatementNode)node);
+		else if (node instanceof IterationNode)
+			res += visit((IterationNode) node);
+		else if (node instanceof ReturnNode)
+			res += visit((ReturnNode) node);
+		else
+			throw new NotImplementedException();
+		res+="\n";
+		return res;
 	}
 
 	@Override
