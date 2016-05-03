@@ -685,7 +685,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		}
 		
 		// Create directory for output files
-		File dir = new File(roboname);
+		File dir = new File(roboname+"pk");
 
 		// if the directory does not exist, create it
 		if (!dir.exists()) {
@@ -706,7 +706,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		
 		// Start creation of file class
 		try (OutputStream out = new BufferedOutputStream(
-			 Files.newOutputStream(Paths.get((roboname+"/"+roboname + ".java")), CREATE, TRUNCATE_EXISTING))) {
+			 Files.newOutputStream(Paths.get((roboname+"pk/"+roboname + ".java")), CREATE, TRUNCATE_EXISTING))) {
 			
 			// Flags for use in code generation
 			initializingRobot = false;

@@ -4,6 +4,7 @@ import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -188,7 +189,7 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 				defs.add((DataStructDefinitionNode) dcl);
 		}
 		// Create directory for output files
-		File dir = new File(roboname);
+		File dir = new File(roboname+"pk");
 
 		// if the directory does not exist, create it
 		if (!dir.exists()) {
@@ -209,7 +210,7 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 		
 		// Start creation of file class
 		try (OutputStream out = new BufferedOutputStream(
-			 Files.newOutputStream(Paths.get((roboname+"/"+roboname + ".j")), CREATE, TRUNCATE_EXISTING))) {
+			 Files.newOutputStream(Paths.get((roboname+"pk/"+roboname + ".j")), CREATE, TRUNCATE_EXISTING))) {
 			
 			
 			code =".class "+roboname+"pk"+"/"+roboname+"\n";
@@ -219,6 +220,25 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 			
 			
 			out.write(code.getBytes());
+			out.flush();
+			out.close();
+			Process ps = Runtime.getRuntime().exec("java -jar jasmin.jar "+roboname+"pk/"+roboname+".j");
+			try {
+				ps.waitFor();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		    InputStream in = ps.getInputStream();
+		    InputStream err = ps.getErrorStream();
+
+		    byte b[]=new byte[in.available()];
+		    in.read(b,0,b.length);
+		    System.out.println(new String(b));
+
+		    byte c[]=new byte[err.available()];
+		    err.read(c,0,c.length);
+		    System.out.println(new String(c));
 		}
 		catch (IOException ex) {
 			System.out.println("Failed to write target file \"" + roboname + ".j");
