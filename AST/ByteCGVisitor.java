@@ -193,7 +193,7 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 
 		// if the directory does not exist, create it
 		if (!dir.exists()) {
-		    System.out.println("Creating directory " + roboname + ".");
+		    System.out.println("Creating directory " + roboname + "pk.");
 		    boolean result = false;
 
 		    try{
