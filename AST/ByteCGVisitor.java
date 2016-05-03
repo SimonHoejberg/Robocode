@@ -298,9 +298,9 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 		try (OutputStream out = new BufferedOutputStream(
 			 Files.newOutputStream(Paths.get((roboname+"pk/"+roboname + ".j")), CREATE, TRUNCATE_EXISTING))) {
 			
-			code =".class "+roboname+"pk"+"/"+roboname+"\n";
-			code +=".super robocode/Robot";
-			code +="\n\n\n";
+			header =".class "+roboname+"pk"+"/"+roboname+"\n";
+			header +=".super robocode/Robot\n";
+			header +="\n";
 			code +=".method public run()V\n";
 			
 			if (init != null)
@@ -313,7 +313,7 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 			
 			code +="goto WHILE\n";
 			code +="return \n";
-			code +=".end method\n";
+			code +=".end method\n\n";
 			
 			String temp;
 			// Declarations
@@ -322,6 +322,7 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 			    code += temp;
 			}			
 			
+			out.write(header.getBytes());
 			out.write(code.getBytes());
 			out.flush();
 			out.close();
@@ -368,8 +369,10 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 		List<StatementNode> input = node.getStatements();
 		switch (node.getType()) {
 			case initialization:
+				isInit = true;
 				for (StatementNode stm : input)
 					res += visit(stm);
+				isInit = false;
 				break;
 			case behavior:
 				for (StatementNode stm : input)
