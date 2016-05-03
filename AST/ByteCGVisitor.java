@@ -301,6 +301,7 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 			header =".class "+roboname+"pk"+"/"+roboname+"\n";
 			header +=".super robocode/Robot\n";
 			header +="\n";
+			header +=".method public <init>()V\n";
 			code +="\n";
 			code +=".method public run()V\n";
 			
@@ -323,6 +324,7 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 			    code += temp;
 			}			
 			
+			header +=".end method\n";
 			out.write(header.getBytes());
 			out.write(code.getBytes());
 			out.flush();
