@@ -103,8 +103,45 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 
 	@Override
 	public String visit(EventDeclarationNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		String res = "";
+		if(code.contains(".method public "+getEventMethodName(node.getParam().getType())+"("+getEventParam(node.getParam().getType()))){
+			String temp = AddEventMethod(node);
+			int event = code.indexOf(".method public "+getEventMethodName(node.getParam().getType())+"("+getEventParam(node.getParam().getType()), 0);
+			int firstP = code.indexOf(')',event);
+			int lastP = code.indexOf(".end",firstP);
+
+			String firstString = code.substring(0, lastP-1);
+			String payloadString = ";Invoke help plz replace me\n";
+			String endStrng = code.substring(lastP-1);
+			code= firstString+"\n"+payloadString+endStrng;
+			res = temp;
+		}
+		else{
+			res+=".method public "+getEventMethodName(node.getParam().getType())+"("+getEventParam(node.getParam().getType())+";)V\n";
+			res+=";Invoke help plz replace me\n";
+			res+=".end method\n\n";
+			res+=AddEventMethod(node);
+		}
+		
+		return res;
+	}
+	
+	private String getEventName(EventDeclarationNode node){
+		if(getEventMethodName(node.getParam().getType()).equals(node.getIdent())){
+			return "_"+node.getIdent();
+		}
+		else{
+			return node.getIdent();
+		}
+	}
+	
+	private String AddEventMethod(EventDeclarationNode node){
+		String rest = ".method private " + getEventName(node) +"("+getEventParam(node.getParam().getType())+";)V\n";
+		List<StatementNode> stms = node.getStatements();
+		for(StatementNode stm : stms)
+			rest+=visit(stm);
+		rest+=".end method\n\n";
+		return rest;
 	}
 
 	@Override
@@ -439,6 +476,72 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 				return "Z";
 			default:
 				return "Ljava/lang/Object";
+		}
+	}
+	
+	private String getEventMethodName(String input){
+		switch (input) {
+		case "BulletHitEvent":
+			return "onBulletHit";
+		case "BulletHitBulletEvent":
+			return "onBulletHitBullet";
+		case "BulletMissedEvent":
+			return "onBulletMissed";
+		case "DeathEvent":
+			return "onDeath";
+		case "HitByBulletEvent":
+			return "onHitByBullet";
+		case "HitRobotEvent":
+			return "onHitRobot";
+		case "HitWallEvent":
+			return "onHitWall";
+		case "RobotDeathEvent":
+			return "onRobotDeath";
+		case "ScannedRobotEvent":
+			return "onScannedRobot";
+		case "StatusEvent":
+			return "onStatus";
+		case "WinEvent":
+			return "onWin";
+		case "BattleEndedEvent":
+			return "onBattleEnded";
+		case "RoundEndedEvent":
+			return "onRoundEnded";
+		default:
+			throw new NotImplementedException();
+		}
+	}
+	
+	private String getEventParam(String input){
+		switch (input) {
+		case "BulletHitEvent":
+			return "robocode.BulletHit";
+		case "BulletHitBulletEvent":
+			return "robocode.BulletHitBullet";
+		case "BulletMissedEvent":
+			return "robocode.BulletMissed";
+		case "DeathEvent":
+			return "robocode.Death";
+		case "HitByBulletEvent":
+			return "robocode.HitByBullet";
+		case "HitRobotEvent":
+			return "robocode.HitRobot";
+		case "HitWallEvent":
+			return "robocode.HitWall";
+		case "RobotDeathEvent":
+			return "robocode.RobotDeath";
+		case "ScannedRobotEvent":
+			return "robocode.ScannedRobot";
+		case "StatusEvent":
+			return "robocode.Status";
+		case "WinEvent":
+			return "robocode.Win";
+		case "BattleEndedEvent":
+			return "robocode.BattleEnded";
+		case "RoundEndedEvent":
+			return "robocode.RoundEnded";
+		default:
+			throw new NotImplementedException();
 		}
 	}
 
