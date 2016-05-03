@@ -443,8 +443,7 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 
 	@Override
 	public String visit(TextLiteralNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		return node.getText();
 	}
 
 	@Override
@@ -463,7 +462,12 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 	public String visit(VarDeclarationNode node) {
 		String res = "";
 		for (VarNode var : node.getVariable()) {
-			res += visit(var) + visit(node.getExpression());
+			if (isInit) {
+				header += visit(var) + visit(node.getExpression()) + "\n";
+			}
+			else {
+				res += visit(var) + visit(node.getExpression()) + "\n";
+			}
 		}
 		return res;
 	}
@@ -471,10 +475,10 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 	@Override
 	public String visit(VarNode node) {
 		String res = node.getIdent() + " " + convertType(node.getType());
-		if (isInit) {
-			header += ".field private " + res + " = ";
-		}
-		return "";
+		if (isInit)
+		return ".field private " + res + " = ";
+	
+		return res;
 	}
 
 	@Override
