@@ -51,8 +51,7 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 
 	@Override
 	public String visit(BoolLiteralNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		return node.getBool().booleanValue() ? "1" : "0";
 	}
 
 	@Override
@@ -148,8 +147,26 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 
 	@Override
 	public String visit(ExpressionNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		String res;
+		if (node instanceof LogicalORExprNode)
+			res = visit((LogicalORExprNode) node);
+		else if (node instanceof LogicalANDExprNode)
+			res = visit((LogicalANDExprNode) node);
+		else if (node instanceof EqualityExprNode)
+			res = visit((EqualityExprNode) node);
+		else if (node instanceof RelationExprNode)
+			res = visit((RelationExprNode) node);
+		else if (node instanceof AdditiveExprNode)
+			res = visit((AdditiveExprNode) node);
+		else if (node instanceof MultExprNode)
+			res = visit((MultExprNode) node);
+		else if (node instanceof UnaryExprNode)
+			res = visit((UnaryExprNode) node);
+		else if (node instanceof PrimaryExprNode)
+			res = visit((PrimaryExprNode) node);
+		else
+			throw new NotImplementedException();
+		return res;
 	}
 
 	@Override
@@ -234,8 +251,7 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 
 	@Override
 	public String visit(NumLiteralNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		return String.valueOf(node.getValue());
 	}
 
 	@Override
@@ -246,8 +262,20 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 
 	@Override
 	public String visit(PrimaryExprNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		String res;
+		if (node instanceof GeneralIdentNode)
+			res = visit((GeneralIdentNode) node);
+		else if (node instanceof TextLiteralNode)
+			res = visit((TextLiteralNode) node);
+		else if (node instanceof NumLiteralNode)
+			res = visit((NumLiteralNode) node);
+		else if (node instanceof BoolLiteralNode)
+			res = visit((BoolLiteralNode) node);
+		else if (node instanceof ParenthesesNode)
+			res = visit((ParenthesesNode) node);
+		else
+			throw new NotImplementedException();
+		return res;
 	}
 
 	@Override
@@ -435,15 +463,18 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 	public String visit(VarDeclarationNode node) {
 		String res = "";
 		for (VarNode var : node.getVariable()) {
-			res += visit(var);
+			res += visit(var) + visit(node.getExpression());
 		}
 		return res;
 	}
 
 	@Override
 	public String visit(VarNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		String res = node.getIdent() + " " + convertType(node.getType());
+		if (isInit) {
+			header += ".field private " + res + " = ";
+		}
+		return "";
 	}
 
 	@Override
