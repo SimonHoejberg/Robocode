@@ -324,41 +324,41 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 		}
 		
 		// Start creation of file class
-//		try (OutputStream out = new BufferedOutputStream(
-//			 Files.newOutputStream(Paths.get((roboname+"pk/"+roboname + ".j")), CREATE, TRUNCATE_EXISTING))) {
-//			
-//			header =".class "+roboname+"pk"+"/"+roboname+"\n";
-//			header +=".super robocode/Robot\n";
-//			header +="\n";
-//			initString +=".method public <init>()V\n";
-//			code +="\n";
-//			code +=".method public run()V\n";
-//			
-//			if (init != null)
-//				code += visit(init);
-//			
-//			code +="WHILE:\n";
-//			// Robot behavior
-//			if (behavior != null)
-//				code += visit(behavior);
-//			
-//			code +="goto WHILE\n";
-//			code +="return \n";
-//			code +=".end method\n\n";
-//			
-//			String temp;
-//			// Declarations
-//			for(DeclarationNode dcl : declarations){
-//			    temp = visit(dcl);
-//			    code += temp;
-//			}			
-//			
-//			initString +=".end method\n";
-//			out.write(header.getBytes());
-//			out.write(initString.getBytes());
-//			out.write(code.getBytes());
-//			out.flush();
-//			out.close();
+		try (OutputStream out = new BufferedOutputStream(
+			 Files.newOutputStream(Paths.get((roboname+"pk/"+roboname + ".j")), CREATE, TRUNCATE_EXISTING))) {
+			
+			header =".class "+roboname+"pk"+"/"+roboname+"\n";
+			header +=".super robocode/Robot\n";
+			header +="\n";
+			initString +=".method public <init>()V\n";
+			code +="\n";
+			code +=".method public run()V\n";
+			
+			if (init != null)
+				code += visit(init);
+			
+			code +="WHILE:\n";
+			// Robot behavior
+			if (behavior != null)
+				code += visit(behavior);
+			
+			code +="goto WHILE\n";
+			code +="return \n";
+			code +=".end method\n\n";
+			
+			String temp;
+			// Declarations
+			for(DeclarationNode dcl : declarations){
+			    temp = visit(dcl);
+			    code += temp;
+			}			
+			
+			initString +=".end method\n";
+			out.write(header.getBytes());
+			out.write(initString.getBytes());
+			out.write(code.getBytes());
+			out.flush();
+			out.close();
 			try{
 			Process ps = Runtime.getRuntime().exec("java -jar jasmin.jar "+roboname+"pk/"+roboname+".j");
 			try {
@@ -380,11 +380,11 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 			}catch(IOException ex){
 				ex.printStackTrace();
 			}
-//		}
-//		catch (IOException ex) {
-//			System.out.println("Failed to write target file \"" + roboname + ".j");
-//		}
-//		
+		}
+		catch (IOException ex) {
+			System.out.println("Failed to write target file \"" + roboname + ".j");
+		}
+		
 		return null;
 	}
 
@@ -567,31 +567,31 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 	private String getEventParam(String input){
 		switch (input) {
 		case "BulletHitEvent":
-			return "robocode.BulletHit";
+			return "robocode/BulletHitEvent";
 		case "BulletHitBulletEvent":
-			return "robocode.BulletHitBullet";
+			return "robocode/BulletHitBulletEvent";
 		case "BulletMissedEvent":
-			return "robocode.BulletMissed";
+			return "robocode/BulletMissedEvent";
 		case "DeathEvent":
-			return "robocode.Death";
+			return "robocode/DeathEvent";
 		case "HitByBulletEvent":
-			return "robocode.HitByBullet";
+			return "robocode/HitByBulletEvent";
 		case "HitRobotEvent":
-			return "robocode.HitRobot";
+			return "robocode/HitRobotEvent";
 		case "HitWallEvent":
-			return "robocode.HitWall";
+			return "robocode/HitWallEvent";
 		case "RobotDeathEvent":
-			return "robocode.RobotDeath";
+			return "robocode/RobotDeathEvent";
 		case "ScannedRobotEvent":
-			return "robocode.ScannedRobot";
+			return "robocode/ScannedRobotEvent";
 		case "StatusEvent":
-			return "robocode.Status";
+			return "robocode/StatusEvent";
 		case "WinEvent":
-			return "robocode.Win";
+			return "robocode/WinEvent";
 		case "BattleEndedEvent":
-			return "robocode.BattleEnded";
+			return "robocode/BattleEndedEvent";
 		case "RoundEndedEvent":
-			return "robocode.RoundEnded";
+			return "robocode/RoundEndedEvent";
 		default:
 			throw new NotImplementedException();
 		}
