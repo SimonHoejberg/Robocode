@@ -24,6 +24,7 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 	private String currentLabel;
 	private boolean isInit;
 	private String header = "";
+	private String initString = "";
 	
 	@Override
 	public String visit(AdditiveExprNode node) {
@@ -323,40 +324,42 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 		}
 		
 		// Start creation of file class
-		try (OutputStream out = new BufferedOutputStream(
-			 Files.newOutputStream(Paths.get((roboname+"pk/"+roboname + ".j")), CREATE, TRUNCATE_EXISTING))) {
-			
-			header =".class "+roboname+"pk"+"/"+roboname+"\n";
-			header +=".super robocode/Robot\n";
-			header +="\n";
-			header +=".method public <init>()V\n";
-			code +="\n";
-			code +=".method public run()V\n";
-			
-			if (init != null)
-				code += visit(init);
-			
-			code +="WHILE:\n";
-			// Robot behavior
-			if (behavior != null)
-				code += visit(behavior);
-			
-			code +="goto WHILE\n";
-			code +="return \n";
-			code +=".end method\n\n";
-			
-			String temp;
-			// Declarations
-			for(DeclarationNode dcl : declarations){
-			    temp = visit(dcl);
-			    code += temp;
-			}			
-			
-			header +=".end method\n";
-			out.write(header.getBytes());
-			out.write(code.getBytes());
-			out.flush();
-			out.close();
+//		try (OutputStream out = new BufferedOutputStream(
+//			 Files.newOutputStream(Paths.get((roboname+"pk/"+roboname + ".j")), CREATE, TRUNCATE_EXISTING))) {
+//			
+//			header =".class "+roboname+"pk"+"/"+roboname+"\n";
+//			header +=".super robocode/Robot\n";
+//			header +="\n";
+//			initString +=".method public <init>()V\n";
+//			code +="\n";
+//			code +=".method public run()V\n";
+//			
+//			if (init != null)
+//				code += visit(init);
+//			
+//			code +="WHILE:\n";
+//			// Robot behavior
+//			if (behavior != null)
+//				code += visit(behavior);
+//			
+//			code +="goto WHILE\n";
+//			code +="return \n";
+//			code +=".end method\n\n";
+//			
+//			String temp;
+//			// Declarations
+//			for(DeclarationNode dcl : declarations){
+//			    temp = visit(dcl);
+//			    code += temp;
+//			}			
+//			
+//			initString +=".end method\n";
+//			out.write(header.getBytes());
+//			out.write(initString.getBytes());
+//			out.write(code.getBytes());
+//			out.flush();
+//			out.close();
+			try{
 			Process ps = Runtime.getRuntime().exec("java -jar jasmin.jar "+roboname+"pk/"+roboname+".j");
 			try {
 				ps.waitFor();
@@ -374,11 +377,14 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 		    byte c[]=new byte[err.available()];
 		    err.read(c,0,c.length);
 		    System.out.println(new String(c));
-		}
-		catch (IOException ex) {
-			System.out.println("Failed to write target file \"" + roboname + ".j");
-		}
-		
+			}catch(IOException ex){
+				ex.printStackTrace();
+			}
+//		}
+//		catch (IOException ex) {
+//			System.out.println("Failed to write target file \"" + roboname + ".j");
+//		}
+//		
 		return null;
 	}
 
