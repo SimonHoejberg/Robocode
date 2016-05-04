@@ -1,5 +1,7 @@
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.InputStream;
 
 import static java.nio.file.StandardOpenOption.*;
 
@@ -10,6 +12,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+
+import javax.tools.JavaCompiler;
+import javax.tools.ToolProvider;
 
 import exceptions.NotImplementedException;
 import nodes.*;
@@ -28,23 +33,23 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	private boolean lastBaseIdent, lastIdentIsArrayEntry;
 	private String lastIdentIndex;
 	private boolean usesColors, usesMath, usesArrays;
-	
+
 	private Hashtable<String, String> structInstantiations;
-	
+
 	// FIXME Operators need to behave like they should, 2.0 == 2.0 could return false, for (int i = 0; i < 2.0; ++i) would have unpredictable behavior
-	
+
 	public JavaCGVisitor() {
 		indentationLevel = 0;
 	}
-	
+
 	private String getIndentation() {
 		String res = "";
 		for (int i = 0; i < indentationLevel; ++i)
 			res += "    ";
-		
+
 		return res;
 	}
-	
+
 	@Override
 	public String visit(AdditiveExprNode node) {
 		return 	visit(node.getLeftChild())
@@ -56,19 +61,19 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	public String visit(ArrayDeclarationNode node) {
 		String ident = node.getIdent();
 		String type = node.getType();
-		
+
 		String res = "";
 		String dcl = "ArrayList<" + convertTypeForList(type)+ "> " + ident;
-		
+
 		ExpressionNode size = node.getSize();
 		boolean sizeless = size == null;
 		String exprRes = "";
 		if (!sizeless)
 			exprRes = visit(size);
-		
+
 		if (creatingStructClass) {
 			structHeader += STRUCT_INDENTATION + "public " + dcl + ";\n";
-			
+
 			// Add default array for constructor if not part of assignment
 			if (!assigning) {
 				header += "    private ArrayList<" + convertTypeForList(type)+ "> _" + ident + ";\n";
@@ -81,7 +86,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				}
 				defaultInstantiation += "_" + ident;
 			}
-			
+
 			if (!assigning) {
 				constructorParams += dcl + ", ";
 				return "this." + ident + " = " + ident + ";";
@@ -94,7 +99,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		else {
 			res = dcl + " = new ArrayList<" + convertTypeForList(type) + ">();\n";
 		}
-		
+
 		if (assigning) {
 			if (creatingStructClass)
 				return ident;
@@ -116,15 +121,15 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		String res = "";
 		String exprRes = visit(node.getExpression());
 		String generalIdent = "";
-		
+
 		boolean useSetter = false;
-		
+
 		assigning = true;
-		
+
 		List<AbstractNode> input = node.getVariables();
 		int inputSize = input.size();
 		currentInputSize = inputSize;
-		
+
 		if (inputSize > 1 && !creatingStructClass) {
 			if (!outputListSetInScope) {
 				res = "java.util.List<Object> ";
@@ -132,7 +137,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			}
 			res += "_output = " + exprRes + ";\n" + STRUCT_INDENTATION + STRUCT_INDENTATION;
 		}
-		
+
 		String listName = "_output";
 		if (creatingStructClass && currentListParam > 1)
 			listName += currentListParam;
@@ -153,38 +158,38 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				throw new NotImplementedException();
 			if (!useSetter)
 				res += node.getType().toJavaSyntax();
-			
+
 			if (inputSize > 1) {
 				String type = convertTypeForList((String) current.getNodeType());
 				res += "(" + type + ") " + listName + ".get(" + i + ")";
 			}
 			else if (useSetter) {
 				switch(node.getType()) {
-					case basic:
-						res += ".set(" + lastIdentIndex + ", " + exprRes + ")";
-						break;
-					case add:
-						res += ".set(" + lastIdentIndex + ", " + generalIdent + ".get(" + lastIdentIndex + ")" + " + " + exprRes + ")";
-						break;
-					case sub:
-						res += ".set(" + lastIdentIndex + ", " + generalIdent + ".get(" + lastIdentIndex + ")" + " - " + exprRes + ")";
-						break;
-					case mult:
-						res += ".set(" + lastIdentIndex + ", " + generalIdent + ".get(" + lastIdentIndex + ")" + " * " + exprRes + ")";
-						break;
-					case div:
-						res += ".set(" + lastIdentIndex + ", " + generalIdent + ".get(" + lastIdentIndex + ")" + " / " + exprRes + ")";
-						break;
-					case mod:
-						res += ".set(" + lastIdentIndex + ", " + generalIdent + ".get(" + lastIdentIndex + ")" + " % " + exprRes + ")";
-						break;
-					default:
-						throw new NotImplementedException();
+				case basic:
+					res += ".set(" + lastIdentIndex + ", " + exprRes + ")";
+					break;
+				case add:
+					res += ".set(" + lastIdentIndex + ", " + generalIdent + ".get(" + lastIdentIndex + ")" + " + " + exprRes + ")";
+					break;
+				case sub:
+					res += ".set(" + lastIdentIndex + ", " + generalIdent + ".get(" + lastIdentIndex + ")" + " - " + exprRes + ")";
+					break;
+				case mult:
+					res += ".set(" + lastIdentIndex + ", " + generalIdent + ".get(" + lastIdentIndex + ")" + " * " + exprRes + ")";
+					break;
+				case div:
+					res += ".set(" + lastIdentIndex + ", " + generalIdent + ".get(" + lastIdentIndex + ")" + " / " + exprRes + ")";
+					break;
+				case mod:
+					res += ".set(" + lastIdentIndex + ", " + generalIdent + ".get(" + lastIdentIndex + ")" + " % " + exprRes + ")";
+					break;
+				default:
+					throw new NotImplementedException();
 				}
 			}	
 			else
 				res += exprRes;
-			
+
 			if (i < inputSize-1) {
 				res += ";\n";
 				if (!creatingStructClass)
@@ -193,9 +198,9 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 					res += STRUCT_INDENTATION + STRUCT_INDENTATION;
 			}
 		}
-		
+
 		assigning = false;
-		
+
 		if (creatingStructClass) {
 			defaultInstantiation += exprRes;
 			if (inputSize > 1) {
@@ -203,13 +208,13 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				currentListParam++;
 			}
 		}
-		
+
 		res += ";";
 		if (creatingStructClass)
 			res += "\n";
 		return res;
 	}
-	
+
 	@Override
 	public String visit(BaseIdentNode node) {
 		String res;
@@ -244,34 +249,34 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		String res = "";
 		String ident = node.getIdent();
 		String type = node.getType();
-		
+
 		String dcl = type + " " + ident;
-		
+
 		if (creatingStructClass) {
 			structHeader += STRUCT_INDENTATION + "public " + dcl + ";\n";
-			
+
 			// Add to default instantiation
 			if (!assigning) {
 				constructorParams += dcl + ", ";
 				defaultInstantiation += structInstantiations.get(type);
 			}
-			
+
 			return "this." + ident + " = " + ident + ";";
 		}
 		else if (initializingRobot) {
 			header += "    private " + dcl + ";\n";
 		}
 		else {
-			
+
 		}
-		
+
 		if (assigning) {
 			return dcl;
 		}
-		
+
 		// Instantiate with default constructor
 		res = ident + " = " + structInstantiations.get(ident);
-		
+
 		return res;
 	}
 
@@ -279,19 +284,19 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	public String visit(DataStructDefinitionNode node) {
 		String typeName = node.getTypeName();
 		String contents;
-		
+
 		// FIXME import list if arrays are used
-		
+
 		structHeader = robopackage;
-		
+
 		structHeader += "import java.util.*;\n";
 		structHeader += "\n";
-		
+
 		structHeader += "public class " + typeName + " {\n";
-		
+
 		creatingStructClass = true;
 		currentListParam = 1;
-		
+
 		constructorParams = "";
 		defaultInstantiation = "new " + node.getTypeName() + "(";
 		contents = "";
@@ -307,17 +312,17 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			if (i < dclsSize-1)
 				defaultInstantiation += ", ";
 		}
-		
+
 		contents += STRUCT_INDENTATION + "}\n}";
-		
+
 		constructorParams = constructorParams.substring(0, constructorParams.length()-2);
 		defaultInstantiation += ")";
-		
-		
+
+
 		structInstantiations.put(typeName, defaultInstantiation);
-		
+
 		try (OutputStream out = new BufferedOutputStream(
-				 Files.newOutputStream(Paths.get((roboname + "/" + typeName + ".java")), CREATE, TRUNCATE_EXISTING))) {
+				Files.newOutputStream(Paths.get((roboname + "/" + typeName + ".java")), CREATE, TRUNCATE_EXISTING))) {
 			out.write(structHeader.getBytes());
 			out.write(("\n    public " + typeName + "(" + constructorParams + ") {\n").getBytes());
 			out.write(contents.getBytes());
@@ -325,9 +330,9 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		catch (IOException ex) {
 			System.out.println("Failed to write file \"" + roboname + "/" + typeName + ".java\"");
 		}
-		
+
 		creatingStructClass = false;
-		
+
 		return "";
 	}
 
@@ -395,10 +400,10 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			res+=AddEventMethod(node);
 		}
 		outputListSetInScope = false;
-		
+
 		return res;
 	}
-	
+
 	private String getEventName(EventDeclarationNode node){
 		if(getEventMethodName(node.getParam().getType()).equals(node.getIdent())){
 			return "_"+node.getIdent();
@@ -407,7 +412,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			return node.getIdent();
 		}
 	}
-	
+
 	private String AddEventMethod(EventDeclarationNode node){
 		String rest = getIndentation()+"private void " + getEventName(node) +"("+node.getParam().getType()+ " " +node.getParam().getIdent()+"){\n";
 		List<StatementNode> stms = node.getStatements();
@@ -447,7 +452,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	public String visit(ForNode node) {
 		String res = "for(";
 		Object assign = node.assign;
-		
+
 		if (assign instanceof CallStatementNode)
 			res+=visit((CallStatementNode) assign);
 		else if (assign instanceof VarDeclarationNode)
@@ -478,7 +483,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	@Override
 	public String visit(FuncCallNode node) {
 		String res = node.getIdent();
-		
+
 		res += "(";
 		List<ExpressionNode> args = node.getArguments();
 		int argsSize = args.size();
@@ -489,7 +494,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				res += ", ";
 		}
 		res += ")";
-		
+
 		return res;
 	}
 
@@ -515,9 +520,9 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			res += visit(stm);
 		indentationLevel--;
 		res+= getIndentation()+"}\n";
-		
+
 		outputListSetInScope = false;
-		
+
 		return res;
 	}
 
@@ -527,7 +532,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		lastBaseIdent = false;
 		lastIdentIsArrayEntry = false;
 		boolean prevWasColor = false;
-		
+
 		List<BaseIdentNode> idents = node.getIdents();
 		int identsSize = idents.size();
 		for (int i = 0; i < identsSize; ++i) {
@@ -543,7 +548,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			if (i < identsSize-1)
 				res += ".";
 		}
-		
+
 		return res;
 	}
 
@@ -558,35 +563,35 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		for(StatementNode stm : stms)
 			res += visit(stm);		
 		indentationLevel--;
-		
+
 		res += getIndentation() + "}";
-		
+
 		switch (node.getClass().getName()) {
-			case "nodes.IfNode":				
-				break;
-			case "nodes.IfElseNode":
-				res += "\n";
-				res += getIndentation() + "else {\n";
-				List<StatementNode> elseStms = ((IfElseNode) node).getElseBlockStatements();
-				indentationLevel++;
-				for(StatementNode stm : elseStms)
-					res += visit(stm);
-				indentationLevel--;
-				
-				res += getIndentation() + "}";
-				
-				break;
-			case "nodes.ElseIfNode":
-				res += "\n";
-				res += getIndentation() + "else ";
-				res += visit(((ElseIfNode) node).getNext());
-				break;
-			default:
-				throw new NotImplementedException();
+		case "nodes.IfNode":				
+			break;
+		case "nodes.IfElseNode":
+			res += "\n";
+			res += getIndentation() + "else {\n";
+			List<StatementNode> elseStms = ((IfElseNode) node).getElseBlockStatements();
+			indentationLevel++;
+			for(StatementNode stm : elseStms)
+				res += visit(stm);
+			indentationLevel--;
+
+			res += getIndentation() + "}";
+
+			break;
+		case "nodes.ElseIfNode":
+			res += "\n";
+			res += getIndentation() + "else ";
+			res += visit(((ElseIfNode) node).getNext());
+			break;
+		default:
+			throw new NotImplementedException();
 		}
-		
+
 		outputListSetInScope = false;
-		
+
 		return res;
 	}
 
@@ -602,9 +607,9 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		else{
 			throw new NotImplementedException();
 		}
-		
+
 		outputListSetInScope = false;
-		
+
 		return res;
 	}
 
@@ -665,7 +670,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		RobotDeclarationNode init = null;
 		RobotDeclarationNode behavior = null;
 		List<DataStructDefinitionNode> defs = new ArrayList<DataStructDefinitionNode>();
-		
+
 		List<DeclarationNode> declarations = node.getDeclarations();
 		for(DeclarationNode dcl : declarations) {
 			if (dcl instanceof RobotDeclarationNode) {
@@ -683,113 +688,116 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			else if (dcl instanceof DataStructDefinitionNode)
 				defs.add((DataStructDefinitionNode) dcl);
 		}
-		
+
 		// Create directory for output files
 		File dir = new File(roboname+"pk");
 
 		// if the directory does not exist, create it
 		if (!dir.exists()) {
-		    System.out.println("Creating directory " + roboname + "pk.");
-		    boolean result = false;
+			System.out.println("Creating directory " + roboname + "pk.");
+			boolean result = false;
 
-		    try{
-		        dir.mkdir();
-		        result = true;
-		    } 
-		    catch(SecurityException se){
-		        //handle it
-		    }        
-		    if(result) {    
-		        System.out.println("Directory successfully created.");  
-		    }
+			try{
+				dir.mkdir();
+				result = true;
+			} 
+			catch(SecurityException se){
+				//handle it
+			}        
+			if(result) {    
+				System.out.println("Directory successfully created.");  
+			}
 		}
-		
+
 		// Start creation of file class
 		try (OutputStream out = new BufferedOutputStream(
-			 Files.newOutputStream(Paths.get((roboname+"pk/"+roboname + ".java")), CREATE, TRUNCATE_EXISTING))) {
-			
+				Files.newOutputStream(Paths.get((roboname+"pk/"+roboname + ".java")), CREATE, TRUNCATE_EXISTING))) {
+
 			// Flags for use in code generation
 			initializingRobot = false;
 			creatingStructClass = false;
 			structInstantiations = new Hashtable<String, String>();
 			assigning = false;
-			
+
 			outputListSetInScope = false;
-			
+
 			usesColors = false;
 			usesMath = false;
-			
+
 			robopackage = "package " + roboname + "pk;\n\n"; // FIXME roboname substring to avoid package name being too long
-			
+
 			// Class declaration
 			header = "/**\n * " + roboname + " - a robot created with " + LANG_NAME + "\n */\n";
-			
+
 			header += "public class " + roboname + " extends robocode.Robot {\n\n";
-			
+
 			indentationLevel++;
-			
+
 			// Robot initialization
 			dcls = "\n";
 			dcls += getIndentation() + "/**\n";
 			dcls += getIndentation() + "* run: TheMachine's default behavior\n";
 			dcls += getIndentation() + "*/\n";
 			dcls += getIndentation() + "public void run() {\n";
-			
-			
+
+
 			indentationLevel++;
-			
+
 			// Struct definitions
 			for (DataStructDefinitionNode def : defs)
 				visit(def);	// Array initializations will be added to robot initialization
-			
+
 			if (init != null)
 				dcls += visit(init);
-			
+
 			dcls += getIndentation() + "// Robot main loop\n";
 			dcls += getIndentation() + "while(true) {\n";
-			
+
 			indentationLevel++;
-			
+
 			// Robot behavior
 			if (behavior != null)
 				dcls += visit(behavior);
-			
+
 			indentationLevel--;
-			
+
 			dcls += getIndentation() + "}\n";
-			
+
 			indentationLevel--;
-			
+
 			dcls += getIndentation() + "}\n\n";
-			
+
 			String temp;
 			// Declarations
 			for(DeclarationNode dcl : declarations){
-			    temp = visit(dcl);
-			    dcls += temp;
+				temp = visit(dcl);
+				dcls += temp;
 			}
-			
+
 			indentationLevel--;
-			
+
 			dcls += "}";
-			
+
 			// Package
 			imports = robopackage;
-			
+
 			// Imports
 			imports += "import robocode.*;\n";
 			imports += "import java.awt.*;\n";
 			imports += "import java.util.*;\n";
 			imports += "\n";
-			
+
 			out.write(imports.getBytes());
 			out.write(header.getBytes());
 			out.write(dcls.getBytes());
+			out.flush();
+			out.close();
+
 		}
 		catch (IOException ex) {
 			System.out.println("Failed to write target file \"" + roboname + ".java");
 		}
-		
+
 		return null;
 	}
 
@@ -799,51 +807,51 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				+ node.getType().toString()
 				+ visit(node.getRightChild());
 	}
-	
+
 	@Override
 	public String visit(ReturnNode node) {
-		
+
 		List<ExpressionNode> returnExprs = node.getExpressions();
 		int returnSize = returnExprs.size();
-		
+
 		if (returnSize == 1) {
 			return "return " + visit(node.getExpressions().get(0)) + ";";
 		}
 		else {
 			String res = "java.util.List<Object> _returnVals = new ArrayList<Object>();\n";
-			
+
 			// FIXME Object copying
 			for (ExpressionNode expr : returnExprs) {
 				res += getIndentation() + "_returnVals.add(" + visit(expr) + ");\n";
 			}
-				
+
 			res += getIndentation() + "return _returnVals;";
-			
+
 			return res;
 		}
 	}
-	
+
 
 	@Override
 	public String visit(RobotDeclarationNode node) {
 		String res = "";
 		switch (node.getType()) {
-			case initialization:
-				initializingRobot = true;
-				for (int i = 0; i < node.getStatements().size(); ++i)
-					res += visit(node.getStatements().get(i));
-				initializingRobot = false;
-				break;
-			case behavior:
-				for (int i = 0; i < node.getStatements().size(); ++i)
-					res += visit(node.getStatements().get(i));
-				break;
-			default:
-				throw new NotImplementedException();
+		case initialization:
+			initializingRobot = true;
+			for (int i = 0; i < node.getStatements().size(); ++i)
+				res += visit(node.getStatements().get(i));
+			initializingRobot = false;
+			break;
+		case behavior:
+			for (int i = 0; i < node.getStatements().size(); ++i)
+				res += visit(node.getStatements().get(i));
+			break;
+		default:
+			throw new NotImplementedException();
 		}
-		
+
 		outputListSetInScope = false;
-		
+
 		return res;
 	}
 
@@ -871,7 +879,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		res+="\n";
 		return res;
 	}
-	
+
 
 	@Override
 	public String visit(TextLiteralNode node) {
@@ -892,10 +900,10 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	public String visit(VarDeclarationNode node) {
 		String res = "";
 		String exprRes = visit(node.getExpression());
-		
+
 		List<VarNode> input = node.getVariable();
 		int inputSize = input.size();
-		
+
 		if (inputSize > 1 && !creatingStructClass) {
 			if (!outputListSetInScope) {
 				res = "java.util.List<Object> ";
@@ -903,7 +911,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			}
 			res += "_output = " + exprRes + ";\n" + STRUCT_INDENTATION + STRUCT_INDENTATION;
 		}
-		
+
 		String listName = "_output";
 		if (currentListParam > 1)
 			listName += currentListParam;
@@ -912,9 +920,9 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			if (creatingStructClass) {				
 				if (inputSize == 1)
 					constructorParams += convertType(var.getType()) + " " + var.getIdent() + ", ";
-				
+
 				String ident = visit(var);
-				
+
 				if (assigning) {	// FIXME might not be necessary in the end
 					if (currentInputSize > 1) {
 						res += ident;
@@ -955,7 +963,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				}
 			}
 		}
-		
+
 		if (creatingStructClass) {
 			defaultInstantiation += exprRes;
 			if (inputSize > 1) {
@@ -963,7 +971,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				currentListParam++;
 			}
 		}
-			
+
 		return res+";";
 	}
 
@@ -993,59 +1001,59 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		res+= getIndentation() + "}";
 		return res;
 	}
-	
+
 	private String convertType(String input) {
 		switch (input) {
-			case "num":
-				return "Double";
-			case "text":
-				return "String";
-			case "bool":
-				return "Boolean";
-			default:
-				return input;
+		case "num":
+			return "Double";
+		case "text":
+			return "String";
+		case "bool":
+			return "Boolean";
+		default:
+			return input;
 		}
 	}
-	
+
 	private String convertTypeForList(String input) {
 		switch (input) {
-			case "num":
-				return "Double";
-			case "text":
-				return "String";
-			case "bool":
-				return "Boolean";
-			case "num[]":
-				return "ArrayList<Double>";
-			case "text[]":
-				return "ArrayList<String>";
-			case "bool[]":
-				return "ArrayList<Boolean>";
-			default:
-				return input;
+		case "num":
+			return "Double";
+		case "text":
+			return "String";
+		case "bool":
+			return "Boolean";
+		case "num[]":
+			return "ArrayList<Double>";
+		case "text[]":
+			return "ArrayList<String>";
+		case "bool[]":
+			return "ArrayList<Boolean>";
+		default:
+			return input;
 		}
 	}
-	
+
 	private String getDefaultOfType(String input) {
 		switch (input) {
-			case "num":
-				return "0.0";
-			case "text":
-				return "";
-			case "bool":
-				return "false";
-			default:
-				return structInstantiations.get(input);
+		case "num":
+			return "0.0";
+		case "text":
+			return "";
+		case "bool":
+			return "false";
+		default:
+			return structInstantiations.get(input);
 		}
 	}
-	
+
 	private String castIndex(ExpressionNode index) {
 		if (index instanceof NumLiteralNode) // FIXME An index of 1.5 should probably issue an error rather than being cast to 1
 			return 	Integer.toString(((int) Double.parseDouble((visit(index)))));
 		else 
 			return "(int) (" + visit(index) + ")";
 	}
-	
+
 	private String getEventMethodName(String input){
 		switch (input) {
 		case "BulletHitEvent":

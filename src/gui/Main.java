@@ -20,11 +20,26 @@ import javax.swing.filechooser.FileFilter;
 public class Main {
 
 	private JFrame frame;
-
-	/**
-	 * Launch the application.
-	 */
+	private static String workingDirectory;
+	private String javacPath;
+	
+	public static String getWorkingDir(){
+		return workingDirectory;
+	}
+	
 	public static void main(String[] args) {
+		String OS = (System.getProperty("os.name")).toUpperCase();
+
+		if (OS.contains("WIN"))
+		{
+		    workingDirectory = System.getenv("AppData");
+		}
+		else
+		{
+		    workingDirectory = System.getProperty("user.home");
+		    //if we are on a Mac, we are not done, we look for "Application Support"
+		    //workingDirectory += "/Library/Application Support";
+		}
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException | InstantiationException
