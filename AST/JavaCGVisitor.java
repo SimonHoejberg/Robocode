@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
+import javax.swing.JFrame;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
@@ -33,6 +34,8 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	private boolean lastBaseIdent, lastIdentIsArrayEntry;
 	private String lastIdentIndex;
 	private boolean usesColors, usesMath, usesArrays;
+	private boolean generateJava;
+	private boolean hasSetJava = false;
 
 	private Hashtable<String, String> structInstantiations;
 
@@ -40,6 +43,11 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 	public JavaCGVisitor() {
 		indentationLevel = 0;
+	}
+
+	public void SetGenerateJava(boolean java){
+		generateJava = java;
+		hasSetJava = true;
 	}
 
 	private String getIndentation() {
@@ -792,6 +800,36 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			out.write(dcls.getBytes());
 			out.flush();
 			out.close();
+			if(hasSetJava){
+				String javaHome = System.getenv("JAVA_HOME");
+				ProcessBuilder command = new ProcessBuilder(javaHome+"\\bin\\javac", "-cp", "robocode.jar",roboname+"pk/"+roboname+".java");
+				command.redirectErrorStream(true);
+				try{
+					Process ps = command.start();
+					try {
+						ps.waitFor();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					InputStream in = ps.getInputStream();
+					InputStream err = ps.getErrorStream();
+
+					byte b[]=new byte[in.available()];
+					in.read(b,0,b.length);
+					System.out.println(new String(b));
+
+					byte c[]=new byte[err.available()];
+					err.read(c,0,c.length);
+					System.out.println(new String(c));
+				}catch(IOException ex){
+					ex.printStackTrace();
+				}
+				if(!generateJava){
+					File f = new File(roboname+"pk/"+roboname+".java");
+					f.delete();
+				}
+			}
 
 		}
 		catch (IOException ex) {
