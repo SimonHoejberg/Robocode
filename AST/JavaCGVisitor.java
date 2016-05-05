@@ -322,13 +322,13 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		structInstantiations.put(typeName, defaultInstantiation);
 
 		try (OutputStream out = new BufferedOutputStream(
-				Files.newOutputStream(Paths.get((roboname + "/" + typeName + ".java")), CREATE, TRUNCATE_EXISTING))) {
+			Files.newOutputStream(Paths.get((roboname + "pk" + "/" + typeName + ".java")), CREATE, TRUNCATE_EXISTING))) {
 			out.write(structHeader.getBytes());
 			out.write(("\n    public " + typeName + "(" + constructorParams + ") {\n").getBytes());
 			out.write(contents.getBytes());
 		}
 		catch (IOException ex) {
-			System.out.println("Failed to write file \"" + roboname + "/" + typeName + ".java\"");
+			System.out.println("Failed to write file \"" + roboname + "pk" + "/" + typeName + ".java\"");
 		}
 
 		creatingStructClass = false;
