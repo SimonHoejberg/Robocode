@@ -331,6 +331,9 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 			header +=".super robocode/Robot\n";
 			header +="\n";
 			initString +=".method public <init>()V\n";
+			initString +="aload_0 \n";
+			initString += "invokespecial robocode/Robot/<init>()V \n";
+			initString += "return \n";
 			code +="\n";
 			code +=".method public run()V\n";
 			

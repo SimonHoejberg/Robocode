@@ -49,8 +49,8 @@ public class Hello
         if (errors == 0) {
         	JavaCGVisitor javaCGVis = new JavaCGVisitor();
         	javaCGVis.visit(ast);
-        	//ByteCGVisitor byteCGVis = new ByteCGVisitor();
-        	//byteCGVis.visit(ast);
+        	ByteCGVisitor byteCGVis = new ByteCGVisitor();
+        	byteCGVis.visit(ast);
         }
         
         
