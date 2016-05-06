@@ -1,7 +1,5 @@
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.InputStream;
 
 import static java.nio.file.StandardOpenOption.*;
 
@@ -13,10 +11,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
-
-import javax.swing.JFrame;
-import javax.tools.JavaCompiler;
-import javax.tools.ToolProvider;
 
 import exceptions.NotImplementedException;
 import nodes.*;
