@@ -164,7 +164,7 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 			int lastP = code.indexOf(".end",firstP);
 
 			String firstString = code.substring(0, lastP-1);
-			String payloadString = ";plz invoke\n";
+			String payloadString = "invokevirtual "+roboname+"pk/"+roboname+"/"+"\n";
 			String endStrng = code.substring(lastP-1);
 			code= firstString+"\n"+payloadString+endStrng;
 			res = temp;
@@ -277,7 +277,7 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 			List<VarNode> params = node.getParamList();
 
 			for(VarNode param : params) {
-				res += convertType(param.getType())+";";
+				res += convertType(param.getType());
 			}
 			res += ")a";
 		}
@@ -288,7 +288,7 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 
 
 			for(VarNode param : params) {
-				res += convertType(param.getType())+";";
+				res += convertType(param.getType());
 			}
 			res += ")"+convertReturnType(node.getReturnTypes().get(0).getType());
 		}
@@ -297,6 +297,7 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 		List<StatementNode> stms = node.getStatements();
 		for(StatementNode stm : stms )
 			res += visit(stm);
+		res += "return\n";
 		res += ".end method\n";		
 		return res;
 	}
