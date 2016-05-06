@@ -1,12 +1,19 @@
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.Reader;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.JCheckBox;
 import javax.swing.UIManager;
@@ -18,10 +25,12 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.JLayeredPane;
 
 public class Main {
 
 	private JFrame frame;
+	private boolean error;
 
 	public static void main(String[] args) {
 
@@ -59,6 +68,8 @@ public class Main {
 						}
 						else if(e.getActionCommand().equals("ApproveSelection")){
 							Hello h = new Hello();
+							Main main = new Main();
+							h.SetGuiPointer(main);
 							try {
 								h.Start(fileChooser.getSelectedFile().getPath(), check.isSelected());
 							} catch (FileNotFoundException e1) {
@@ -68,18 +79,16 @@ public class Main {
 								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
-							JOptionPane.showMessageDialog(frame, "Compilation complete!!!!");
+							if(!main.HasErrors())
+								JOptionPane.showMessageDialog(frame, "Compilation complete!!!!");
 							System.exit(0);
 						}
 					}
 				});
 				fileChooser.setApproveButtonText("Compile");
-				
 				check.setHorizontalAlignment(SwingConstants.RIGHT);
-				//fileChooser.setAccessory(check);
 				panel.add(fileChooser, BorderLayout.CENTER);
 				panel.add(check, BorderLayout.SOUTH);
-				//frame.getContentPane().add(fileChooser);
 				frame.getContentPane().add(panel);
 				frame.pack();
 				frame.setLocationByPlatform(true);
@@ -88,6 +97,22 @@ public class Main {
 
 			}
 		});
+	}
+	
+	public boolean HasErrors(){
+		return error;
+	}
+	
+	public void DisplayError(String error){
+		JOptionPane.showMessageDialog(frame, error);
+		this.error = true;
+	}
+	
+	public void ShowConsole(String stream){
+		JTextArea text = new JTextArea();
+		text.setEditable(false);
+		text.setText(stream);
+		JOptionPane.showMessageDialog(frame, text,"Console",JOptionPane.ERROR_MESSAGE);
 	}
 
 	/**

@@ -7,6 +7,7 @@ import static java.nio.file.StandardOpenOption.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.ProcessBuilder.Redirect;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	private boolean usesColors, usesMath, usesArrays;
 	private boolean generateJava;
 	private boolean hasSetJava = false;
+	private Main gui;
 
 	private Hashtable<String, String> structInstantiations;
 
@@ -48,6 +50,10 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	public void SetGenerateJava(boolean java){
 		generateJava = java;
 		hasSetJava = true;
+	}
+
+	public void SetGuiPointer(Main gui){
+		this.gui = gui;
 	}
 
 	private String getIndentation() {
@@ -330,7 +336,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		structInstantiations.put(typeName, defaultInstantiation);
 
 		try (OutputStream out = new BufferedOutputStream(
-			Files.newOutputStream(Paths.get((roboname + "pk" + "/" + typeName + ".java")), CREATE, TRUNCATE_EXISTING))) {
+				Files.newOutputStream(Paths.get((roboname + "pk" + "/" + typeName + ".java")), CREATE, TRUNCATE_EXISTING))) {
 			out.write(structHeader.getBytes());
 			out.write(("\n    public " + typeName + "(" + constructorParams + ") {\n").getBytes());
 			out.write(contents.getBytes());
@@ -802,32 +808,38 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			out.close();
 			if(hasSetJava){
 				String javaHome = System.getenv("JAVA_HOME");
-				ProcessBuilder command = new ProcessBuilder(javaHome+"\\bin\\javac", "-cp", "robocode.jar",roboname+"pk/"+roboname+".java");
-				command.redirectErrorStream(true);
-				try{
-					Process ps = command.start();
-					try {
+				if(javaHome!=null){
+					String roboHome = System.getenv("ROBOCODE_HOME");
+					if(roboHome !=null){
+						System.out.println(roboHome);
+						try{
+						ProcessBuilder command = new ProcessBuilder(javaHome+"\\bin\\javac","-cp",roboHome+"\\libs\\robocode.jar",roboname+"pk/"+roboname+".java");
+						command.redirectError(Redirect.INHERIT);
+						Process ps = command.start();
 						ps.waitFor();
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						if(ps.exitValue()!=0){
+							gui.DisplayError("Paths may not point to the right directory or file cannot be found");
+							System.exit(0);
+						}
+						}
+						catch(IOException ex){
+							gui.DisplayError("Paths may not point to the right directory");
+							System.exit(0);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						if(!generateJava){
+							File f = new File(roboname+"pk/"+roboname+".java");
+							f.delete();
+						}
 					}
-					InputStream in = ps.getInputStream();
-					InputStream err = ps.getErrorStream();
-
-					byte b[]=new byte[in.available()];
-					in.read(b,0,b.length);
-					System.out.println(new String(b));
-
-					byte c[]=new byte[err.available()];
-					err.read(c,0,c.length);
-					System.out.println(new String(c));
-				}catch(IOException ex){
-					ex.printStackTrace();
+					else{
+						gui.DisplayError("Missing ROBOCODE_HOME variable");
+					}
 				}
-				if(!generateJava){
-					File f = new File(roboname+"pk/"+roboname+".java");
-					f.delete();
+				else{
+					gui.DisplayError("Missing JAVA_HOMBE variable");
 				}
 			}
 
