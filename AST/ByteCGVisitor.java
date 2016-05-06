@@ -14,22 +14,41 @@ import java.util.List;
 
 import exceptions.NotImplementedException;
 import nodes.*;
+import nodes.EqualityExprNode.EqualityType;
 import nodes.RobotDeclarationNode.RobotDeclarationType;
 
 
 public class ByteCGVisitor extends ASTVisitor<String>{
 	private String code;
 	private String roboname;
+	private String initString = "";
+	private int eqCounter = 0;
+	private int andCounter = 0;
+	private int orCounter = 0;
+	private int forCounter = 0;
+	private int ifCounter = 0;
 	private int whileCounter = 0;
 	private String currentLabel;
 	private boolean isInit;
 	private String header = "";
-	private String initString = "";
 	
 	@Override
 	public String visit(AdditiveExprNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		String res = visit(node.getLeftChild());
+		res += visit(node.getRightChild());
+		
+		switch (node.getType()) {
+			case add:
+				res += "dadd\n";
+				break;
+			case sub:
+				res += "dsub\n";
+				break;
+			default:
+				throw new NotImplementedException();
+		}
+		
+		return res;
 	}
 
 	@Override
@@ -99,8 +118,40 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 
 	@Override
 	public String visit(EqualityExprNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		String res = visit(node.getLeftChild());
+		res += visit(node.getRightChild());
+		EqualityType eqType = node.getType();
+		switch((String) node.getLeftChild().getNodeType()) {
+			case "num":
+				res += "dcmpg\n";
+				res += "ifne\t";
+				res += "EQ" + eqCounter + "\n";
+				res += eqType == EqualityType.equal ? "iconst_0\n" : "iconst_1\n";
+				res += "goto\t";
+				res += "EQ" + (eqCounter + 1) + "\n";
+				res += "EQ" + eqCounter + ": ";
+				res += eqType == EqualityType.equal ? "iconst_0\n" : "iconst_1\n";
+				res += "EQ" + (eqCounter + 1) + ": ";
+				eqCounter += 2;
+				break;
+			case "bool":
+				res += "if_icmpne\t";
+				res += "EQ" + eqCounter + "\n";
+				res += eqType == EqualityType.equal ? "iconst_1\n" : "iconst_0\n";
+				res += "goto\t";
+				res += "EQ" + (eqCounter + 1) + "\n";
+				res += "EQ" + eqCounter + ": ";
+				res += eqType == EqualityType.equal ? "iconst_0\n" : "iconst_1\n";
+				res += "EQ" + (eqCounter + 1) + ": ";
+				eqCounter += 2;
+				break;
+			case "text":
+				// TODO 
+				break;
+			default:
+				throw new NotImplementedException();
+		}
+		return res;
 	}
 
 	@Override
@@ -132,7 +183,7 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 		if(getEventMethodName(node.getParam().getType()).equals(node.getIdent())){
 			return "_"+node.getIdent();
 		}
-		else{
+		else {
 			return node.getIdent();
 		}
 	}
@@ -172,8 +223,44 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 
 	@Override
 	public String visit(ForNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		String res;
+		Object assign = node.assign;
+		
+		if (assign instanceof CallStatementNode)
+			res = visit((CallStatementNode) assign);
+		else if (assign instanceof VarDeclarationNode)
+			res = visit((VarDeclarationNode) assign);
+		else if (assign instanceof AssignmentNode)
+			res = visit((AssignmentNode) assign);
+		else
+			throw new NotImplementedException();
+		
+		int predicateNum = forCounter++;
+		int endNum = forCounter++;
+		
+		res += "FOR" + predicateNum + ": ";
+		res += visit((ExpressionNode) node.predicate);
+		res += "ifne\t";
+		res += "FOR" + endNum + "\n";
+		
+		// Visit body
+		List<StatementNode> stms = node.getStatements();
+		for(StatementNode stm : stms)
+			res+=visit(stm);
+		
+		Object update = node.update;
+		if (update instanceof CallStatementNode)
+			res += visit((CallStatementNode) update);
+		else if (update instanceof AssignmentNode)
+			res += visit((AssignmentNode) update);
+		else
+			throw new NotImplementedException();
+		
+		res += "goto\t";
+		res += "FOR" + predicateNum + "\n";
+		res += "FOR" + endNum + ": ";
+		
+		return res;
 	}
 
 	@Override
@@ -222,32 +309,130 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 
 	@Override
 	public String visit(IfNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		String res;
+		int notNum = ifCounter++;
+		
+		res = visit(node.getExpression());
+		res += "ifne\t";
+		res += "IF" + notNum + "\n";
+		
+		List<StatementNode> stms = node.getIfBlockStatements();
+		for(StatementNode stm : stms)
+			res += visit(stm);
+
+		int trueNum;
+		switch (node.getClass().getName()) {
+		case "nodes.IfNode":
+			res += "IF" + notNum + ": ";
+			break;
+		case "nodes.IfElseNode":
+			trueNum = ifCounter++;
+			res += "goto\t";
+			res += "IF" + trueNum + "\n";
+			
+			res += "IF" + notNum + ": ";
+			List<StatementNode> elseStms = ((IfElseNode) node).getElseBlockStatements();
+			for(StatementNode stm : elseStms)
+				res += visit(stm);
+			res += "IF" + trueNum + ": ";
+			
+			break;
+		case "nodes.ElseIfNode":
+			trueNum = ifCounter++;
+			res += "goto\t";
+			res += "IF" + trueNum + "\n";
+			
+			res += "IF" + notNum + ": ";
+			
+			res += visit(((ElseIfNode) node).getNext());
+
+			res += "IF" + trueNum + ": ";
+			break;
+		default:
+			throw new NotImplementedException();
+		}
+
+		return res;
 	}
 
 	@Override
 	public String visit(IterationNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		String res = "";
+		if(node instanceof WhileNode){
+			res = visit((WhileNode)node);
+		}
+		else if(node instanceof ForNode){
+			res = visit((ForNode)node);
+		}
+		else{
+			throw new NotImplementedException();
+		}
+
+		return res;
 	}
 
 	@Override
 	public String visit(LogicalANDExprNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		String res = "";
+		
+		int endNum = andCounter++;
+		res += visit(node.getLeftChild());
+		res += "ifne\t";
+		res += "AND" + endNum + "\n";
+		res += visit(node.getRightChild());
+		res += "ifne\t";
+		res += "AND" + endNum + "\n";
+		res += "iconst_1\n";
+		res += "AND" + endNum + ": ";
+		
+		return res;
 	}
 
 	@Override
 	public String visit(LogicalORExprNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		String res = "";
+		
+		int eqNum = orCounter++;
+		int endNum = orCounter++;
+		res += visit(node.getLeftChild());
+		res += "ifeq\t";
+		res += "OR" + eqNum + "\n";
+		
+		res += visit(node.getRightChild());
+		res += "ifeq\t";
+		res += "OR" + eqNum + "\n";
+		
+		res += "iconst_0\n";
+		res += "goto\t";
+		res += "OR" + endNum + "\n";
+		
+		res += "OR" + eqNum + ": "; 
+		res += "iconst_1\n";
+		
+		res += "OR" + endNum + ": ";
+		
+		return res;
 	}
 
 	@Override
 	public String visit(MultExprNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		String res = visit(node.getLeftChild());
+		res += visit(node.getRightChild());
+		switch (node.getType()) {
+			case mult:
+				res += "dmul\n";
+				break;
+			case div:
+				res += "ddiv\n";
+				break;
+			case mod:
+				res += "drem\n";
+				break;
+			default:
+				throw new NotImplementedException();
+		}
+		
+		return res;
 	}
 
 	@Override
