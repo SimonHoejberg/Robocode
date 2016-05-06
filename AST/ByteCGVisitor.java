@@ -27,6 +27,8 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 	private int orCounter = 0;
 	private int forCounter = 0;
 	private int ifCounter = 0;
+	private int relCounter = 0;
+	private int unCounter = 0;
 	private int whileCounter = 0;
 	private String currentLabel;
 	private boolean isInit;
@@ -443,8 +445,7 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 
 	@Override
 	public String visit(ParenthesesNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		return visit(node.getChild());
 	}
 
 	@Override
@@ -579,8 +580,39 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 
 	@Override
 	public String visit(RelationExprNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		String res = "dcmpg\n";
+		
+		int trueNum = relCounter++;
+		int endNum = relCounter++;
+		
+		switch (node.getType()) {
+			case lessThan:
+				res += "iflt\t";
+				break;
+			case lessThanOrEqual:
+				res += "ifle\t";
+				break;
+			case greaterThan:
+				res += "ifgt\t";
+				break;
+			case greaterThanOrEqual:
+				res += "ifge\t";
+				break;
+			default:
+				throw new NotImplementedException();
+		}
+		res += "REL" + trueNum + "\n";
+		
+		res += "iconst_0\n";
+		res += "goto\t";
+		res += "REL" + endNum + "\n";
+		
+		res += "REL" + trueNum + ": ";
+		res += "iconst_1\n";
+		
+		res += "REL" + endNum + ": ";
+		
+		return res;
 	}
 
 	@Override
@@ -649,8 +681,34 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 
 	@Override
 	public String visit(UnaryExprNode node) {
-		// TODO Auto-generated method stub
-		return null;
+		String res;
+		
+		res = visit(node.getChild());
+		
+		switch (node.getType()) {
+			case negation:
+				res += "dneg\n";
+				break;
+			case not:
+				int trueNum = unCounter++;
+				int endNum = unCounter++;
+				res += "ifeq\t";
+				res += "UN" + trueNum + "\n";
+				
+				res += "iconst_1";
+				res += "goto\t";
+				res += "UN" + endNum + "\n";
+				
+				res += "UN" + trueNum + ": ";
+				res += "iconst_0\n";
+				
+				res += "UN" + endNum + ": ";
+				break;
+			default:
+				throw new NotImplementedException();
+		}
+		
+		return res;
 	}
 
 	@Override
