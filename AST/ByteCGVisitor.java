@@ -113,14 +113,14 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 			int lastP = code.indexOf(".end",firstP);
 
 			String firstString = code.substring(0, lastP-1);
-			String payloadString = ";Invoke help plz replace me\n";
+			String payloadString = ";plz invoke\n";
 			String endStrng = code.substring(lastP-1);
 			code= firstString+"\n"+payloadString+endStrng;
 			res = temp;
 		}
 		else{
 			res+=".method public "+getEventMethodName(node.getParam().getType())+"("+getEventParam(node.getParam().getType())+";)V\n";
-			res+=";Invoke help plz replace me\n";
+			res+="invokevirtual " + roboname + "pk/"+roboname+"/"+"\n";
 			res+=".end method\n\n";
 			res+=AddEventMethod(node);
 		}
@@ -570,31 +570,31 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 	private String getEventParam(String input){
 		switch (input) {
 		case "BulletHitEvent":
-			return "robocode/BulletHitEvent";
+			return "Lrobocode/BulletHitEvent";
 		case "BulletHitBulletEvent":
-			return "robocode/BulletHitBulletEvent";
+			return "Lrobocode/BulletHitBulletEvent";
 		case "BulletMissedEvent":
-			return "robocode/BulletMissedEvent";
+			return "Lrobocode/BulletMissedEvent";
 		case "DeathEvent":
-			return "robocode/DeathEvent";
+			return "Lrobocode/DeathEvent";
 		case "HitByBulletEvent":
-			return "robocode/HitByBulletEvent";
+			return "Lrobocode/HitByBulletEvent";
 		case "HitRobotEvent":
-			return "robocode/HitRobotEvent";
+			return "Lrobocode/HitRobotEvent";
 		case "HitWallEvent":
-			return "robocode/HitWallEvent";
+			return "Lrobocode/HitWallEvent";
 		case "RobotDeathEvent":
-			return "robocode/RobotDeathEvent";
+			return "Lrobocode/RobotDeathEvent";
 		case "ScannedRobotEvent":
-			return "robocode/ScannedRobotEvent";
+			return "Lrobocode/ScannedRobotEvent";
 		case "StatusEvent":
-			return "robocode/StatusEvent";
+			return "Lrobocode/StatusEvent";
 		case "WinEvent":
-			return "robocode/WinEvent";
+			return "Lrobocode/WinEvent";
 		case "BattleEndedEvent":
-			return "robocode/BattleEndedEvent";
+			return "Lrobocode/BattleEndedEvent";
 		case "RoundEndedEvent":
-			return "robocode/RoundEndedEvent";
+			return "Lrobocode/RoundEndedEvent";
 		default:
 			throw new NotImplementedException();
 		}
