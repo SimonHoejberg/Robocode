@@ -1,5 +1,8 @@
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,8 +30,13 @@ public class LibraryImporter {
 	
 	}
 	
+	private Reader GetFile(String name){
+		return new InputStreamReader(LibraryImporter.class.getResourceAsStream("/lib/"+name));
+	}
+	
 	public void importLibraries(SymbolTable st, String libname, boolean isObject) throws IOException {		
-		ANTLRInputStream docInput = new ANTLRInputStream(new FileReader("lib/" + libname));
+		GetFile(libname);
+		ANTLRInputStream docInput = new ANTLRInputStream(GetFile(libname));
 		RoboDocLexer docLexer = new RoboDocLexer(docInput);
     	CommonTokenStream docTokens = new CommonTokenStream(docLexer);
     	RoboDocParser docParser = new RoboDocParser(docTokens);

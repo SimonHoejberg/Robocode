@@ -30,7 +30,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	private String lastIdentIndex;
 	private boolean usesColors, usesMath, usesArrays;
 	private boolean generateJava;
-	private boolean hasSetJava = false;
+	private boolean compileBTR = false;
 	private Main gui;
 
 	private Hashtable<String, String> structInstantiations;
@@ -43,7 +43,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 	public void SetGenerateJava(boolean java){
 		generateJava = java;
-		hasSetJava = true;
+		compileBTR = true;
 	}
 
 	public void SetGuiPointer(Main gui){
@@ -800,21 +800,20 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			out.write(dcls.getBytes());
 			out.flush();
 			out.close();
-			if(hasSetJava){
+			if(compileBTR){
 				String javaHome = System.getenv("JAVA_HOME");
 				if(javaHome!=null){
 					String roboHome = System.getenv("ROBOCODE_HOME");
 					if(roboHome !=null){
-						System.out.println(roboHome);
 						try{
-						ProcessBuilder command = new ProcessBuilder(javaHome+"\\bin\\javac","-cp",roboHome+"\\libs\\robocode.jar",roboname+"pk/"+roboname+".java");
-						command.redirectError(Redirect.INHERIT);
-						Process ps = command.start();
-						ps.waitFor();
-						if(ps.exitValue()!=0){
-							gui.DisplayError("Paths may not point to the right directory or file cannot be found");
-							System.exit(0);
-						}
+							ProcessBuilder command = new ProcessBuilder(javaHome+"\\bin\\javac","-cp",roboHome+"\\libs\\robocode.jar",roboname+"pk/"+roboname+".java");
+							command.redirectError(Redirect.INHERIT);
+							Process ps = command.start();
+							ps.waitFor();
+							if(ps.exitValue()!=0){
+								gui.DisplayError("Paths may not point to the right directory or file cannot be found");
+								System.exit(0);
+							}
 						}
 						catch(IOException ex){
 							gui.DisplayError("Paths may not point to the right directory");
