@@ -1,21 +1,20 @@
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
+import nodes.TypeNode;
+import nodes.VarNode;
+
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 
-import nodes.TypeNode;
-import nodes.VarNode;
 import symbolTable.STStructDefEntry;
 import symbolTable.STSubprogramEntry;
-import symbolTable.SymbolTable;
 import symbolTable.STSubprogramEntry.SubprogramType;
 import symbolTable.STTypeEntry;
+import symbolTable.SymbolTable;
 
 public class LibraryImporter {
 
