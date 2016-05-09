@@ -18,7 +18,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileFilter;
 
-public class Main {
+public class Gui {
 
 	private JFrame frame;
 	private boolean error;
@@ -26,12 +26,21 @@ public class Main {
 	public static void main(String[] args) {
 
 		try {
+			//Tries to change how the gui looks based on what OS the user has
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException | InstantiationException
 				| IllegalAccessException | UnsupportedLookAndFeelException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		
+		Gui gui = new Gui();
+		gui.start();
+		
+	}
+	
+	public void start(){
+
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 
@@ -59,8 +68,7 @@ public class Main {
 						}
 						else if(e.getActionCommand().equals("ApproveSelection")){
 							Hello h = new Hello();
-							Main main = new Main();
-							h.SetGuiPointer(main);
+							SetGuiPointerToCompiler(h);
 							try {
 								h.Start(fileChooser.getSelectedFile().getPath(), check.isSelected());
 							} catch (FileNotFoundException e1) {
@@ -70,7 +78,7 @@ public class Main {
 								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
-							if(!main.HasErrors())
+							if(!HasErrors())
 								JOptionPane.showMessageDialog(frame, "Compilation complete!!!!");
 							System.exit(0);
 						}
@@ -90,13 +98,17 @@ public class Main {
 		});
 	}
 	
-	public boolean HasErrors(){
+	private boolean HasErrors(){
 		return error;
 	}
 	
 	public void DisplayError(String error){
 		JOptionPane.showMessageDialog(frame, error);
 		this.error = true;
+	}
+	
+	private void SetGuiPointerToCompiler(Hello compiler){
+		compiler.SetGuiPointer(this);
 	}
 	
 	public void ShowConsole(String stream){
@@ -109,7 +121,7 @@ public class Main {
 	/**
 	 * Create the application.
 	 */
-	public Main() {
+	public Gui() {
 		initialize();
 	}
 

@@ -31,7 +31,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	private boolean usesColors, usesMath, usesArrays;
 	private boolean generateJava;
 	private boolean compileBTR = false;
-	private Main gui;
+	private Gui gui;
 
 	private Hashtable<String, String> structInstantiations;
 
@@ -46,7 +46,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		compileBTR = true;
 	}
 
-	public void SetGuiPointer(Main gui){
+	public void SetGuiPointer(Gui gui){
 		this.gui = gui;
 	}
 

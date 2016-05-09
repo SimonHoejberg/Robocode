@@ -60,8 +60,8 @@ public class Hello
 		//ParseTree tree = parser.prog(); // begin parsing at rule 'r'
 		//System.out.println(tree.toStringTree(parser)); // print LISP-style tree    
 	}
-	private Main gui;
-	public void SetGuiPointer(Main gui){
+	private Gui gui;
+	public void SetGuiPointer(Gui gui){
 		this.gui = gui;
 	}
 
