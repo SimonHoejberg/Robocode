@@ -63,7 +63,6 @@ public class LibraryImporter {
     				
     		if (local) 
     			continue;
-    			//throw new RuntimeException("Conflicting method definitions from library imports");
     		
     		// Check if event - events are checked by parser
     		List<MethodParam> javaParams = method.getParameters();
