@@ -11,7 +11,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
-
 import exceptions.NotImplementedException;
 import nodes.*;
 import nodes.RobotDeclarationNode.RobotDeclarationType;
@@ -29,6 +28,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	private boolean lastBaseIdent, lastIdentIsArrayEntry;
 	private String lastIdentIndex;
 	private boolean usesColors, usesMath, usesArrays;
+	private boolean structUsesArrays;
 	private boolean generateJava;
 	private boolean compileBTR = false;
 	private Gui gui;
@@ -70,6 +70,10 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		String ident = node.getIdent();
 		String type = node.getType();
 
+		usesArrays = true;
+		if (creatingStructClass)
+			structUsesArrays = true;
+		
 		String res = "";
 		String dcl = "ArrayList<" + convertTypeForList(type)+ "> " + ident;
 
@@ -293,14 +297,10 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		String typeName = node.getTypeName();
 		String contents;
 
-		// FIXME import list if arrays are used
+		structUsesArrays = false;
 
-		structHeader = robopackage;
-
-		structHeader += "import java.util.*;\n";
-		structHeader += "\n";
-
-		structHeader += "public class " + typeName + " {\n";
+		String structImports = robopackage;
+		structHeader = "public class " + typeName + " {\n";
 
 		creatingStructClass = true;
 		currentListParam = 1;
@@ -322,7 +322,13 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		}
 
 		contents += STRUCT_INDENTATION + "}\n}";
-
+		
+		if (structUsesArrays) {
+			structImports += "import java.util.List;\n";
+			structImports += "import java.util.ArrayList;\n";
+			structImports += "\n";
+		}
+		
 		constructorParams = constructorParams.substring(0, constructorParams.length()-2);
 		defaultInstantiation += ")";
 
@@ -331,6 +337,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 		try (OutputStream out = new BufferedOutputStream(
 				Files.newOutputStream(Paths.get((roboname + "pk" + "/" + typeName + ".java")), CREATE, TRUNCATE_EXISTING))) {
+			out.write(structImports.getBytes());
 			out.write(structHeader.getBytes());
 			out.write(("\n    public " + typeName + "(" + constructorParams + ") {\n").getBytes());
 			out.write(contents.getBytes());
@@ -550,8 +557,10 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			String identRes = visit(ident);
 			if (identRes.equals("Color")) // FIXME temp solution
 				prevWasColor = true;
-			else if (prevWasColor && identRes.endsWith("()"))
+			else if (prevWasColor && identRes.endsWith("()")) {
 				identRes = identRes.substring(0, identRes.length()-2);
+				usesColors = true;
+			}
 			res += identRes;
 			if (i < identsSize-1)
 				res += ".";
@@ -731,6 +740,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 			usesColors = false;
 			usesMath = false;
+			usesArrays = false;
 
 			robopackage = "package " + roboname + "pk;\n\n"; // FIXME roboname substring to avoid package name being too long
 
@@ -791,8 +801,12 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 			// Imports
 			imports += "import robocode.*;\n";
-			imports += "import java.awt.*;\n";
-			imports += "import java.util.*;\n";
+			if (usesArrays) {
+				imports += "import java.util.List;\n";
+				imports += "import java.util.ArrayList;\n";
+			}
+			if (usesColors)
+				imports += "import java.awt.color.*;\n";
 			imports += "\n";
 
 			out.write(imports.getBytes());

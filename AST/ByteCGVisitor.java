@@ -21,6 +21,7 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 	private String code;
 	private String roboname;
 	private String initString = "";
+	private String structHeader;
 	private int eqCounter = 0;
 	private int andCounter = 0;
 	private int orCounter = 0;
@@ -31,6 +32,7 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 	private int whileCounter = 0;
 	private String currentLabel;
 	private boolean isInit;
+	private boolean creatingStructClass;
 	private String header = "";
 	
 	@Override
@@ -89,8 +91,71 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 
 	@Override
 	public String visit(DataStructDefinitionNode node) {
-		// TODO Auto-generated method stub
-		return null;
+//		.class TheMachinepk/TheMachine
+//		.super robocode/Robot
+//
+//		.field private turnDirection D = 1.0
+//		.field private moving Z = 0
+//		.field private remainingDistance D = 0.0
+//		.method public <init>()V
+//		aload_0 
+//		invokespecial robocode/Robot/<init>()V 
+//		return 
+//		.end method
+		
+		String typeName = node.getTypeName();
+		String contents;
+
+		// FIXME import list if arrays are used
+
+		structHeader = ".class " + roboname + "pk/" + typeName + "\n";
+		
+
+		structHeader += "import java.util.*;\n";
+		structHeader += "\n";
+
+		structHeader += "public class " + typeName + " {\n";
+
+		creatingStructClass = true;
+//		currentListParam = 1;
+//
+//		constructorParams = "";
+//		defaultInstantiation = "new " + node.getTypeName() + "(";
+//		contents = "";
+//		List<Object> dcls = node.getDeclarations();
+//		int dclsSize = dcls.size();
+//		for (int i = 0; i < dclsSize; ++i) {
+//			Object dcl = dcls.get(i);
+//			contents += STRUCT_INDENTATION + STRUCT_INDENTATION;
+//			if (dcl instanceof DeclarationNode)
+//				contents += visit((DeclarationNode) dcl);
+//			else if (dcl instanceof AssignmentNode)
+//				contents += visit((AssignmentNode) dcl);
+//			if (i < dclsSize-1)
+//				defaultInstantiation += ", ";
+//		}
+//
+//		contents += STRUCT_INDENTATION + "}\n}";
+//
+//		constructorParams = constructorParams.substring(0, constructorParams.length()-2);
+//		defaultInstantiation += ")";
+//
+//
+//		structInstantiations.put(typeName, defaultInstantiation);
+//
+//		try (OutputStream out = new BufferedOutputStream(
+//			Files.newOutputStream(Paths.get((roboname + "pk" + "/" + typeName + ".java")), CREATE, TRUNCATE_EXISTING))) {
+//			out.write(structHeader.getBytes());
+//			out.write(("\n    public " + typeName + "(" + constructorParams + ") {\n").getBytes());
+//			out.write(contents.getBytes());
+//		}
+//		catch (IOException ex) {
+//			System.out.println("Failed to write file \"" + roboname + "pk" + "/" + typeName + ".java\"");
+//		}
+
+		creatingStructClass = false;
+
+		return "";
 	}
 
 	@Override
@@ -127,7 +192,7 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 				res += "dcmpg\n";
 				res += "ifne\t";
 				res += "EQ" + eqCounter + "\n";
-				res += eqType == EqualityType.equal ? "iconst_0\n" : "iconst_1\n";
+				res += eqType == EqualityType.equal ? "iconst_1\n" : "iconst_0\n";
 				res += "goto\t";
 				res += "EQ" + (eqCounter + 1) + "\n";
 				res += "EQ" + eqCounter + ": ";
@@ -241,7 +306,7 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 		
 		res += "FOR" + predicateNum + ": ";
 		res += visit((ExpressionNode) node.predicate);
-		res += "ifne\t";
+		res += "ifeq\t";
 		res += "FOR" + endNum + "\n";
 		
 		// Visit body
@@ -315,7 +380,7 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 		int notNum = ifCounter++;
 		
 		res = visit(node.getExpression());
-		res += "ifne\t";
+		res += "ifeq\t";
 		res += "IF" + notNum + "\n";
 		
 		List<StatementNode> stms = node.getIfBlockStatements();
@@ -379,10 +444,10 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 		
 		int endNum = andCounter++;
 		res += visit(node.getLeftChild());
-		res += "ifne\t";
+		res += "ifeq\t";
 		res += "AND" + endNum + "\n";
 		res += visit(node.getRightChild());
-		res += "ifne\t";
+		res += "ifeq\t";
 		res += "AND" + endNum + "\n";
 		res += "iconst_1\n";
 		res += "AND" + endNum + ": ";
@@ -397,11 +462,11 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 		int eqNum = orCounter++;
 		int endNum = orCounter++;
 		res += visit(node.getLeftChild());
-		res += "ifeq\t";
+		res += "ifne\t";
 		res += "OR" + eqNum + "\n";
 		
 		res += visit(node.getRightChild());
-		res += "ifeq\t";
+		res += "ifne\t";
 		res += "OR" + eqNum + "\n";
 		
 		res += "iconst_0\n";
@@ -691,7 +756,7 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 			case not:
 				int trueNum = unCounter++;
 				int endNum = unCounter++;
-				res += "ifeq\t";
+				res += "ifne\t";
 				res += "UN" + trueNum + "\n";
 				
 				res += "iconst_1";
