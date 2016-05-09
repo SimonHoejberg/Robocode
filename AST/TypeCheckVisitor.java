@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import exceptions.*;
 import nodes.*;
@@ -873,6 +874,10 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				if(hasRoboName){
 					addError(node, "Duplicate declaration of roboname");
 				}
+				String name = node.getName();
+				boolean invalid = name.matches("^[0-9]");
+				if(invalid)
+					addError(node,"Invalid roboname");
 				hasRoboName = true;
 				node.setNodeType(VOID);
 				return VOID;
