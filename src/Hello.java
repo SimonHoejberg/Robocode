@@ -8,6 +8,7 @@ import nodes.ProgramNode;
 import org.antlr.v4.runtime.*;
 public class Hello 
 {
+	
     public static void main( String[] args) throws Exception
     {        
         ANTLRInputStream input = new ANTLRInputStream(new FileReader("theMachine.btr"));
@@ -25,7 +26,7 @@ public class Hello
 		typeCheckVis.addFuncDcls(ast);
 		typeCheckVis.visit(ast);
 
-		List<Object> problems = typeCheckVis.getProblems(); 
+		List<TypeCheckProblem> problems = typeCheckVis.getProblems(); 
 		int errors = typeCheckVis.getNumberOfErrors();
 		int warnings = typeCheckVis.getNumberOfWarnings();
 		if(errors!=0 && warnings !=0)
@@ -81,7 +82,7 @@ public class Hello
 			typeCheckVis.addFuncDcls(ast);
 			typeCheckVis.visit(ast);
 
-			List<Object> problems = typeCheckVis.getProblems(); 
+			List<TypeCheckProblem> problems = typeCheckVis.getProblems(); 
 			int errors = typeCheckVis.getNumberOfErrors();
 			int warnings = typeCheckVis.getNumberOfWarnings();
 			String errorStream ="";

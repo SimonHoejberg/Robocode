@@ -77,7 +77,6 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 				if (child instanceof TerminalNode)		// Skip commas
 					continue;
 				TypeNode type;
-				//System.out.println(child.getText());
 				if (child instanceof HelloParser.TypeGeneralTypeContext)
 				{
 					type = new TypeNode(((HelloParser.GeneralTypeContext) child).start.getLine(),

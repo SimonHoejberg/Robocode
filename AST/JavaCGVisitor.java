@@ -832,7 +832,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 					}
 				}
 				else{
-					gui.DisplayError("Missing JAVA_HOMBE variable");
+					gui.DisplayError("Missing JAVA_HOME variable");
 				}
 			}
 

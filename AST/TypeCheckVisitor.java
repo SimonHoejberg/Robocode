@@ -10,7 +10,7 @@ import symbolTable.STSubprogramEntry.SubprogramType;
 public class TypeCheckVisitor extends ASTVisitor<Object> {
 	private boolean hasRoboName, hasInit, hasBehave = false;
 	private SymbolTable symbolTable, funcDcls;
-	private List<Object> problems;
+	private List<TypeCheckProblem> problems;
 	private int errors = 0;
 	private int warnings = 0;
 	private STStructDefEntry currentStructRef;
@@ -33,7 +33,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	public TypeCheckVisitor() {
 		symbolTable = new SymbolTable();
 		funcDcls = new SymbolTable();
-		problems = new ArrayList<Object>();
+		problems = new ArrayList<TypeCheckProblem>();
 		libImporter = new LibraryImporter();
 		try {
 
@@ -65,7 +65,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		}
 	}
 	
-	public List<Object> getProblems(){
+	public List<TypeCheckProblem> getProblems(){
 		return problems;
 	}
 	
