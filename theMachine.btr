@@ -64,6 +64,11 @@ func void CleverFire(num distance){
 	}
 }
 
+
+event IHit(HitRobotEvent e){
+
+}
+
 event onHitRobot(HitRobotEvent e){
 	if (e.getBearing() >= 0){
 		turnDirection := 1
