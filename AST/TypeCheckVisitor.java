@@ -875,12 +875,10 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 					addError(node, "Duplicate declaration of roboname");
 				}
 				String name = node.getName();
-				//Removes the '"' characters from the string 
-				String copy = name.substring(1, name.length()-1);
 				//Checks if the name starts with a number, because then it is invalid
-				boolean invalid = Character.isDigit(copy.charAt(0));
+				boolean invalid = Character.isDigit(name.charAt(0));
 				//Checks if the name contains any characters which is not a letter or a number
-				invalid = (invalid ? true : Pattern.compile("[^A-Za-z0-9]").matcher(copy).find()); 
+				invalid = (invalid ? true : Pattern.compile("[^A-Za-z0-9]").matcher(name).find()); 
 				if(invalid)
 					addError(node,"Invalid roboname");
 				hasRoboName = true;
