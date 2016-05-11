@@ -542,10 +542,8 @@ public class ByteCGVisitor extends ASTVisitor<String>{
 			if (dcl instanceof RobotDeclarationNode) {
 				RobotDeclarationNode robodcl = (RobotDeclarationNode) dcl;
 				RobotDeclarationType type = robodcl.getType();
-				if (type == RobotDeclarationType.name) {
+				if (type == RobotDeclarationType.name)
 					roboname = robodcl.getName();
-					roboname = roboname.substring(1, roboname.length()-1);
-				}
 				else if (type == RobotDeclarationType.initialization)
 					init = robodcl;
 				else if (type == RobotDeclarationType.behavior)
