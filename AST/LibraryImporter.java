@@ -46,11 +46,12 @@ public class LibraryImporter {
     	if (isObject) {
     		symbolTable = new SymbolTable();
     		st.enterSymbol(libname, new STStructDefEntry(true, symbolTable));
-    		if (libname.equals("Color")) {	// FIXME Might be better to add this functionality to the doc parser
+    		// FIXME Temporarily disabled functionality
+    		/* if (libname.equals("Color")) {	// FIXME Might be better to add this functionality to the doc parser
     			symbolTable.enterSymbol("r", new STTypeEntry("num".intern()));
     			symbolTable.enterSymbol("g", new STTypeEntry("num".intern()));
     			symbolTable.enterSymbol("b", new STTypeEntry("num".intern()));
-    		}
+    		}*/
     	}
     	else
     		symbolTable = st;

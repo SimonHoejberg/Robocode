@@ -1,8 +1,12 @@
- int getRandomNumber()
- 	"Gets a random number between 0 and 1000"
+ int getRandomNumber(double number)
+ 	"Gets a random number between 0 and a number."
  int getRandomNumberBetween(int min, int max)
- 	"Gets a random number between min and max"
- double Pow(double number, double pow)
- 	"Returns the value of the power of number"
- double Sqrt(double number)
- 	"Returns the square root of the number"
+ 	"Gets a random number between min and max."
+ double pow(double number, double pow)
+ 	"Returns the value of the power of number."
+ double sqrt(double number)
+ 	"Returns the square root of the number".
+ double floor(double number)
+ 	"Returns the largest (closest to positive infinity) double value that is less than or equal to the argument and is equal to a mathematical integer."
+ double ceil(double number)
+ 	"Returns the smallest (closest to negative infinity) double value that is greater than or equal to the argument and is equal to a mathematical integer."

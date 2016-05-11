@@ -39,7 +39,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		try {
 
 			libImporter.importLibraries(symbolTable, "Math", true);
-			libImporter.importLibraries(symbolTable, "Output", false);
+			libImporter.importLibraries(symbolTable, "Output", true);
 			libImporter.importLibraries(symbolTable, "Color", true);
 			libImporter.importLibraries(symbolTable, "Robot", false);
 			libImporter.importLibraries(symbolTable, "ScannedRobotEvent", true);
@@ -322,6 +322,13 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				// Check if all entries are not of type structdef
 				if (entry instanceof STStructDefEntry) {
 					defExists = true;
+					
+					// Check if entry is instantiable
+					if (((STStructDefEntry) entry).getIsClass()) {
+						addError(node, "Cannot instantiate type " + node.getType());
+						return VOID;
+					}
+					
 					break;
 				}
 			}
@@ -547,7 +554,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 					if (argSize == 0)
 						addError(node, "No arguments passed, expected " + paramString);
 					else
-						addError(node, "Invalid argument(s) " + argString + ", expected " + paramString);
+						addError(node, "Invalid argument(s) " + argString + ", " + (paramSize == 0 ? "no arguments expected" : "expected " + paramString));
 					return VOID;
 				}
 			}
@@ -598,6 +605,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	public Object visit(GeneralIdentNode node) {
 		List<BaseIdentNode> idents = node.getIdents();
 		Object type;
+		currentStructRef = null;	// FIXME
 		identHasFuncCall = false;
 		for (int i = 0; i < idents.size(); ++i) {
 			BaseIdentNode ident = idents.get(i);

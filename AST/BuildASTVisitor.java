@@ -24,10 +24,12 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	}
 	
 	public AbstractNode visitRobonameAssign(HelloParser.RobonameAssignContext context) {
+		String text = context.TextLit().getText();
+		text = text.substring(1, text.length()-1);
 		return new RobotDeclarationNode(context.start.getLine(),
 										context.start.getCharPositionInLine(),
 										RobotDeclarationNode.RobotDeclarationType.name,
-										context.TextLit().getText());
+										text);
 	}
 	
 	public AbstractNode visitInitBlock(HelloParser.InitBlockContext context) {
@@ -510,9 +512,11 @@ public class BuildASTVisitor extends HelloBaseVisitor<AbstractNode> {
 	}
 	
 	public AbstractNode visitTextLitPrimary(HelloParser.TextLitPrimaryContext context) {
+		String text = context.TextLit().getText();
+		text = text.substring(1, text.length()-1);
 		return new TextLiteralNode(context.start.getLine(),
 								   context.start.getCharPositionInLine(),
-								   context.TextLit().getText());
+								   text);
 	}
 	
 	public AbstractNode visitNumLitPrimary(HelloParser.NumLitPrimaryContext context) {
