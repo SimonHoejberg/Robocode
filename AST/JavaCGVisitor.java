@@ -1,5 +1,8 @@
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 
 import static java.nio.file.StandardOpenOption.*;
 
@@ -12,6 +15,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+
 import exceptions.NotImplementedException;
 import nodes.*;
 import nodes.RobotDeclarationNode.RobotDeclarationType;
@@ -909,12 +913,21 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 					String roboHome = System.getenv("ROBOCODE_HOME");
 					if(roboHome !=null){
 						try{
+							File error = new File(roboname+"pk/log.txt");
 							ProcessBuilder command = new ProcessBuilder(javaHome+"\\bin\\javac","-cp",roboHome+"\\libs\\robocode.jar",roboname+"pk/"+roboname+".java");
-							command.redirectError(Redirect.INHERIT);
+							command.redirectError(error);
 							Process ps = command.start();
 							ps.waitFor();
 							if(ps.exitValue()!=0){
-								gui.DisplayError("Paths may not point to the right directory or file cannot be found");
+								BufferedReader reader = new BufferedReader(new FileReader(error));
+								String errorString = "";
+								String line = null;
+								while((line = reader.readLine())!=null)
+									errorString += line+"\n";
+								reader.close();
+								System.out.println(errorString);
+								error.delete();
+								gui.DisplayError(errorString);
 								System.exit(0);
 							}
 						}

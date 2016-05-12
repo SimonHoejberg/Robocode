@@ -103,7 +103,7 @@ public class Gui {
 	}
 	
 	public void DisplayError(String error){
-		JOptionPane.showMessageDialog(frame, error);
+		JOptionPane.showMessageDialog(frame, new JTextArea(error),"Error",JOptionPane.ERROR_MESSAGE);
 		this.error = true;
 	}
 	

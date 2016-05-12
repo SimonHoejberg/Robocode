@@ -11,7 +11,13 @@ robot initialization(){
 	setBulletColor(Color.black())
 }
 
+
+func num, bool, text test(num i){
+	return 2+5+i, true, "test"
+}
+
 robot behavior(){
+	num n, bool b, text t := test(2)
 	if (moving){
 		if (remainingDistance > 0){
 			ahead(remainingDistance)
