@@ -18,6 +18,7 @@ func num, bool, text test(num i){
 
 robot behavior(){
 	num n, bool b, text t := test(2)
+	Output.printLine("running")
 	if (moving){
 		if (remainingDistance > 0){
 			ahead(remainingDistance)
