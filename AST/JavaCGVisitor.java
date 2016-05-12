@@ -1029,7 +1029,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 	@Override
 	public String visit(TextLiteralNode node) {
-		return node.getText();
+		return "\"" + node.getText() + "\"";
 	}
 
 	@Override
