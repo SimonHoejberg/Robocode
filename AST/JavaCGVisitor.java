@@ -977,6 +977,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			return "return " + visit(node.getExpressions().get(0)) + ";";
 		}
 		else {
+			usesArrays = true;
 			String res = "java.util.List<Object> _returnVals = new ArrayList<Object>();\n";
 
 			// FIXME Object copying
