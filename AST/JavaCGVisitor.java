@@ -930,6 +930,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 								gui.DisplayError(errorString);
 								System.exit(0);
 							}
+							error.delete();
 						}
 						catch(IOException ex){
 							gui.DisplayError("Paths may not point to the right directory");
