@@ -41,6 +41,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	private String roboHome;
 	private String javaHome;
 	private List<String> structJavaFileNames = new ArrayList<String>();
+	private String robotsDir;
 
 	private Hashtable<String, String> structInstantiations;
 
@@ -408,7 +409,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		structInstantiations.put(typeName, defaultInstantiation);
 
 		try (OutputStream out = new BufferedOutputStream(
-				Files.newOutputStream(Paths.get((roboHome+"\\robots\\"+roboname + "pk" + "/" + typeName + ".java")), CREATE, TRUNCATE_EXISTING))) {
+				Files.newOutputStream(Paths.get((robotsDir+roboname + "pk" + "/" + typeName + ".java")), CREATE, TRUNCATE_EXISTING))) {
 			out.write(structImports.getBytes());
 			out.write(structHeader.getBytes());
 			out.write(("\n    public " + typeName + "(" + constructorParams + ") {\n").getBytes());
@@ -810,7 +811,8 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		if(javaHome!=null){
 			if(roboHome!=null){
 				// Create directory for output files
-				File dir = new File(roboHome+"\\robots\\"+roboname+"pk");
+				robotsDir = roboHome+"/robots/";
+				File dir = new File(robotsDir+roboname+"pk");
 
 
 				// if the directory does not exist, create it
@@ -833,7 +835,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 				// Start creation of file class
 				try (OutputStream out = new BufferedOutputStream(
-						Files.newOutputStream(Paths.get((roboHome+"\\robots\\"+roboname+"pk/"+roboname + ".java")), CREATE, TRUNCATE_EXISTING))) {
+						Files.newOutputStream(Paths.get((robotsDir+roboname+"pk/"+roboname + ".java")), CREATE, TRUNCATE_EXISTING))) {
 
 					// Flags for use in code generation
 					initializingRobot = false;
@@ -920,19 +922,19 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 					out.close();
 					if(hasGui){
 						try{
-							File error = new File(roboHome+"\\robots\\"+roboname+"pk/log.txt");
-							ProcessBuilder command = new ProcessBuilder(javaHome+"\\bin\\javac","-cp",roboHome+"\\libs\\robocode.jar",roboHome+"\\robots\\"+roboname+"pk/"+roboname+".java");
+							File error = new File(robotsDir+roboname+"pk/log.txt");
+							String extraJavaFiles = "";
+							for(String name : structJavaFileNames){
+								extraJavaFiles += robotsDir+roboname+"pk/"+name+".java ";
+							}
+							String javac = javaHome+"/bin/javac";
+							String robocodeLib = roboHome+"/libs/robocode.jar";
+							String robot = robotsDir+roboname+"pk/"+roboname+".java";
+							ProcessBuilder command = new ProcessBuilder(javac,"-cp",robocodeLib,robot,extraJavaFiles);
 							command.redirectError(error);
 							Process ps = command.start();
 							ps.waitFor();
 							CheckForCompileErrors(error, ps);
-							for(String name : structJavaFileNames){
-								ProcessBuilder command2 = new ProcessBuilder(javaHome+"\\bin\\javac",roboHome+"\\robots\\"+roboname+"pk/"+name+".java");
-								command2.redirectError(error);
-								Process ps2 = command2.start();
-								ps2.waitFor();
-								CheckForCompileErrors(error, ps2);
-							}
 							error.delete();
 						}
 						catch(IOException ex){
