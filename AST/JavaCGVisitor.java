@@ -920,36 +920,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 					out.write(dcls.getBytes());
 					out.flush();
 					out.close();
-					if(hasGui){
-						try{
-							File error = new File(robotsDir+roboname+"pk/log.txt");
-							String extraJavaFiles = "";
-							for(String name : structJavaFileNames){
-								extraJavaFiles += robotsDir+roboname+"pk/"+name+".java ";
-							}
-							String javac = javaHome+"/bin/javac";
-							String robocodeLib = roboHome+"/libs/robocode.jar";
-							String robot = robotsDir+roboname+"pk/"+roboname+".java";
-							ProcessBuilder command = new ProcessBuilder(javac,"-cp",robocodeLib,robot,extraJavaFiles);
-							command.redirectError(error);
-							Process ps = command.start();
-							ps.waitFor();
-							CheckForCompileErrors(error, ps);
-							error.delete();
-						}
-						catch(IOException ex){
-							gui.DisplayError(ex.getMessage());
-							System.exit(0);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						if(!generateJava){
-							File f = new File(roboHome+"\\robots\\"+roboname+"pk/"+roboname+".java");
-							f.delete();
-						}
-					}
-
+					compile();
 				}
 				catch (IOException ex) {
 					System.out.println("Failed to write target file \"" + roboname + ".java");
@@ -971,7 +942,39 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		return null;
 	}
 
-	private void CheckForCompileErrors(File error, Process ps)
+	private void compile() {
+		if(hasGui){
+			try{
+				File error = new File(robotsDir+roboname+"pk/log.txt");
+				String extraJavaFiles = "";
+				for(String name : structJavaFileNames){
+					extraJavaFiles += robotsDir+roboname+"pk/"+name+".java ";
+				}
+				String javac = javaHome+"/bin/javac";
+				String robocodeLib = roboHome+"/libs/robocode.jar";
+				String robot = robotsDir+roboname+"pk/"+roboname+".java";
+				ProcessBuilder command = new ProcessBuilder(javac,"-cp",robocodeLib,robot,extraJavaFiles);
+				command.redirectError(error);
+				Process ps = command.start();
+				ps.waitFor();
+				checkForCompileErrors(error, ps);
+				error.delete();
+			}
+			catch(IOException ex){
+				gui.DisplayError(ex.getMessage());
+				System.exit(0);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if(!generateJava){
+				File f = new File(roboHome+"\\robots\\"+roboname+"pk/"+roboname+".java");
+				f.delete();
+			}
+		}
+	}
+
+	private void checkForCompileErrors(File error, Process ps)
 			throws FileNotFoundException, IOException {
 		if(ps.exitValue()!=0){
 			BufferedReader reader = new BufferedReader(new FileReader(error));
