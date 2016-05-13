@@ -943,7 +943,6 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	}
 
 	private void compile() {
-		List<File> extraFiles = new ArrayList<File>();
 		if(hasGui){
 			try{
 				File error = new File(robotsDir+roboname+"pk/log.txt");
