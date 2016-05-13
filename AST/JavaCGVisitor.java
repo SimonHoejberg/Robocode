@@ -956,6 +956,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				String javac = javaHome+"/bin/javac";
 				String robocodeLib = roboHome+"/libs/robocode.jar";
 				String javaFiles = robotsDir+roboname+"pk/"+"*.java"; //Compile all java files in the directory
+				System.out.println(javac +" -cp "+robocodeLib+" "+javaFiles);
 				ProcessBuilder command = new ProcessBuilder(javac,"-cp",robocodeLib,javaFiles);
 				command.redirectError(error);
 				Process ps = command.start();

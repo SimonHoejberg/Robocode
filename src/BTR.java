@@ -65,7 +65,7 @@ public class BTR
 		this.gui = gui;
 	}
 
-	public void Start(String file,boolean Java) throws FileNotFoundException, IOException{
+	public void Start(String file, boolean Java) throws FileNotFoundException, IOException{
 		ANTLRInputStream input = new ANTLRInputStream(new FileReader(file));
 
 		BTRLexer lexer = new BTRLexer(input);
