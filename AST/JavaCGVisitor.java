@@ -37,6 +37,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	private boolean generateJava;
 	private boolean compileBTR = false;
 	private Gui gui;
+	private String roboHome;
 
 	private Hashtable<String, String> structInstantiations;
 
@@ -79,7 +80,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		usesArrays = true;
 		if (creatingStructClass) {
 			structUsesArrays = true;
-			
+
 			// Add to copy constructor
 			copyConstructor += STRUCT_INDENTATION + STRUCT_INDENTATION;
 			if (actualType.equals("num[]") || actualType.equals("text[]") || actualType.equals("bool[]")) {
@@ -90,13 +91,13 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				actualType = actualType.substring(0, actualType.length()-2);
 				copyConstructor += "this." + ident + " = new ArrayList<" + convertTypeForList(actualType) + ">();\n";
 				copyConstructor += STRUCT_INDENTATION + STRUCT_INDENTATION;
-				
+
 				copyConstructor += "for (" + actualType + " t : other." + ident + ")\n";
 				copyConstructor += STRUCT_INDENTATION + STRUCT_INDENTATION + STRUCT_INDENTATION;
 				copyConstructor += "this." + ident + ".add(new " + actualType + "(t));\n";
 			}
 		}
-		
+
 		String res = "";
 		String dcl = "ArrayList<" + convertTypeForList(type)+ "> " + ident;
 
@@ -208,7 +209,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 					String actualType = type.substring(0, type.length()-2);
 					res += "new ArrayList<" + convertTypeForList(actualType) + ">();\n";
 					res += getIndentation();
-					
+
 					res += "for (" + actualType + " t : " + getter + ")\n";
 					++indentationLevel;
 					res += getIndentation();
@@ -252,7 +253,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 					String actualType = type.substring(0, type.length()-2);
 					res += "new ArrayList<" + convertTypeForList(actualType) + ">();\n";
 					res += getIndentation();
-					
+
 					res += "for (" + actualType + " t : " + exprRes + ")\n";
 					++indentationLevel;
 					res += getIndentation();
@@ -331,7 +332,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			// Add to copy constructor
 			copyConstructor += STRUCT_INDENTATION + STRUCT_INDENTATION;
 			copyConstructor += "this." + node.getIdent() + " = new " + type + "(other." + node.getIdent() + ");\n";
-			
+
 			// Add to default instantiation
 			if (!assigning) {
 				constructorParams += dcl + ", ";
@@ -366,7 +367,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 		String structImports = robopackage;
 		structHeader = "public class " + typeName + " {\n";
-		
+
 		copyConstructor = STRUCT_INDENTATION + "public " + typeName + "(" + typeName + " other) {\n";
 
 		creatingStructClass = true;
@@ -390,13 +391,13 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 		contents += STRUCT_INDENTATION + "}\n\n";
 		copyConstructor += STRUCT_INDENTATION + "}\n}";
-		
+
 		if (structUsesArrays) {
 			structImports += "import java.util.List;\n";
 			structImports += "import java.util.ArrayList;\n";
 			structImports += "\n";
 		}
-		
+
 		constructorParams = constructorParams.substring(0, constructorParams.length()-2);
 		defaultInstantiation += ")";
 
@@ -404,7 +405,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		structInstantiations.put(typeName, defaultInstantiation);
 
 		try (OutputStream out = new BufferedOutputStream(
-				Files.newOutputStream(Paths.get((roboname + "pk" + "/" + typeName + ".java")), CREATE, TRUNCATE_EXISTING))) {
+				Files.newOutputStream(Paths.get((roboHome+"\\robots\\"+roboname + "pk" + "/" + typeName + ".java")), CREATE, TRUNCATE_EXISTING))) {
 			out.write(structImports.getBytes());
 			out.write(structHeader.getBytes());
 			out.write(("\n    public " + typeName + "(" + constructorParams + ") {\n").getBytes());
@@ -627,13 +628,13 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			BaseIdentNode ident = idents.get(i);
 			prev = identRes;
 			identRes = visit(ident);
-			
+
 			// Class methods
 			if (prev.equals("Color") && identRes.endsWith("()")) {
 				identRes = identRes.substring(0, identRes.length()-2);
 				usesColors = true;
 			}
-			
+
 			if (prev.equals("Math")) {
 				// Visit arguments
 				FuncCallNode fc = (FuncCallNode) ident;
@@ -641,7 +642,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				List<String> args = new ArrayList<String>();
 				for (ExpressionNode expr : argExprs)
 					args.add(visit(expr));
-				
+
 				identRes = MathCommands.parseCommand(fc.getIdent(), args);
 				res = "";
 			}
@@ -652,11 +653,11 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				List<String> args = new ArrayList<String>();
 				for (ExpressionNode expr : argExprs)
 					args.add(visit(expr));
-				
+
 				identRes = OutputCommands.parseCommand(fc.getIdent(), args);
 				res = "";
 			}
-			
+
 			res += identRes;
 			if (i < identsSize-1)
 				res += ".";
@@ -800,118 +801,120 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				defs.add((DataStructDefinitionNode) dcl);
 		}
 
-		// Create directory for output files
-		File dir = new File(roboname+"pk");
-
-		// if the directory does not exist, create it
-		if (!dir.exists()) {
-			System.out.println("Creating directory " + roboname + "pk.");
-			boolean result = false;
-
-			try{
-				dir.mkdir();
-				result = true;
-			} 
-			catch(SecurityException se){
-				//handle it
-			}        
-			if(result) {    
-				System.out.println("Directory successfully created.");  
-			}
-		}
-
-		// Start creation of file class
-		try (OutputStream out = new BufferedOutputStream(
-				Files.newOutputStream(Paths.get((roboname+"pk/"+roboname + ".java")), CREATE, TRUNCATE_EXISTING))) {
-
-			// Flags for use in code generation
-			initializingRobot = false;
-			creatingStructClass = false;
-			structInstantiations = new Hashtable<String, String>();
-			assigning = false;
-
-			outputListSetInScope = false;
-
-			usesColors = false;
-			usesMath = false;
-			usesArrays = false;
-
-			robopackage = "package " + roboname + "pk;\n\n"; // FIXME roboname substring to avoid package name being too long
-
-			// Class declaration
-			header = "/**\n * " + roboname + " - a robot created with " + LANG_NAME + "\n */\n";
-
-			header += "public class " + roboname + " extends robocode.Robot {\n\n";
-
-			indentationLevel++;
-
-			// Robot initialization
-			dcls = "\n";
-			dcls += getIndentation() + "/**\n";
-			dcls += getIndentation() + "* run: TheMachine's default behavior\n";
-			dcls += getIndentation() + "*/\n";
-			dcls += getIndentation() + "public void run() {\n";
+		roboHome = System.getenv("ROBOCODE_HOME");
+		if(roboHome!=null){
+			// Create directory for output files
+			File dir = new File(roboHome+"\\robots\\"+roboname+"pk");
 
 
-			indentationLevel++;
+			// if the directory does not exist, create it
+			if (!dir.exists()) {
+				System.out.println("Creating directory " + roboname + "pk.");
+				boolean result = false;
 
-			// Struct definitions
-			for (DataStructDefinitionNode def : defs)
-				visit(def);	// Array initializations will be added to robot initialization
+				try{
+					dir.mkdir();
+					result = true;
+				} 
+				catch(SecurityException se){
+					//handle it
+				}        
+				if(result) {    
+					System.out.println("Directory successfully created.");  
+				}
+			}		
 
-			if (init != null)
-				dcls += visit(init);
 
-			dcls += getIndentation() + "// Robot main loop\n";
-			dcls += getIndentation() + "while(true) {\n";
+			// Start creation of file class
+			try (OutputStream out = new BufferedOutputStream(
+					Files.newOutputStream(Paths.get((roboHome+"\\robots\\"+roboname+"pk/"+roboname + ".java")), CREATE, TRUNCATE_EXISTING))) {
 
-			indentationLevel++;
+				// Flags for use in code generation
+				initializingRobot = false;
+				creatingStructClass = false;
+				structInstantiations = new Hashtable<String, String>();
+				assigning = false;
 
-			// Robot behavior
-			if (behavior != null)
-				dcls += visit(behavior);
+				outputListSetInScope = false;
 
-			indentationLevel--;
+				usesColors = false;
+				usesMath = false;
+				usesArrays = false;
 
-			dcls += getIndentation() + "}\n";
+				robopackage = "package " + roboname + "pk;\n\n"; // FIXME roboname substring to avoid package name being too long
 
-			indentationLevel--;
+				// Class declaration
+				header = "/**\n * " + roboname + " - a robot created with " + LANG_NAME + "\n */\n";
 
-			dcls += getIndentation() + "}\n\n";
+				header += "public class " + roboname + " extends robocode.Robot {\n\n";
 
-			String temp;
-			// Declarations
-			for(DeclarationNode dcl : declarations){
-				temp = visit(dcl);
-				dcls += temp;
-			}
+				indentationLevel++;
 
-			indentationLevel--;
+				// Robot initialization
+				dcls = "\n";
+				dcls += getIndentation() + "/**\n";
+				dcls += getIndentation() + "* run: TheMachine's default behavior\n";
+				dcls += getIndentation() + "*/\n";
+				dcls += getIndentation() + "public void run() {\n";
 
-			dcls += "}";
 
-			// Package
-			imports = robopackage;
+				indentationLevel++;
 
-			// Imports
-			imports += "import robocode.*;\n";
-			if (usesArrays) {
-				imports += "import java.util.List;\n";
-				imports += "import java.util.ArrayList;\n";
-			}
-			if (usesColors)
-				imports += "import java.awt.Color;\n";
-			imports += "\n";
-			out.write(imports.getBytes());
-			out.write(header.getBytes());
-			out.write(dcls.getBytes());
-			out.flush();
-			out.close();
-			if(compileBTR){
-				String javaHome = System.getenv("JAVA_HOME");
-				if(javaHome!=null){
-					String roboHome = System.getenv("ROBOCODE_HOME");
-					if(roboHome !=null){
+				// Struct definitions
+				for (DataStructDefinitionNode def : defs)
+					visit(def);	// Array initializations will be added to robot initialization
+
+				if (init != null)
+					dcls += visit(init);
+
+				dcls += getIndentation() + "// Robot main loop\n";
+				dcls += getIndentation() + "while(true) {\n";
+
+				indentationLevel++;
+
+				// Robot behavior
+				if (behavior != null)
+					dcls += visit(behavior);
+
+				indentationLevel--;
+
+				dcls += getIndentation() + "}\n";
+
+				indentationLevel--;
+
+				dcls += getIndentation() + "}\n\n";
+
+				String temp;
+				// Declarations
+				for(DeclarationNode dcl : declarations){
+					temp = visit(dcl);
+					dcls += temp;
+				}
+
+				indentationLevel--;
+
+				dcls += "}";
+
+				// Package
+				imports = robopackage;
+
+				// Imports
+				imports += "import robocode.*;\n";
+				if (usesArrays) {
+					imports += "import java.util.List;\n";
+					imports += "import java.util.ArrayList;\n";
+				}
+				if (usesColors)
+					imports += "import java.awt.Color;\n";
+				imports += "\n";
+				out.write(imports.getBytes());
+				out.write(header.getBytes());
+				out.write(dcls.getBytes());
+				out.flush();
+				out.close();
+				if(compileBTR){
+					String javaHome = System.getenv("JAVA_HOME");
+					if(javaHome!=null){
 						try{
 							File error = new File(roboname+"pk/log.txt");
 							ProcessBuilder command = new ProcessBuilder(javaHome+"\\bin\\javac","-cp",roboHome+"\\libs\\robocode.jar",roboname+"pk/"+roboname+".java");
@@ -945,17 +948,22 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 						}
 					}
 					else{
-						gui.DisplayError("Missing ROBOCODE_HOME variable");
+
+						gui.DisplayError("Missing JAVA_HOME variable");
+
 					}
 				}
-				else{
-					gui.DisplayError("Missing JAVA_HOME variable");
-				}
-			}
 
+			}
+			catch (IOException ex) {
+				System.out.println("Failed to write target file \"" + roboname + ".java");
+			}
 		}
-		catch (IOException ex) {
-			System.out.println("Failed to write target file \"" + roboname + ".java");
+		else{
+			if(compileBTR)
+				gui.DisplayError("Missing ROBOCODE_HOME variable");
+			else
+				System.out.println("Missing ROBOCODE_HOME variable");
 		}
 
 		return null;
@@ -1147,7 +1155,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				copyConstructor += STRUCT_INDENTATION + STRUCT_INDENTATION;
 				copyConstructor += "this." + ident + " = other." + ident + ";\n";
 			}
-			
+
 			structHeader += STRUCT_INDENTATION + "public " + res + ";\n";
 			return node.getIdent();
 		}
