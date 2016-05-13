@@ -923,7 +923,11 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 					compile();
 				}
 				catch (IOException ex) {
-					System.out.println("Failed to write target file \"" + roboname + ".java");
+					String msg = "Failed to write target file "+ robotsDir+robotsDir+roboname+"pk/"+roboname + ".java";
+					if(hasGui)
+						gui.DisplayError(msg);
+					else
+						System.out.println(msg);
 				}
 			}
 			else{
@@ -965,7 +969,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				e.printStackTrace();
 			}
 			if(!generateJava){
-				File f = new File(roboHome+"\\robots\\"+roboname+"pk/"+roboname+".java");
+				File f = new File(robotsDir+roboname+"pk/"+roboname+".java");
 				f.delete();
 				for(String name : structJavaFileNames)
 					new File(robotsDir+roboname+"pk/"+name+".java").delete();
