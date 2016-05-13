@@ -821,14 +821,17 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 					boolean result = false;
 
 					try{
-						dir.mkdir();
-						result = true;
+						result = dir.mkdir();
 					} 
 					catch(SecurityException se){
 						//handle it
 					}        
 					if(result) {    
 						System.out.println("Directory successfully created.");  
+					}
+					else
+					{
+						System.out.println("Directory failed to be created."); 
 					}
 				}		
 
@@ -923,7 +926,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 					compile();
 				}
 				catch (IOException ex) {
-					String msg = "Failed to write target file "+ robotsDir+robotsDir+roboname+"pk/"+roboname + ".java";
+					String msg = "Failed to write target file "+ robotsDir+roboname+"pk/"+roboname + ".java";
 					if(hasGui)
 						gui.DisplayError(msg);
 					else
