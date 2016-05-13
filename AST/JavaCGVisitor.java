@@ -2,6 +2,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 
 import static java.nio.file.StandardOpenOption.*;
@@ -35,9 +36,11 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	private boolean usesColors, usesMath, usesArrays;
 	private boolean structUsesArrays;
 	private boolean generateJava;
-	private boolean compileBTR = false;
+	private boolean hasGui = false;
 	private Gui gui;
 	private String roboHome;
+	private String javaHome;
+	private List<String> structJavaFileNames = new ArrayList<String>();
 
 	private Hashtable<String, String> structInstantiations;
 
@@ -49,7 +52,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 	public void SetGenerateJava(boolean java){
 		generateJava = java;
-		compileBTR = true;
+		hasGui = true;
 	}
 
 	public void SetGuiPointer(Gui gui){
@@ -411,6 +414,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			out.write(("\n    public " + typeName + "(" + constructorParams + ") {\n").getBytes());
 			out.write(contents.getBytes());
 			out.write(copyConstructor.getBytes());
+			structJavaFileNames.add(typeName);
 		}
 		catch (IOException ex) {
 			System.out.println("Failed to write file \"" + roboname + "pk" + "/" + typeName + ".java\"");
@@ -802,171 +806,183 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		}
 
 		roboHome = System.getenv("ROBOCODE_HOME");
-		if(roboHome!=null){
-			// Create directory for output files
-			File dir = new File(roboHome+"\\robots\\"+roboname+"pk");
+		javaHome = System.getenv("JAVA_HOME");
+		if(javaHome!=null){
+			if(roboHome!=null){
+				// Create directory for output files
+				File dir = new File(roboHome+"\\robots\\"+roboname+"pk");
 
 
-			// if the directory does not exist, create it
-			if (!dir.exists()) {
-				System.out.println("Creating directory " + roboname + "pk.");
-				boolean result = false;
+				// if the directory does not exist, create it
+				if (!dir.exists()) {
+					System.out.println("Creating directory " + roboname + "pk.");
+					boolean result = false;
 
-				try{
-					dir.mkdir();
-					result = true;
-				} 
-				catch(SecurityException se){
-					//handle it
-				}        
-				if(result) {    
-					System.out.println("Directory successfully created.");  
-				}
-			}		
-
-
-			// Start creation of file class
-			try (OutputStream out = new BufferedOutputStream(
-					Files.newOutputStream(Paths.get((roboHome+"\\robots\\"+roboname+"pk/"+roboname + ".java")), CREATE, TRUNCATE_EXISTING))) {
-
-				// Flags for use in code generation
-				initializingRobot = false;
-				creatingStructClass = false;
-				structInstantiations = new Hashtable<String, String>();
-				assigning = false;
-
-				outputListSetInScope = false;
-
-				usesColors = false;
-				usesMath = false;
-				usesArrays = false;
-
-				robopackage = "package " + roboname + "pk;\n\n"; // FIXME roboname substring to avoid package name being too long
-
-				// Class declaration
-				header = "/**\n * " + roboname + " - a robot created with " + LANG_NAME + "\n */\n";
-
-				header += "public class " + roboname + " extends robocode.Robot {\n\n";
-
-				indentationLevel++;
-
-				// Robot initialization
-				dcls = "\n";
-				dcls += getIndentation() + "/**\n";
-				dcls += getIndentation() + "* run: TheMachine's default behavior\n";
-				dcls += getIndentation() + "*/\n";
-				dcls += getIndentation() + "public void run() {\n";
+					try{
+						dir.mkdir();
+						result = true;
+					} 
+					catch(SecurityException se){
+						//handle it
+					}        
+					if(result) {    
+						System.out.println("Directory successfully created.");  
+					}
+				}		
 
 
-				indentationLevel++;
+				// Start creation of file class
+				try (OutputStream out = new BufferedOutputStream(
+						Files.newOutputStream(Paths.get((roboHome+"\\robots\\"+roboname+"pk/"+roboname + ".java")), CREATE, TRUNCATE_EXISTING))) {
 
-				// Struct definitions
-				for (DataStructDefinitionNode def : defs)
-					visit(def);	// Array initializations will be added to robot initialization
+					// Flags for use in code generation
+					initializingRobot = false;
+					creatingStructClass = false;
+					structInstantiations = new Hashtable<String, String>();
+					assigning = false;
 
-				if (init != null)
-					dcls += visit(init);
+					outputListSetInScope = false;
 
-				dcls += getIndentation() + "// Robot main loop\n";
-				dcls += getIndentation() + "while(true) {\n";
+					usesColors = false;
+					usesMath = false;
+					usesArrays = false;
 
-				indentationLevel++;
+					robopackage = "package " + roboname + "pk;\n\n"; // FIXME roboname substring to avoid package name being too long
 
-				// Robot behavior
-				if (behavior != null)
-					dcls += visit(behavior);
+					// Class declaration
+					header = "/**\n * " + roboname + " - a robot created with " + LANG_NAME + "\n */\n";
 
-				indentationLevel--;
+					header += "public class " + roboname + " extends robocode.Robot {\n\n";
 
-				dcls += getIndentation() + "}\n";
+					indentationLevel++;
 
-				indentationLevel--;
+					// Robot initialization
+					dcls = "\n";
+					dcls += getIndentation() + "/**\n";
+					dcls += getIndentation() + "* run: TheMachine's default behavior\n";
+					dcls += getIndentation() + "*/\n";
+					dcls += getIndentation() + "public void run() {\n";
 
-				dcls += getIndentation() + "}\n\n";
 
-				String temp;
-				// Declarations
-				for(DeclarationNode dcl : declarations){
-					temp = visit(dcl);
-					dcls += temp;
-				}
+					indentationLevel++;
 
-				indentationLevel--;
+					// Struct definitions
+					for (DataStructDefinitionNode def : defs)
+						visit(def);	// Array initializations will be added to robot initialization
 
-				dcls += "}";
+					if (init != null)
+						dcls += visit(init);
 
-				// Package
-				imports = robopackage;
+					dcls += getIndentation() + "// Robot main loop\n";
+					dcls += getIndentation() + "while(true) {\n";
 
-				// Imports
-				imports += "import robocode.*;\n";
-				if (usesArrays) {
-					imports += "import java.util.List;\n";
-					imports += "import java.util.ArrayList;\n";
-				}
-				if (usesColors)
-					imports += "import java.awt.Color;\n";
-				imports += "\n";
-				out.write(imports.getBytes());
-				out.write(header.getBytes());
-				out.write(dcls.getBytes());
-				out.flush();
-				out.close();
-				if(compileBTR){
-					String javaHome = System.getenv("JAVA_HOME");
-					if(javaHome!=null){
+					indentationLevel++;
+
+					// Robot behavior
+					if (behavior != null)
+						dcls += visit(behavior);
+
+					indentationLevel--;
+
+					dcls += getIndentation() + "}\n";
+
+					indentationLevel--;
+
+					dcls += getIndentation() + "}\n\n";
+
+					String temp;
+					// Declarations
+					for(DeclarationNode dcl : declarations){
+						temp = visit(dcl);
+						dcls += temp;
+					}
+
+					indentationLevel--;
+
+					dcls += "}";
+
+					// Package
+					imports = robopackage;
+
+					// Imports
+					imports += "import robocode.*;\n";
+					if (usesArrays) {
+						imports += "import java.util.List;\n";
+						imports += "import java.util.ArrayList;\n";
+					}
+					if (usesColors)
+						imports += "import java.awt.Color;\n";
+					imports += "\n";
+					out.write(imports.getBytes());
+					out.write(header.getBytes());
+					out.write(dcls.getBytes());
+					out.flush();
+					out.close();
+					if(hasGui){
 						try{
-							File error = new File(roboname+"pk/log.txt");
-							ProcessBuilder command = new ProcessBuilder(javaHome+"\\bin\\javac","-cp",roboHome+"\\libs\\robocode.jar",roboname+"pk/"+roboname+".java");
+							File error = new File(roboHome+"\\robots\\"+roboname+"pk/log.txt");
+							ProcessBuilder command = new ProcessBuilder(javaHome+"\\bin\\javac","-cp",roboHome+"\\libs\\robocode.jar",roboHome+"\\robots\\"+roboname+"pk/"+roboname+".java");
 							command.redirectError(error);
 							Process ps = command.start();
 							ps.waitFor();
-							if(ps.exitValue()!=0){
-								BufferedReader reader = new BufferedReader(new FileReader(error));
-								String errorString = "";
-								String line = null;
-								while((line = reader.readLine())!=null)
-									errorString += line+"\n";
-								reader.close();
-								System.out.println(errorString);
-								error.delete();
-								gui.DisplayError(errorString);
-								System.exit(0);
+							CheckForCompileErrors(error, ps);
+							for(String name : structJavaFileNames){
+								ProcessBuilder command2 = new ProcessBuilder(javaHome+"\\bin\\javac",roboHome+"\\robots\\"+roboname+"pk/"+name+".java");
+								command2.redirectError(error);
+								Process ps2 = command2.start();
+								ps2.waitFor();
+								CheckForCompileErrors(error, ps2);
 							}
 							error.delete();
 						}
 						catch(IOException ex){
-							gui.DisplayError("Paths may not point to the right directory");
+							gui.DisplayError(ex.getMessage());
 							System.exit(0);
 						} catch (InterruptedException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 						if(!generateJava){
-							File f = new File(roboname+"pk/"+roboname+".java");
+							File f = new File(roboHome+"\\robots\\"+roboname+"pk/"+roboname+".java");
 							f.delete();
 						}
 					}
-					else{
 
-						gui.DisplayError("Missing JAVA_HOME variable");
-
-					}
 				}
-
+				catch (IOException ex) {
+					System.out.println("Failed to write target file \"" + roboname + ".java");
+				}
 			}
-			catch (IOException ex) {
-				System.out.println("Failed to write target file \"" + roboname + ".java");
+			else{
+				if(hasGui)
+					gui.DisplayError("Missing ROBOCODE_HOME variable");
+				else
+					System.out.println("Missing ROBOCODE_HOME variable");
 			}
-		}
-		else{
-			if(compileBTR)
-				gui.DisplayError("Missing ROBOCODE_HOME variable");
+		}else{
+			if(hasGui)
+				gui.DisplayError("Missing JAVA_HOME variable");
 			else
-				System.out.println("Missing ROBOCODE_HOME variable");
+				System.out.println("Missing JAVA_HOME variable");
 		}
 
 		return null;
+	}
+
+	private void CheckForCompileErrors(File error, Process ps)
+			throws FileNotFoundException, IOException {
+		if(ps.exitValue()!=0){
+			BufferedReader reader = new BufferedReader(new FileReader(error));
+			String errorString = "";
+			String line = null;
+			while((line = reader.readLine())!=null)
+				errorString += line+"\n";
+			reader.close();
+			System.out.println(errorString);
+			error.delete();
+			gui.DisplayError(errorString);
+			System.exit(0);
+		}
 	}
 
 	@Override
