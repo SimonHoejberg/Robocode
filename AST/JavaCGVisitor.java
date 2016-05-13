@@ -357,7 +357,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		}
 
 		// Instantiate with default constructor
-		res = ident + " = " + structInstantiations.get(ident);
+		res = ident + " = " + structInstantiations.get(type) + ";";
 
 		return res;
 	}
