@@ -943,21 +943,19 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	}
 
 	private void compile() {
+		List<File> extraFiles = new ArrayList<File>();
 		if(hasGui){
 			try{
 				File error = new File(robotsDir+roboname+"pk/log.txt");
-				String extraJavaFiles = "";
-				for(String name : structJavaFileNames){
-					extraJavaFiles += robotsDir+roboname+"pk/"+name+".java ";
-				}
 				String javac = javaHome+"/bin/javac";
 				String robocodeLib = roboHome+"/libs/robocode.jar";
-				String robot = robotsDir+roboname+"pk/"+roboname+".java";
-				ProcessBuilder command = new ProcessBuilder(javac,"-cp",robocodeLib,robot,extraJavaFiles);
+				String javaFiles = robotsDir+roboname+"pk/"+"*.java"; //Compile all java files in the directory
+				ProcessBuilder command = new ProcessBuilder(javac,"-cp",robocodeLib,javaFiles);
 				command.redirectError(error);
 				Process ps = command.start();
 				ps.waitFor();
 				checkForCompileErrors(error, ps);
+				
 				error.delete();
 			}
 			catch(IOException ex){
@@ -970,6 +968,8 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			if(!generateJava){
 				File f = new File(roboHome+"\\robots\\"+roboname+"pk/"+roboname+".java");
 				f.delete();
+				for(String name : structJavaFileNames)
+					new File(robotsDir+roboname+"pk/"+name+".java").delete();
 			}
 		}
 	}
