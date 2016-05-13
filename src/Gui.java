@@ -67,10 +67,10 @@ public class Gui {
 							System.exit(0);
 						}
 						else if(e.getActionCommand().equals("ApproveSelection")){
-							Hello h = new Hello();
-							SetGuiPointerToCompiler(h);
+							BTR btr = new BTR();
+							SetGuiPointerToCompiler(btr);
 							try {
-								h.Start(fileChooser.getSelectedFile().getPath(), check.isSelected());
+								btr.Start(fileChooser.getSelectedFile().getPath(), check.isSelected());
 							} catch (FileNotFoundException e1) {
 								// TODO Auto-generated catch block
 								e1.printStackTrace();
@@ -107,7 +107,7 @@ public class Gui {
 		this.error = true;
 	}
 	
-	private void SetGuiPointerToCompiler(Hello compiler){
+	private void SetGuiPointerToCompiler(BTR compiler){
 		compiler.SetGuiPointer(this);
 	}
 	

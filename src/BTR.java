@@ -6,20 +6,20 @@ import java.util.List;
 import nodes.ProgramNode;
 
 import org.antlr.v4.runtime.*;
-public class Hello 
+public class BTR 
 {
 	
     public static void main( String[] args) throws Exception
     {        
         ANTLRInputStream input = new ANTLRInputStream(new FileReader("TheMachine.btr"));
 
-		HelloLexer lexer = new HelloLexer(input);
+		BTRLexer lexer = new BTRLexer(input);
 
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 
-		HelloParser parser = new HelloParser(tokens);
+		BTRParser parser = new BTRParser(tokens);
 
-		HelloParser.ProgContext cst = parser.prog();
+		BTRParser.ProgContext cst = parser.prog();
 		ProgramNode ast = (ProgramNode) new BuildASTVisitor().visitProg(cst);
 		new PrettyPrintVisitor().visit(ast);
 		TypeCheckVisitor typeCheckVis = new TypeCheckVisitor();
@@ -68,14 +68,14 @@ public class Hello
 	public void Start(String file,boolean Java) throws FileNotFoundException, IOException{
 		ANTLRInputStream input = new ANTLRInputStream(new FileReader(file));
 
-		HelloLexer lexer = new HelloLexer(input);
+		BTRLexer lexer = new BTRLexer(input);
 
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 
-		HelloParser parser = new HelloParser(tokens);
+		BTRParser parser = new BTRParser(tokens);
 		BtrErrorListner btrError = new BtrErrorListner();
 		parser.addErrorListener(btrError);
-		HelloParser.ProgContext cst = parser.prog();
+		BTRParser.ProgContext cst = parser.prog();
 		ProgramNode ast = (ProgramNode) new BuildASTVisitor().visitProg(cst);
 		if(btrError.getErrors().equals("")){
 			TypeCheckVisitor typeCheckVis = new TypeCheckVisitor();

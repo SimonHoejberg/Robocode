@@ -1,4 +1,4 @@
-grammar Hello;
+grammar BTR;
 
 prog : dcls;         			
 
