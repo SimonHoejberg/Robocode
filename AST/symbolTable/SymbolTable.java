@@ -86,13 +86,13 @@ public class SymbolTable implements SymbolTableInterface {
 		}		
 	}
 	
-	public boolean declaredOneAbove(String ident) {
+	public boolean declaredInCurrentSubprogram(String ident) {
 		// Retrieve symbol
 		try {
 			SymbolTableEntry entry = retrieveSymbol(ident);
 			
-			// If symbol is in current scope, return true
-			return entry.getScope() == (currentScope-1);
+			// If symbol declared in the current subprogram, return true (scope 0 is global)
+			return entry.getScope() > 0;
 		}
 		catch (Exception ex) {
 			return false;

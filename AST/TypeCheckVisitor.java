@@ -984,7 +984,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				}
 				if(inIfForOrWhile){
 					try {
-						above = symbolTable.declaredOneAbove(var.getIdent());
+						above = symbolTable.declaredInCurrentSubprogram(var.getIdent());
 					}
 					catch (Exception ex) {
 						above = false;
@@ -1029,7 +1029,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		}
 		if(inIfForOrWhile){
 			try {
-				above = symbolTable.declaredOneAbove(node.getIdent());
+				above = symbolTable.declaredInCurrentSubprogram(node.getIdent());
 			}
 			catch (Exception ex) {
 				above = false;
