@@ -17,6 +17,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
 
 public class Gui {
 
@@ -85,14 +87,20 @@ public class Gui {
 					}
 				});
 				fileChooser.setApproveButtonText("Compile");
-				check.setHorizontalAlignment(SwingConstants.RIGHT);
 				panel.add(fileChooser, BorderLayout.CENTER);
-				panel.add(check, BorderLayout.SOUTH);
 				frame.getContentPane().add(panel);
+				
+				JPanel panel_1 = new JPanel();
+				panel.add(panel_1, BorderLayout.SOUTH);
+				panel_1.setLayout(new BorderLayout(0, 0));
+				
+				panel_1.add(check, BorderLayout.EAST);
+				check.setHorizontalAlignment(SwingConstants.LEFT);
 				frame.pack();
 				frame.setLocationByPlatform(true);
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				frame.setVisible(true);
+				
 
 			}
 		});

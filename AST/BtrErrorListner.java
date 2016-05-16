@@ -6,9 +6,14 @@ import org.antlr.v4.runtime.dfa.DFA;
 public class BtrErrorListner implements ANTLRErrorListener {
 
 	private String errors = "";
+	private boolean hasErrors = false;
 	
 	public String getErrors(){
 		return errors;
+	}
+	
+	public boolean hasErrors(){
+		return hasErrors;
 	}
 
 	@Override
@@ -36,6 +41,7 @@ public class BtrErrorListner implements ANTLRErrorListener {
 	public void syntaxError(Recognizer<?, ?> arg0, Object arg1, int arg2,
 			int arg3, String arg4, RecognitionException arg5) {
 		errors += "line "+ arg2 +":"+ arg3 +" "+ arg4 +"\n";
+		hasErrors = true;
 		
 	}
 

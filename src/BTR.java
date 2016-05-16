@@ -77,7 +77,7 @@ public class BTR
 		parser.addErrorListener(btrError);
 		BTRParser.ProgContext cst = parser.prog();
 		ProgramNode ast = (ProgramNode) new BuildASTVisitor().visitProg(cst);
-		if(btrError.getErrors().equals("")){
+		if(!btrError.hasErrors()){
 			TypeCheckVisitor typeCheckVis = new TypeCheckVisitor();
 			typeCheckVis.addFuncDcls(ast);
 			typeCheckVis.visit(ast);
@@ -109,7 +109,6 @@ public class BTR
 				if(errors != 0)
 					System.exit(0);
 			}
-
 
 			if (errors == 0) {
 				JavaCGVisitor javaCGVis = new JavaCGVisitor();
