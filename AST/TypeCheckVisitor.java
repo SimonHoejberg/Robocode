@@ -1125,26 +1125,23 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	private void addUsageWarnings(List<SymbolTableEntry> entries) {
 		for (SymbolTableEntry entry : entries) {
 			if (entry instanceof STArrayEntry) {
-				warnings++;
 				AbstractNode node = entry.getNode();
 				if (node instanceof ArrayDeclarationNode)
-					problems.add(0, new TypeCheckWarning(entry.getNode(), "The array " + ((ArrayDeclarationNode) node).getIdent() + " is never used"));
+					addWarning(entry.getNode(), "The variable " + ((ArrayDeclarationNode) node).getIdent() + " is never used");
 				else
 					throw new NotImplementedException();
 			}
 			else if (entry instanceof STStructEntry) {
-				warnings++;
 				AbstractNode node = entry.getNode();
 				if (node instanceof DataStructDeclarationNode)
-					problems.add(0, new TypeCheckWarning(entry.getNode(), "The container " + ((DataStructDeclarationNode) node).getIdent() + " is never used"));
+					addWarning(entry.getNode(), "The variable " + ((DataStructDeclarationNode) node).getIdent() + " is never used");
 				else
 					throw new NotImplementedException();
 			}
 			else if (entry instanceof STTypeEntry) {
-				warnings++;
 				AbstractNode node = entry.getNode();
 				if (node instanceof VarNode)
-					problems.add(0, new TypeCheckWarning(entry.getNode(), "The variable " + ((VarNode) node).getIdent() + " is never used"));
+					addWarning(entry.getNode(), "The variable " + ((VarNode) node).getIdent() + " is never used");
 				else 
 					throw new NotImplementedException();
 			}
