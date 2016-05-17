@@ -3,9 +3,9 @@ package symbolTable;
 public class STTypeEntry extends SymbolTableEntry {
 	private Object type;
 	
-	public STTypeEntry(Object type) {
+	public STTypeEntry(Object type, boolean used) {
 		this.type = type;
-		used = false;
+		this.used = used;
 	}
 	
 	public Object getType() {

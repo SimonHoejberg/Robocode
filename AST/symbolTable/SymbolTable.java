@@ -104,6 +104,17 @@ public class SymbolTable implements SymbolTableInterface {
 		}		
 	}
 	
+	public void checkGlobalVarUsage() {
+		// Chheck entries in global scope
+		for (String ident : scopeEntries.get(0)) {
+			Stack<SymbolTableEntry> stack = table.get(ident);
+			SymbolTableEntry entry = stack.peek();
+			// If the symbol was never used, add to list of unused symbols
+			if (!entry.getUsed())
+				unusedSymbols.add(entry);
+		}
+	}
+	
 	public List<SymbolTableEntry> getUnusedSymbols() {
 		return unusedSymbols;
 	}

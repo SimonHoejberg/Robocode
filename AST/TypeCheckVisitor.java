@@ -126,7 +126,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		}
 		
 		// Add variable to symbol table
-		STArrayEntry entry = new STArrayEntry(varType);
+		STArrayEntry entry = new STArrayEntry(varType, false);
 		entry.setNode(node);
 		if(currentStructDef == null)
 			symbolTable.enterSymbol(node.getIdent(), entry);		// new STArrayEntry(((String) varType + "[]").intern())
@@ -354,7 +354,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		}
 		
 		// Add variable to symbol table
-		STStructEntry entry = new STStructEntry(node.getType().intern());
+		STStructEntry entry = new STStructEntry(node.getType().intern(), false);
 		entry.setNode(node);
 		if(currentStructDef == null)
 			symbolTable.enterSymbol(node.getIdent(), entry);
@@ -439,7 +439,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		eventParams.add(node.getParam());
 		symbolTable.enterSymbol(node.getIdent(), new STSubprogramEntry(SubprogramType.event,new ArrayList<TypeNode>(),eventParams));
 		symbolTable.openScope();
-		STTypeEntry entry = new STTypeEntry(node.getParam().getType().intern());
+		STTypeEntry entry = new STTypeEntry(node.getParam().getType().intern(), true);
 		entry.setNode(node.getParam());
 		symbolTable.enterSymbol(node.getParam().getIdent(), entry);
 		List<StatementNode> input = node.getStatements();
@@ -613,7 +613,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		symbolTable.enterSymbol(currentFuncDclName, currentFuncDcl); 
 		symbolTable.openScope();
 		for(VarNode param : params) {
-			STTypeEntry entry = new STTypeEntry(param.getType().intern());
+			STTypeEntry entry = new STTypeEntry(param.getType().intern(), false);
 			entry.setNode(param);
 			symbolTable.enterSymbol(param.getIdent(), entry);
 		}
@@ -818,6 +818,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			problems.add(0, new TypeCheckWarning(node, "Missing Robot initialization"));
 		}
 		
+		symbolTable.checkGlobalVarUsage();
 		addUsageWarnings(symbolTable.getUnusedSymbols());
 		
 		node.setNodeType(VOID);
@@ -1028,7 +1029,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				Object varType = var.getType().intern();
 				
 				// Add variable to symbol table
-				STTypeEntry entry = new STTypeEntry(varType);
+				STTypeEntry entry = new STTypeEntry(varType, false);
 				entry.setNode(var);
 				if(currentStructDef == null)
 					symbolTable.enterSymbol(var.getIdent(), entry);
@@ -1074,7 +1075,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		
 		Object varType = node.getType().intern();
 		
-		STTypeEntry entry = new STTypeEntry(varType);
+		STTypeEntry entry = new STTypeEntry(varType, false);
 		entry.setNode(node);
 		symbolTable.enterSymbol(node.getIdent(), entry);
 		node.setNodeType(varType);
