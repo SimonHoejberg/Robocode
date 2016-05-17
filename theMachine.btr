@@ -1,14 +1,87 @@
 roboname := "TheMachine"
 
+container rage {bool yes := true}
+
+func num, num getM(){
+	return 2,3
+}
+
+container simon{
+	num victor := 1
+ 	num emil[3], boolean damn := arrayAndBool()
+ 	rage mad
+ 	num hej[5]
+ 	rage alsoMad[5]
+ 	num b, num a := getM()
+}
+
 robot initialization(){
 	num turnDirection := 1
 	bool moving := false
 	num remainingDistance := 0
+	simon dude[2]
+	simon otherDude[] := dude
+	num testingTwoArrays[8]
+	num haha := turnDirection / 0
+	num hahahaha := Math.sqrt(4)
+	dude[1].victor := 2
+	dude[0].mad.yes := false
+	dude[1].emil[0] := 2
 	
 	setBodyColor(Color.gray())
 	setGunColor(Color.lightGray())
 	setRadarColor(Color.red())
 	setBulletColor(Color.black())
+}
+
+func num[], bool arrayAndBool() {
+	turnDirection :=2
+	num out[3]
+	out[0] := 1
+	out[1] := 2
+	out[2] := 3
+	return out, true
+}
+
+func num, num, num test3(){
+	return 2,4,6
+}
+
+func num[] test4(){
+	return dude[1].emil
+}
+
+func num, simon,bool test2(){
+	bool epic := false
+	num janus[], epic := arrayAndBool()
+	num extraJanus[], boolean evenMoreEpic := arrayAndBool()
+	num hej := 0
+	num hej2 := 0
+	num hej3 := 0
+	num he22[3] := test4()
+	hej, hej2, hej3 +:= test3()
+	return 2, dude[0],true
+}
+
+func simon getTheSimon(){
+	num hej, simon s, bool yes := test2()
+	hej := 2
+	return dude[1]
+}
+
+func num, text, bool test(num yea){
+	simon Simon := getTheSimon()
+	return 2*yea,"hej", true
+}
+
+func num doStuff(){
+	num hej := 0
+	text t := ""
+	bool f := false
+	hej,t,f := test(7)
+	num jaeh, num yunus, num helmut := test3()
+	num heee, text lol, bool yep := test(2)
+	return (dude[1].victor + 1)/5
 }
 
 
@@ -17,6 +90,7 @@ func num, bool, text test(num i){
 }
 
 robot behavior(){
+	num supertest[4]
 	num n, bool b, text t := test(2)
 	Output.printLine("running")
 	if (moving){
