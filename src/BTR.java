@@ -69,11 +69,11 @@ public class BTR
 		ANTLRInputStream input = new ANTLRInputStream(new FileReader(file));
 
 		BTRLexer lexer = new BTRLexer(input);
-
+		BtrErrorListner btrError = new BtrErrorListner();
+		lexer.addErrorListener(btrError);
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 
 		BTRParser parser = new BTRParser(tokens);
-		BtrErrorListner btrError = new BtrErrorListner();
 		parser.addErrorListener(btrError);
 		BTRParser.ProgContext cst = parser.prog();
 		ProgramNode ast = (ProgramNode) new BuildASTVisitor().visitProg(cst);

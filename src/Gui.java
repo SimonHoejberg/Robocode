@@ -1,5 +1,6 @@
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -12,6 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -110,20 +112,17 @@ public class Gui {
 		return error;
 	}
 	
-	public void DisplayError(String error){
-		JOptionPane.showMessageDialog(frame, new JTextArea(error),"Error",JOptionPane.ERROR_MESSAGE);
-		this.error = true;
-	}
-	
 	private void SetGuiPointerToCompiler(BTR compiler){
 		compiler.SetGuiPointer(this);
 	}
 	
-	public void ShowConsole(String stream){
+	public void ShowConsole(String msg){
 		JTextArea text = new JTextArea();
 		text.setEditable(false);
-		text.setText(stream);
-		JOptionPane.showMessageDialog(frame, text,"Console",JOptionPane.ERROR_MESSAGE);
+		text.setText(msg);
+		JScrollPane pane = new JScrollPane(text);
+		pane.setPreferredSize(new Dimension(500,500));
+		JOptionPane.showMessageDialog(frame, pane,"Console",JOptionPane.ERROR_MESSAGE);
 	}
 
 	/**

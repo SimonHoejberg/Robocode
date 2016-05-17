@@ -33,7 +33,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	private boolean outputListSetInScope;
 	private boolean lastBaseIdent, lastIdentIsArrayEntry;
 	private String lastIdentIndex;
-	private boolean usesColors, usesMath, usesArrays;
+	private boolean usesColors, usesMath, usesArrays, inStructDef = false;
 	private boolean structUsesArrays;
 	private boolean generateJava;
 	private boolean hasGui = false;
@@ -42,6 +42,8 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	private String javaHome;
 	private List<String> structJavaFileNames = new ArrayList<String>();
 	private String robotsDir;
+	private LibraryImporter libImporter;
+	private List<String> RobocodeMethodIdents;
 
 	private Hashtable<String, String> structInstantiations;
 
@@ -49,6 +51,14 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 	public JavaCGVisitor() {
 		indentationLevel = 0;
+		libImporter = new LibraryImporter();
+		RobocodeMethodIdents = new ArrayList<String>();
+		try {
+			libImporter.importLibrariesCG(RobocodeMethodIdents, "Robot");
+		}
+		catch (IOException ex) {
+			System.out.println("Import failed! " + ex.getMessage());
+		}
 	}
 
 	public void SetGenerateJava(boolean java){
@@ -474,7 +484,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			}
 			String firstString = dcls.substring(0, last+1);
 			indentationLevel++;
-			String payloadString =getIndentation()+getEventName(node)+"("+node.getParam().getIdent()+");";
+			String payloadString =getIndentation()+"__"+node.getIdent()+"("+node.getParam().getIdent()+");";
 			indentationLevel--;
 			String endStrng = dcls.substring(last+1);
 			dcls= firstString+"\n"+payloadString+endStrng;
@@ -484,7 +494,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			res+=getIndentation()+"@Override\n";
 			res+=getIndentation()+"public void "+getEventMethodName(node.getParam().getType())+"("+node.getParam().getType()+" "+node.getParam().getIdent()+"){\n";
 			indentationLevel++;
-			res+=getIndentation()+getEventName(node)+"("+node.getParam().getIdent()+");\n";
+			res+=getIndentation()+"__"+node.getIdent()+"("+node.getParam().getIdent()+");\n";
 			indentationLevel--;
 			res+=getIndentation()+"}\n\n";
 			res+=AddEventMethod(node);
@@ -494,17 +504,8 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		return res;
 	}
 
-	private String getEventName(EventDeclarationNode node){
-		if(getEventMethodName(node.getParam().getType()).equals(node.getIdent())){
-			return "_"+node.getIdent();
-		}
-		else{
-			return node.getIdent();
-		}
-	}
-
 	private String AddEventMethod(EventDeclarationNode node){
-		String rest = getIndentation()+"private void " + getEventName(node) +"("+node.getParam().getType()+ " " +node.getParam().getIdent()+"){\n";
+		String rest = getIndentation()+"private void " + "__"+node.getIdent() +"("+node.getParam().getType()+ " " +node.getParam().getIdent()+"){\n";
 		List<StatementNode> stms = node.getStatements();
 		indentationLevel++; 
 		for(StatementNode stm : stms)
@@ -572,7 +573,11 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 	@Override
 	public String visit(FuncCallNode node) {
-		String res = node.getIdent();
+		String res = "";
+		if(inStructDef || RobocodeMethodIdents.contains(node.getIdent()))
+			res = node.getIdent();
+		else
+			res = "_"+node.getIdent();
 
 		res += "(";
 		List<ExpressionNode> args = node.getArguments();
@@ -592,9 +597,9 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	public String visit(FuncDeclarationNode node) {
 		String res = "";
 		if(node.getReturnTypes().size()!= 1 && node.getReturnTypes().size() != 0)
-			res = getIndentation()+ "public java.util.List<Object> " +node.getIdent() +"(";
+			res = getIndentation()+ "public java.util.List<Object> " +"_"+node.getIdent() +"(";
 		else
-			res = getIndentation()+ "public " + convertTypeForList(visit(node.getReturnTypes().get(0)))+ " " +node.getIdent() +"(";
+			res = getIndentation()+ "public " + convertTypeForList(visit(node.getReturnTypes().get(0)))+ " " +"_"+node.getIdent() +"(";
 		List<VarNode> params = node.getParamList();
 
 		for(VarNode param : params) {
@@ -632,7 +637,10 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				lastBaseIdent = true;
 			BaseIdentNode ident = idents.get(i);
 			prev = identRes;
+			if(i > 0)
+				inStructDef = true;
 			identRes = visit(ident);
+			inStructDef = false;
 
 			// Class methods
 			if (prev.equals("Color") && identRes.endsWith("()")) {
@@ -928,20 +936,20 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				catch (IOException ex) {
 					String msg = "Failed to write target file "+ robotsDir+roboname+"pk/"+roboname + ".java";
 					if(hasGui)
-						gui.DisplayError(msg);
+						gui.ShowConsole(msg);
 					else
 						System.out.println(msg);
 				}
 			}
 			else{
 				if(hasGui)
-					gui.DisplayError("Missing ROBOCODE_HOME variable");
+					gui.ShowConsole("Missing ROBOCODE_HOME variable");
 				else
 					System.out.println("Missing ROBOCODE_HOME variable");
 			}
 		}else{
 			if(hasGui)
-				gui.DisplayError("Missing JAVA_HOME variable");
+				gui.ShowConsole("Missing JAVA_HOME variable");
 			else
 				System.out.println("Missing JAVA_HOME variable");
 		}
@@ -965,7 +973,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				error.delete();
 			}
 			catch(IOException ex){
-				gui.DisplayError(ex.getMessage());
+				gui.ShowConsole(ex.getMessage());
 				System.exit(0);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -991,7 +999,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			reader.close();
 			System.out.println(errorString);
 			error.delete();
-			gui.DisplayError(errorString);
+			gui.ShowConsole(errorString);
 			System.exit(0);
 		}
 	}
@@ -1173,7 +1181,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 
 	@Override
 	public String visit(VarNode node) {
-		String res = convertType(node.getType()) + " " + node.getIdent();
+		String res = convertType(node.getType()) + " " +node.getIdent();
 		if (creatingStructClass) {
 			// Add to copy constructor
 			String type = node.getType();

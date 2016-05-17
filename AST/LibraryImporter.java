@@ -33,6 +33,20 @@ public class LibraryImporter {
 		return new InputStreamReader(LibraryImporter.class.getResourceAsStream("/lib/"+name));
 	}
 	
+	public void importLibrariesCG(List<String> list,String libname) throws IOException{
+		GetFile(libname);
+		ANTLRInputStream docInput = new ANTLRInputStream(GetFile(libname));
+		RoboDocLexer docLexer = new RoboDocLexer(docInput);
+    	CommonTokenStream docTokens = new CommonTokenStream(docLexer);
+    	RoboDocParser docParser = new RoboDocParser(docTokens);
+    	RoboDocParser.ProgContext docCst = docParser.prog();
+    	Library lib = (Library) new BuildDocASTVisitor().visit(docCst);
+    	
+    	List<Method> methods = lib.getMethods();
+    	for (Method method : methods) 
+    		list.add(method.getIdent());
+	}
+	
 	public void importLibraries(SymbolTable st, String libname, boolean isObject) throws IOException {		
 		GetFile(libname);
 		ANTLRInputStream docInput = new ANTLRInputStream(GetFile(libname));
