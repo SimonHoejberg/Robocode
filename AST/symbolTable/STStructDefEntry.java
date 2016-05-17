@@ -8,6 +8,7 @@ public class STStructDefEntry extends SymbolTableEntry {
 	public STStructDefEntry(boolean isClass, SymbolTable vars) {
 		this.isClass = isClass;
 		this.vars = vars;
+		used = false;
 	}
 	
 	public SymbolTable getVariables() {

@@ -5,6 +5,7 @@ public class STTypeEntry extends SymbolTableEntry {
 	
 	public STTypeEntry(Object type) {
 		this.type = type;
+		used = false;
 	}
 	
 	public Object getType() {

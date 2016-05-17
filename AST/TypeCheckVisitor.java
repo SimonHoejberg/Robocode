@@ -19,7 +19,8 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	private STStructDefEntry currentStructDef;
 	private STSubprogramEntry currentFuncDcl;
 	private boolean identHasFuncCall;
-	private boolean inIfForOrWhile = false;
+	private boolean inIfForOrWhile;
+	private boolean visitingExpression;
 	private String currentStructRefName, currentFuncDclName;
 	final Object 	NUM = "num".intern(),
 					TEXT = "text".intern(),
@@ -36,6 +37,10 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		symbolTable = new SymbolTable();
 		funcDcls = new SymbolTable();
 		problems = new ArrayList<TypeCheckProblem>();
+		
+		inIfForOrWhile = false;
+		visitingExpression = false;
+		
 		libImporter = new LibraryImporter();
 		try {
 
@@ -121,10 +126,12 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		}
 		
 		// Add variable to symbol table
+		STArrayEntry entry = new STArrayEntry(varType);
+		entry.setNode(node);
 		if(currentStructDef == null)
-			symbolTable.enterSymbol(node.getIdent(), new STArrayEntry(varType));		// new STArrayEntry(((String) varType + "[]").intern())
+			symbolTable.enterSymbol(node.getIdent(), entry);		// new STArrayEntry(((String) varType + "[]").intern())
 		else	
-			currentStructDef.getVariables().enterSymbol(node.getIdent(), new STArrayEntry(varType)); 	// new STArrayEntry(((String) varType + "[]").intern())
+			currentStructDef.getVariables().enterSymbol(node.getIdent(), entry); 	// new STArrayEntry(((String) varType + "[]").intern())
 		
 		if (node.getSize() != null) {
 			Object sizeType = visit(node.getSize());
@@ -237,6 +244,9 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			else
 				entry = currentStructRef.getVariables().retrieveSymbol(node.getIdent());
 			
+			if (visitingExpression)
+				entry.useSymbol();
+			
 			Object type;
 			if (entry instanceof STStructEntry) {
 				type = ((STStructEntry) entry).getType();
@@ -344,10 +354,12 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		}
 		
 		// Add variable to symbol table
+		STStructEntry entry = new STStructEntry(node.getType().intern());
+		entry.setNode(node);
 		if(currentStructDef == null)
-			symbolTable.enterSymbol(node.getIdent(), new STStructEntry(node.getType().intern()));
+			symbolTable.enterSymbol(node.getIdent(), entry);
 		else
-			currentStructDef.getVariables().enterSymbol(node.getIdent(), new STStructEntry(node.getType().intern()));
+			currentStructDef.getVariables().enterSymbol(node.getIdent(), entry);
 		node.setNodeType(node.getType().intern());
 		return node.getType().intern();
 	}
@@ -414,7 +426,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	@Override
 	public Object visit(EventDeclarationNode node) {
 		boolean local;
-		
+
 		local = symbolTable.declaredLocally(node.getIdent());
 				
 		if (local) {
@@ -427,7 +439,9 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		eventParams.add(node.getParam());
 		symbolTable.enterSymbol(node.getIdent(), new STSubprogramEntry(SubprogramType.event,new ArrayList<TypeNode>(),eventParams));
 		symbolTable.openScope();
-		symbolTable.enterSymbol(node.getParam().getIdent(), new STTypeEntry(node.getParam().getType().intern()));
+		STTypeEntry entry = new STTypeEntry(node.getParam().getType().intern());
+		entry.setNode(node.getParam());
+		symbolTable.enterSymbol(node.getParam().getIdent(), entry);
 		List<StatementNode> input = node.getStatements();
 		for(StatementNode i : input)
 			visit(i);
@@ -439,23 +453,28 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 
 	@Override
 	public Object visit(ExpressionNode node) {
+		Object res;
+		visitingExpression = true;
 		if (node instanceof LogicalORExprNode)
-			return visit((LogicalORExprNode) node);
+			res = visit((LogicalORExprNode) node);
 		else if (node instanceof LogicalANDExprNode)
-			return visit((LogicalANDExprNode) node);
+			res = visit((LogicalANDExprNode) node);
 		else if (node instanceof EqualityExprNode)
-			return visit((EqualityExprNode) node);
+			res = visit((EqualityExprNode) node);
 		else if (node instanceof RelationExprNode)
-			return visit((RelationExprNode) node);
+			res = visit((RelationExprNode) node);
 		else if (node instanceof AdditiveExprNode)
-			return visit((AdditiveExprNode) node);
+			res = visit((AdditiveExprNode) node);
 		else if (node instanceof MultExprNode)
-			return visit((MultExprNode) node);
+			res = visit((MultExprNode) node);
 		else if (node instanceof UnaryExprNode)
-			return visit((UnaryExprNode) node);
+			res = visit((UnaryExprNode) node);
 		else if (node instanceof PrimaryExprNode)
-			return visit((PrimaryExprNode) node);
-		throw new NotImplementedException();
+			res = visit((PrimaryExprNode) node);
+		else
+			throw new NotImplementedException();
+		visitingExpression = false;
+		return res;
 	}
 
 	@Override
@@ -510,6 +529,9 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 					entry = funcDcls.retrieveSymbol(node.getIdent());
 				}
 			}
+			
+			if (visitingExpression)
+				entry.useSymbol();
 				
 			if (entry instanceof STSubprogramEntry) {
 				STSubprogramEntry subprogram = (STSubprogramEntry) entry;
@@ -586,11 +608,15 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		// Add FuncDcl to symbol table
 		List<VarNode> params = node.getParamList();
 		currentFuncDcl = new STSubprogramEntry(SubprogramType.func,node.getReturnTypes(),params);
+		currentFuncDcl.setNode(node);
 		currentFuncDclName = node.getIdent();
 		symbolTable.enterSymbol(currentFuncDclName, currentFuncDcl); 
 		symbolTable.openScope();
-		for(VarNode param : params)
-			symbolTable.enterSymbol(param.getIdent(), new STTypeEntry(param.getType().intern()));
+		for(VarNode param : params) {
+			STTypeEntry entry = new STTypeEntry(param.getType().intern());
+			entry.setNode(param);
+			symbolTable.enterSymbol(param.getIdent(), entry);
+		}
 		List<StatementNode> input = node.getStatements();
 		for(StatementNode i : input)
 			visit(i);
@@ -791,6 +817,9 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			warnings++;
 			problems.add(0, new TypeCheckWarning(node, "Missing Robot initialization"));
 		}
+		
+		addUsageWarnings(symbolTable.getUnusedSymbols());
+		
 		node.setNodeType(VOID);
 		return VOID;
 	}
@@ -999,10 +1028,12 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				Object varType = var.getType().intern();
 				
 				// Add variable to symbol table
+				STTypeEntry entry = new STTypeEntry(varType);
+				entry.setNode(var);
 				if(currentStructDef == null)
-					symbolTable.enterSymbol(var.getIdent(), new STTypeEntry(varType));
+					symbolTable.enterSymbol(var.getIdent(), entry);
 				else
-					currentStructDef.getVariables().enterSymbol(var.getIdent(), new STTypeEntry(varType));
+					currentStructDef.getVariables().enterSymbol(var.getIdent(), entry);
 				if (varType == rhsType.get(i))	// TODO support multiple return
 					continue;
 				
@@ -1043,7 +1074,9 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 		
 		Object varType = node.getType().intern();
 		
-		symbolTable.enterSymbol(node.getIdent(), new STTypeEntry(varType));
+		STTypeEntry entry = new STTypeEntry(varType);
+		entry.setNode(node);
+		symbolTable.enterSymbol(node.getIdent(), entry);
 		node.setNodeType(varType);
 		return varType;
 	}
@@ -1085,6 +1118,35 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 									 new STSubprogramEntry(STSubprogramEntry.SubprogramType.func,
 											 			   func.getReturnTypes(),
 											 			   func.getParamList()));
+			}
+		}
+	}
+	
+	private void addUsageWarnings(List<SymbolTableEntry> entries) {
+		for (SymbolTableEntry entry : entries) {
+			if (entry instanceof STArrayEntry) {
+				warnings++;
+				AbstractNode node = entry.getNode();
+				if (node instanceof ArrayDeclarationNode)
+					problems.add(0, new TypeCheckWarning(entry.getNode(), "The array " + ((ArrayDeclarationNode) node).getIdent() + " is never used"));
+				else
+					throw new NotImplementedException();
+			}
+			else if (entry instanceof STStructEntry) {
+				warnings++;
+				AbstractNode node = entry.getNode();
+				if (node instanceof DataStructDeclarationNode)
+					problems.add(0, new TypeCheckWarning(entry.getNode(), "The container " + ((DataStructDeclarationNode) node).getIdent() + " is never used"));
+				else
+					throw new NotImplementedException();
+			}
+			else if (entry instanceof STTypeEntry) {
+				warnings++;
+				AbstractNode node = entry.getNode();
+				if (node instanceof VarNode)
+					problems.add(0, new TypeCheckWarning(entry.getNode(), "The variable " + ((VarNode) node).getIdent() + " is never used"));
+				else 
+					throw new NotImplementedException();
 			}
 		}
 	}

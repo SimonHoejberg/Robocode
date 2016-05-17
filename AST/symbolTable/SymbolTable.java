@@ -6,6 +6,7 @@ public class SymbolTable implements SymbolTableInterface {
 	private int currentScope;
 	private Hashtable<String, Stack<SymbolTableEntry>> table;
 	private List<List<String>> scopeEntries;
+	private List<SymbolTableEntry> unusedSymbols;
 	
 	
 	public SymbolTable() {
@@ -13,6 +14,7 @@ public class SymbolTable implements SymbolTableInterface {
 		table = new Hashtable<String, Stack<SymbolTableEntry>>();
 		scopeEntries = new ArrayList<List<String>>();
 		scopeEntries.add(new ArrayList<String>());
+		unusedSymbols = new ArrayList<SymbolTableEntry>();
 	}
 	
 	public void openScope() {
@@ -24,7 +26,10 @@ public class SymbolTable implements SymbolTableInterface {
 		// Remove entries in current scope
 		for (String ident : scopeEntries.get(currentScope)) {
 			Stack<SymbolTableEntry> stack = table.get(ident);
-			stack.pop();
+			SymbolTableEntry entry = stack.pop();
+			// If the symbol was never used, add to list of unused symbols
+			if (!entry.getUsed())
+				unusedSymbols.add(entry);
 			// If stack is empty, remove it from the table
 			if (stack.isEmpty())
 				table.remove(ident);
@@ -97,5 +102,9 @@ public class SymbolTable implements SymbolTableInterface {
 		catch (Exception ex) {
 			return false;
 		}		
+	}
+	
+	public List<SymbolTableEntry> getUnusedSymbols() {
+		return unusedSymbols;
 	}
 }

@@ -17,6 +17,7 @@ public class STSubprogramEntry extends SymbolTableEntry {
 		this.type = type;
 		this.returnTypes = returnTypes;
 		this.params = params;
+		used = false;
 	}
 	
 	public SubprogramType getType() {
