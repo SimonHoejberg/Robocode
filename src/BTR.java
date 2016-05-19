@@ -11,7 +11,7 @@ public class BTR
 	
     public static void main( String[] args) throws Exception
     {        
-        ANTLRInputStream input = new ANTLRInputStream(new FileReader("TheMachine.btr"));
+        ANTLRInputStream input = new ANTLRInputStream(new FileReader("simtest.btr"));
 
 		BTRLexer lexer = new BTRLexer(input);
 

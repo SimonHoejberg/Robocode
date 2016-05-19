@@ -313,6 +313,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		ExpressionNode index = node.getIndex();
 		if (node.getIndex() != null) {
 			if (lastBaseIdent && assigning) {
+				System.out.println(node.getIdent());
 				lastIdentIsArrayEntry = true;
 				lastIdentIndex = castIndex(index);
 			}
@@ -797,7 +798,8 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		RobotDeclarationNode init = null;
 		RobotDeclarationNode behavior = null;
 		List<DataStructDefinitionNode> defs = new ArrayList<DataStructDefinitionNode>();
-
+		System.out.println("hejsa");
+		
 		List<DeclarationNode> declarations = node.getDeclarations();
 		for(DeclarationNode dcl : declarations) {
 			if (dcl instanceof RobotDeclarationNode) {
