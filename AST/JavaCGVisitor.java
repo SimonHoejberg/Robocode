@@ -31,8 +31,9 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	private String robopackage;
 	private boolean initializingRobot, creatingStructClass, assigning;
 	private boolean outputListSetInScope;
-	private boolean lastBaseIdent, lastIdentIsArrayEntry;
+	private boolean lastBaseIdent, lastIdentIsArrayEntry, isCastingIndex = false;
 	private String lastIdentIndex;
+	private ExpressionNode indexToCast;
 	private boolean usesColors, usesMath, usesArrays, inStructDef = false;
 	private boolean structUsesArrays;
 	private boolean generateJava;
@@ -213,12 +214,13 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				res += node.getType().toJavaSyntax();
 
 			if (inputSize > 1) {
-				String type = convertTypeForList((String) current.getNodeType());
-				String getter = "(" + type + ") " + listName + ".get(" + i + ")";
+				String type = (String) current.getNodeType();
+				//String type = convertTypeForList((String) current.getNodeType());
+				String getter = "(" + convertTypeForList(type) + ") " + listName + ".get(" + i + ")";
 				if (type.equals("num") || type.equals("bool") || type.equals("text"))
 					res += getter;
 				else if (type.equals("num[]") || type.equals("bool[]") || type.equals("text[]"))
-					res += "new ArrayList<" + type + ">(" + getter + ")";
+					res += "new " + convertTypeForList(type) + "(" + getter + ")";
 				else if (type.endsWith("[]")) {
 					String actualType = type.substring(0, type.length()-2);
 					res += "new ArrayList<" + convertTypeForList(actualType) + ">();\n";
@@ -234,6 +236,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 					res += "new " + type + "(" + getter + ")";
 			}
 			else if (useSetter) {
+				lastIdentIndex = castIndex(indexToCast);
 				switch(node.getType()) {
 				case basic:
 					res += ".set(" + lastIdentIndex + ", " + exprRes + ")";
@@ -258,11 +261,12 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				}
 			}	
 			else {
-				String type = convertTypeForList((String) current.getNodeType());
+				String type = (String) current.getNodeType();
+				//String convertedType = convertTypeForList((String) current.getNodeType());
 				if (type.equals("num") || type.equals("bool") || type.equals("text"))
 					res += exprRes;
 				else if (type.equals("num[]") || type.equals("bool[]") || type.equals("text[]"))
-					res += "new ArrayList<" + type + ">(" + exprRes + ")";
+					res += "new " + convertTypeForList(type) + "(" + exprRes + ")";
 				else if (type.endsWith("[]")) {
 					String actualType = type.substring(0, type.length()-2);
 					res += "new ArrayList<" + convertTypeForList(actualType) + ">();\n";
@@ -274,8 +278,9 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 					res += ident + ".add(new " + actualType + "(t))";
 					--indentationLevel;
 				}
-				else 
-					res += "new " + type + "(" + exprRes + ")";
+				else {
+					System.out.println(node.getVariables().get(0).getClass().toString());
+					res += "new " + type + "(" + exprRes + ")"; }
 			}
 
 			if (i < inputSize-1) {
@@ -312,13 +317,18 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			res = node.getIdent();
 		ExpressionNode index = node.getIndex();
 		if (node.getIndex() != null) {
-			if (lastBaseIdent && assigning) {
-				System.out.println(node.getIdent());
+			if (lastBaseIdent && assigning && !isCastingIndex) {
 				lastIdentIsArrayEntry = true;
-				lastIdentIndex = castIndex(index);
+				indexToCast = index;
 			}
-			else
+			else {
 				res += ".get(" + castIndex(index) + ")";
+				if (node.getNodeType() != null) {
+					if (((String) node.getNodeType()).equals("num"))
+						res += ".doubleValue()";
+				}
+					
+			}
 		}
 		return res;
 	}
@@ -579,7 +589,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			res = node.getIdent();
 		else
 			res = "_"+node.getIdent();
-
+		
 		res += "(";
 		List<ExpressionNode> args = node.getArguments();
 		int argsSize = args.size();
@@ -627,7 +637,6 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		String res = "";
 		lastBaseIdent = false;
 		lastIdentIsArrayEntry = false;
-		boolean prevWasColor = false;
 
 		List<BaseIdentNode> idents = node.getIdents();
 		int identsSize = idents.size();
@@ -798,7 +807,6 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		RobotDeclarationNode init = null;
 		RobotDeclarationNode behavior = null;
 		List<DataStructDefinitionNode> defs = new ArrayList<DataStructDefinitionNode>();
-		System.out.println("hejsa");
 		
 		List<DeclarationNode> declarations = node.getDeclarations();
 		for(DeclarationNode dcl : declarations) {
@@ -849,7 +857,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 				// Start creation of file class
 				try (OutputStream out = new BufferedOutputStream(
 						Files.newOutputStream(Paths.get((robotsDir+roboname+"pk/"+roboname + ".java")), CREATE, TRUNCATE_EXISTING))) {
-
+					
 					// Flags for use in code generation
 					initializingRobot = false;
 					creatingStructClass = false;
@@ -1159,8 +1167,9 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			else {
 				res += visit(var);
 				res += " = ";
-				if (inputSize > 1)
+				if (inputSize > 1) {
 					res += "(" + convertTypeForList(var.getType()) + ") _output.get(" + i + ")";
+				}
 				else
 					res += exprRes;
 				if (i < inputSize-1) {
@@ -1216,14 +1225,14 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		return res;
 	}
 
-	private String convertType(String input) {
+	private String convertType(String input) {		
 		switch (input) {
 		case "num":
-			return "Double";
+			return "double";
 		case "text":
 			return "String";
 		case "bool":
-			return "Boolean";
+			return "boolean";
 		default:
 			return input;
 		}
@@ -1262,10 +1271,14 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	}
 
 	private String castIndex(ExpressionNode index) {
+		String res;
+		isCastingIndex = true;
 		if (index instanceof NumLiteralNode) // FIXME An index of 1.5 should probably issue an error rather than being cast to 1
-			return 	Integer.toString(((int) Double.parseDouble((visit(index)))));
+			res = Integer.toString(((int) Double.parseDouble((visit(index)))));
 		else 
-			return "(int) (" + visit(index) + ")";
+			res = "(int) (" + visit(index) + ")";
+		isCastingIndex = false;
+		return res;
 	}
 
 	private String getEventMethodName(String input){

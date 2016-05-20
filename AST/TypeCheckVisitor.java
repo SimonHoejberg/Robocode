@@ -257,6 +257,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				STArrayEntry arrayEntry = (STArrayEntry) entry;
 				type = arrayEntry.getType();
 				if (node.getIndex() != null) {
+					visit(node.getIndex());
 					String str = type.toString();
 					type = str.substring(0,str.length()-2).intern();
 				}
