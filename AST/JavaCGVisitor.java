@@ -32,6 +32,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	private boolean initializingRobot, creatingStructClass, assigning;
 	private boolean outputListSetInScope;
 	private boolean lastBaseIdent, lastIdentIsArrayEntry, isCastingIndex = false;
+	private boolean castToDouble = false;
 	private String lastIdentIndex;
 	private ExpressionNode indexToCast;
 	private boolean usesColors, usesMath, usesArrays, inStructDef = false;
@@ -585,10 +586,13 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 	@Override
 	public String visit(FuncCallNode node) {
 		String res = "";
-		if(inStructDef || RobocodeMethodIdents.contains(node.getIdent()))
-			res = node.getIdent();
+		// Cast if method returns int
+		if (lastBaseIdent && node.getNodeType().equals("num"))
+			castToDouble = true;
+		if (inStructDef || RobocodeMethodIdents.contains(node.getIdent()))
+			res += node.getIdent();
 		else
-			res = "_"+node.getIdent();
+			res += "_"+node.getIdent();
 		
 		res += "(";
 		List<ExpressionNode> args = node.getArguments();
@@ -637,6 +641,7 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 		String res = "";
 		lastBaseIdent = false;
 		lastIdentIsArrayEntry = false;
+		castToDouble = false;
 
 		List<BaseIdentNode> idents = node.getIdents();
 		int identsSize = idents.size();
@@ -685,7 +690,12 @@ public class JavaCGVisitor extends ASTVisitor<String> {
 			if (i < identsSize-1)
 				res += ".";
 		}
-
+		
+		if (castToDouble) {
+			res = "(double) " + res;
+			castToDouble = false;
+		}
+		
 		return res;
 	}
 
