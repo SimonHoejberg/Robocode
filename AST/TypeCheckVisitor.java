@@ -21,6 +21,7 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 	private boolean identHasFuncCall;
 	private boolean inIfForOrWhile;
 	private boolean visitingExpression;
+	private boolean visitingArrayIndex;
 	private String currentStructRefName, currentFuncDclName;
 	final Object 	NUM = "num".intern(),
 					TEXT = "text".intern(),
@@ -257,7 +258,9 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 				STArrayEntry arrayEntry = (STArrayEntry) entry;
 				type = arrayEntry.getType();
 				if (node.getIndex() != null) {
+					visitingArrayIndex = true;
 					visit(node.getIndex());
+					visitingArrayIndex = false;
 					String str = type.toString();
 					type = str.substring(0,str.length()-2).intern();
 				}
@@ -641,7 +644,8 @@ public class TypeCheckVisitor extends ASTVisitor<Object> {
 			if (ident instanceof FuncCallNode){
 				Object temp = visit((FuncCallNode) ident);
 				type = temp;
-				identHasFuncCall = true;
+				if (!visitingArrayIndex)
+					identHasFuncCall = true;
 			}
 			else
 				type = visit(ident);
