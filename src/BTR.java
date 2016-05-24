@@ -8,6 +8,7 @@ import nodes.ProgramNode;
 import org.antlr.v4.runtime.*;
 public class BTR 
 {
+	private Gui gui;
 	
     public static void main( String[] args) throws Exception
     {        
@@ -60,7 +61,7 @@ public class BTR
 		//ParseTree tree = parser.prog(); // begin parsing at rule 'r'
 		//System.out.println(tree.toStringTree(parser)); // print LISP-style tree    
 	}
-	private Gui gui;
+    
 	public void SetGuiPointer(Gui gui){
 		this.gui = gui;
 	}
@@ -76,8 +77,9 @@ public class BTR
 		BTRParser parser = new BTRParser(tokens);
 		parser.addErrorListener(btrError);
 		BTRParser.ProgContext cst = parser.prog();
-		ProgramNode ast = (ProgramNode) new BuildASTVisitor().visitProg(cst);
 		if(!btrError.hasErrors()){
+			ProgramNode ast = (ProgramNode) new BuildASTVisitor().visitProg(cst);
+	
 			TypeCheckVisitor typeCheckVis = new TypeCheckVisitor();
 			typeCheckVis.addFuncDcls(ast);
 			typeCheckVis.visit(ast);
